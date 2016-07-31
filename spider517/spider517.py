@@ -8,7 +8,6 @@ copyright:
 """
 from flask import Flask
 from flask import render_template
-import queue
 
 from lab517 import URL
 from lab517 import is_login
@@ -18,8 +17,6 @@ from lab517 import Module
 from lab517 import Subject
 
 app = Flask(__name__)
-jobs = queue.Queue()
-results = queue.Queue()
 forum = Lab517()
 
 

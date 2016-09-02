@@ -26,23 +26,16 @@ public:
 	}
 	SockAddress getpeername() const;
 	SockAddress getsockname() const;
-	int gettimeout() const {
-		return timeout_; 
-	}
 	bool listen(int backlog=5);
-	size_t recv(char *buff, size_t max_len);
+	ssize_t recv(char *buff, size_t max_len);
 	ssize_t send(const char *data, size_t len);
 	void sendall(const char *data, size_t len);	
-	void setblocking(bool flag);
-	void settimeout(int timeout);
+	void setblocking(bool block);
 	void shutdownread();
 	void shutdownwrite();
 
 private:
-	void setsockfd(int fd);
-
 	int sockfd_;
-	int timeout_;
 };
 
 #endif

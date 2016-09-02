@@ -1,16 +1,19 @@
 #include "Socket.h"
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #include "SockAddress.h"
 
-Socket::Socket() : sockfd_(0), timeout_(0) {
+Socket::Socket() {
 	sockfd_ = ::socket(AF_INET, SOCK_STREAM, 0);
 }
 
-Socket::Socket(int fd) : sockfd_(fd), timeout_(0) {
+Socket::Socket(int fd) : sockfd_(fd) {
 }
 
 Socket::~Socket() {
@@ -56,7 +59,7 @@ bool Socket::listen(int backlog) {
 	return ::listen(sockfd_, backlog) == 0;
 }
 
-size_t Socket::recv(char *buff, size_t max_len) {
+ssize_t Socket::recv(char *buff, size_t max_len) {
 	return ::recv(sockfd_, buff, max_len, 0);
 }
 
@@ -74,11 +77,23 @@ void Socket::sendall(const char *data, size_t len) {
 	}
 }
 
-void Socket::setblocking(bool flag) {
-}
+void Socket::setblocking(bool block) {
+	int flag = fcntl(sockfd_, F_GETFD, 0);
+	if (flag < 0) {
+		perror("fcntl");
+		abort();
+	}
 
-void Socket::settimeout(int timeout) {
-	timeout_ = timeout;
+	if (!block) {
+		flag |= O_NONBLOCK;
+	} else {
+		flag &= ~O_NONBLOCK;
+	}
+
+	if (fcntl(sockfd_, F_SETFD, flag) < 0) {
+		perror("fcntl");
+		abort();
+	}
 }
 
 void Socket::shutdownread() {

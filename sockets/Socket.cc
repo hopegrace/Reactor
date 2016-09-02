@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#include "SockAddress.h"
+#include "InetAddress.h"
 
 Socket::Socket() {
 	sockfd_ = ::socket(AF_INET, SOCK_STREAM, 0);
@@ -20,43 +20,54 @@ Socket::~Socket() {
 	::close(sockfd_);
 }
 
-Socket Socket::accept() {
+int Socket::accept(InetAddress *peer) {
 	struct sockaddr_in peeraddr;
 	socklen_t socklen = sizeof(peeraddr);
 	int fd = ::accept(sockfd_, reinterpret_cast<struct sockaddr*>(&peeraddr), &socklen);
-	return Socket(fd);
+	if (fd >= 0 && peer) {
+		peer->set_address(peeraddr);
+	}
+	return fd;
 }
 
-bool Socket::bind(const SockAddress &address) {
+void Socket::bind(const InetAddress &address) {
 	struct sockaddr_in sockaddr = address.sockaddr();
-	return ::bind(sockfd_, reinterpret_cast<struct sockaddr*>(&sockaddr), sizeof(sockaddr)) == 0;
+	int ret = ::bind(sockfd_, reinterpret_cast<struct sockaddr*>(&sockaddr), sizeof(sockaddr));
+	if (ret < 0) {
+		perror("bind");
+		abort();
+	}
 }
 
 void Socket::close() {
 	::close(sockfd_);
 }
 
-int Socket::connect(const SockAddress &address) {
+int Socket::connect(const InetAddress &address) {
 	struct sockaddr_in sockaddr = address.sockaddr();
 	return ::connect(sockfd_, reinterpret_cast<struct sockaddr*>(&sockaddr), sizeof(sockaddr));
 }
 
-SockAddress Socket::getpeername() const {
+InetAddress Socket::getpeername() const {
 	struct sockaddr_in sockaddr;
 	socklen_t socklen = sizeof sockaddr;
 	::getpeername(sockfd_, reinterpret_cast<struct sockaddr*>(&sockaddr), &socklen);
-	return SockAddress(sockaddr);
+	return InetAddress(sockaddr);
 }
 
-SockAddress Socket::getsockname() const {
+InetAddress Socket::getsockname() const {
 	struct sockaddr_in sockaddr;
 	socklen_t socklen = sizeof sockaddr;
 	::getsockname(sockfd_, reinterpret_cast<struct sockaddr*>(&sockaddr), &socklen);
-	return SockAddress(sockaddr);
+	return InetAddress(sockaddr);
 }
 
-bool Socket::listen(int backlog) {
-	return ::listen(sockfd_, backlog) == 0;
+void Socket::listen(int backlog) {
+	int ret = ::listen(sockfd_, backlog);
+	if (ret < 0) {
+		perror("listen");
+		abort();
+	}
 }
 
 ssize_t Socket::recv(char *buff, size_t max_len) {

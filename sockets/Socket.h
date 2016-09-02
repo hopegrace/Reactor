@@ -4,12 +4,13 @@
 #include <string>
 #include <sys/types.h>
 
-class SockAddress;
+class InetAddress;
 
 class Socket {
 public:
 	typedef std::string string_t;
 
+	/// will create a socket 
 	Socket();
 	Socket(int fd);
 	~Socket();
@@ -17,16 +18,18 @@ public:
 	Socket(const Socket &) = default;
 	Socket & operator=(const Socket &) = default;
 
-	Socket accept();
-	bool bind(const SockAddress &addr);
+	int accept(InetAddress *peer);
+	/// abort if error
+	void bind(const InetAddress &addr);
 	void close();
-	int connect(const SockAddress &addr);
-	int fileno() const { 
+	int connect(const InetAddress &addr);
+	int fd() const { 
 		return sockfd_; 
 	}
-	SockAddress getpeername() const;
-	SockAddress getsockname() const;
-	bool listen(int backlog=5);
+	InetAddress getpeername() const;
+	InetAddress getsockname() const;
+	/// abort if error
+	void listen(int backlog=5);
 	ssize_t recv(char *buff, size_t max_len);
 	ssize_t send(const char *data, size_t len);
 	void sendall(const char *data, size_t len);	

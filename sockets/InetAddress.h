@@ -7,16 +7,16 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-class SockAddress {
+class InetAddress {
 public:
 	typedef std::string string_t;
 
-	SockAddress();
-	SockAddress(const string_t &host, uint16_t port);
-	SockAddress(const struct sockaddr_in &sockaddr);
+	InetAddress();
+	InetAddress(const string_t &host, uint16_t port);
+	InetAddress(const struct sockaddr_in &sockaddr);
 
-	SockAddress(const SockAddress &) = default;
-	SockAddress & operator=(const SockAddress &) = default;
+	InetAddress(const InetAddress &) = default;
+	InetAddress & operator=(const InetAddress &) = default;
 
 	bool valid() const { return valid_; }
 	
@@ -34,6 +34,6 @@ private:
 	string_t host_;
 	uint16_t port_;
 	struct sockaddr_in sockaddr_;
-}; // class SockAddress
+}; // class InetAddress
 
 #endif

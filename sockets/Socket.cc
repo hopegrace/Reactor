@@ -4,11 +4,13 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-namespace socket
-{
+#include "SockAddress.h"
 
-Socket::Socket() {
+Socket::Socket() : sockfd_(0), timeout_(0) {
 	sockfd_ = ::socket(AF_INET, SOCK_STREAM, 0);
+}
+
+Socket::Socket(int fd) : sockfd_(fd), timeout_(0) {
 }
 
 Socket::~Socket() {
@@ -16,15 +18,15 @@ Socket::~Socket() {
 }
 
 Socket Socket::accept() {
-	Socket client;
-	struct sockaddr peeraddr;
-	client.sockfd_ = ::accept(sockfd_, &peeraddr, sizeof(peeraddr));
-	return client;
+	struct sockaddr_in peeraddr;
+	socklen_t socklen = sizeof(peeraddr);
+	int fd = ::accept(sockfd_, reinterpret_cast<struct sockaddr*>(&peeraddr), &socklen);
+	return Socket(fd);
 }
 
-int Socket::bind(const SockAddress &address) {
+bool Socket::bind(const SockAddress &address) {
 	struct sockaddr_in sockaddr = address.sockaddr();
-	return ::bind(sockfd_, reinterpret_cast<struct sockaddr*>(&sockaddr), sizeof(sockaddr));
+	return ::bind(sockfd_, reinterpret_cast<struct sockaddr*>(&sockaddr), sizeof(sockaddr)) == 0;
 }
 
 void Socket::close() {
@@ -36,28 +38,22 @@ int Socket::connect(const SockAddress &address) {
 	return ::connect(sockfd_, reinterpret_cast<struct sockaddr*>(&sockaddr), sizeof(sockaddr));
 }
 
-Socket Socket::dup() {
-	Socket ret;
-	ret.sockfd_ = sockfd_;
-	ret.timeout_ = timeout_;
-	return ret;
-}
-
-
 SockAddress Socket::getpeername() const {
 	struct sockaddr_in sockaddr;
-	::getpeername(sockfd_, reinterpret_cast<struct sockaddr*>(&sockaddr), sizeof(sockaddr));
+	socklen_t socklen = sizeof sockaddr;
+	::getpeername(sockfd_, reinterpret_cast<struct sockaddr*>(&sockaddr), &socklen);
 	return SockAddress(sockaddr);
 }
 
 SockAddress Socket::getsockname() const {
 	struct sockaddr_in sockaddr;
-	::getsockname(sockfd_, reinterpret_cast<struct sockaddr*>(&sockaddr), sizeof(sockaddr));
+	socklen_t socklen = sizeof sockaddr;
+	::getsockname(sockfd_, reinterpret_cast<struct sockaddr*>(&sockaddr), &socklen);
 	return SockAddress(sockaddr);
 }
 
-int Socket::listen(int backlog) {
-	return ::listen(sockfd_, backlog);
+bool Socket::listen(int backlog) {
+	return ::listen(sockfd_, backlog) == 0;
 }
 
 size_t Socket::recv(char *buff, size_t max_len) {
@@ -92,5 +88,3 @@ void Socket::shutdownread() {
 void Socket::shutdownwrite() {
 	::shutdown(sockfd_, SHUT_WR);
 }
-
-} // namespace socket

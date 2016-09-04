@@ -6,3 +6,7 @@
 	requests
 	beautifulsoup4
 	Flask
+
++ net
+	网络编程相关
+	Linux socket API的简单封装

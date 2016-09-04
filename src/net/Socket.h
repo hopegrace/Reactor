@@ -18,9 +18,6 @@ public:
 	Socket(int fd);
 	~Socket();
 
-	Socket(const Socket &) = default;
-	Socket & operator=(const Socket &) = default;
-
 	int accept(InetAddress *peer);
 	/// abort if error
 	void bind(const InetAddress &addr);

@@ -18,9 +18,6 @@ public:
 	InetAddress(const string_t &host, uint16_t port);
 	InetAddress(const struct sockaddr_in &sockaddr);
 
-	InetAddress(const InetAddress &) = default;
-	InetAddress & operator=(const InetAddress &) = default;
-
 	bool valid() const { return valid_; }
 	
 	string_t host() const { return host_; }

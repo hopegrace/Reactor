@@ -2,6 +2,9 @@
 #include <strings.h>
 #include <arpa/inet.h>
 
+namespace sduzh {
+namespace net {
+
 typedef InetAddress::string_t string_t;
 
 InetAddress::InetAddress(): valid_(false), host_(), port_() {
@@ -47,4 +50,7 @@ bool InetAddress::set_address(struct sockaddr_in addr) {
 	}
 	return valid_;
 }
+
+} // namespace net
+} // namespace sduzh
 

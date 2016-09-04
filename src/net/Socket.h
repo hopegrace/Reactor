@@ -4,6 +4,9 @@
 #include <string>
 #include <sys/types.h>
 
+namespace sduzh {
+namespace net {
+
 class InetAddress;
 
 class Socket {
@@ -40,5 +43,8 @@ public:
 private:
 	int sockfd_;
 };
+
+} // namespace net
+} // namespace sduzh
 
 #endif

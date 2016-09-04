@@ -1,11 +1,14 @@
-#ifndef SDUZH_TOOLS_SOCK_ADDRESS_H
-#define SDUZH_TOOLS_SOCK_ADDRESS_H 
+#ifndef SDUZH_NET_INET_ADDRESS_H
+#define SDUZH_NET_INET_ADDRESS_H 
 
 #include <stdint.h>
 #include <string>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+
+namespace sduzh {
+namespace net {
 
 class InetAddress {
 public:
@@ -35,5 +38,8 @@ private:
 	uint16_t port_;
 	struct sockaddr_in sockaddr_;
 }; // class InetAddress
+
+} // namespace net
+} // namespace sduzh
 
 #endif

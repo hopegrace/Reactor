@@ -9,6 +9,9 @@
 
 #include "InetAddress.h"
 
+namespace sduzh {
+namespace net {
+
 Socket::Socket() {
 	sockfd_ = ::socket(AF_INET, SOCK_STREAM, 0);
 }
@@ -114,3 +117,6 @@ void Socket::shutdownread() {
 void Socket::shutdownwrite() {
 	::shutdown(sockfd_, SHUT_WR);
 }
+
+} // namespace net
+} // namespace sduzh

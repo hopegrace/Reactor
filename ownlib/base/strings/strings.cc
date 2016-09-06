@@ -12,7 +12,7 @@ namespace strings {
 std::string lower(const std::string &s) {
 	std::string l(s);
 	for (size_t i=0, sz=l.size(); i < sz; i++) {
-		l[i] = tolower(l[i]);
+		l[i] = static_cast<char>(tolower(l[i]));
 	}
 	return l;
 }
@@ -20,7 +20,7 @@ std::string lower(const std::string &s) {
 std::string upper(const std::string &s) {
 	std::string u(s);
 	for (size_t i=0, sz=u.size(); i < sz; i++) {
-		u[i] = toupper(u[i]);
+		u[i] = static_cast<char>(toupper(u[i]));
 	}
 	return u;
 }
@@ -77,7 +77,7 @@ StringList split(const std::string &s, char sp) {
 int to_int(const string &s, bool *ok) {
 	string tmp = rstrip(s);
 	char *end;
-	int n = strtol(tmp.c_str(), &end, 0);
+	int n = static_cast<int>(strtol(tmp.c_str(), &end, 0));
 	if (ok) {
 		*ok = (*end != '\0') ? false : 
 				tmp.empty() ? false : true;;
@@ -88,7 +88,7 @@ int to_int(const string &s, bool *ok) {
 unsigned int to_uint(const string &s, bool *ok) {
 	string tmp = rstrip(s);
 	char *end;
-	unsigned int n = strtoul(tmp.c_str(), &end, 0);
+	unsigned int n = static_cast<unsigned int>(strtoul(tmp.c_str(), &end, 0));
 	if (ok) {
 		*ok = (*end != '\0') ? false :
 				tmp.empty() ? false : 
@@ -111,7 +111,7 @@ float to_float(const string &s, bool *ok) {
 double to_double(const string &s, bool *ok) {
 	string tmp = rstrip(s);
 	char *end;
-	float f = strtod(tmp.c_str(), &end);
+	float f = static_cast<float>(strtod(tmp.c_str(), &end));
 	if (ok) {
 		*ok = (*end != '\0') ? false: 
 				tmp.empty() ? false : true;

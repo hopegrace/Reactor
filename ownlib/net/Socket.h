@@ -18,6 +18,9 @@ public:
 	Socket(int fd);
 	~Socket();
 
+	Socket(const Socket &) = delete;
+	Socket & operator = (const Socket &) = delete;
+
 	int accept(InetAddress *peer);
 	/// abort if error
 	void bind(const InetAddress &addr);
@@ -33,9 +36,14 @@ public:
 	ssize_t recv(char *buff, size_t max_len);
 	ssize_t send(const char *data, size_t len);
 	void sendall(const char *data, size_t len);	
-	void setblocking(bool block);
 	void shutdownread();
 	void shutdownwrite();
+
+	/// abort if failed
+	void set_blocking(bool block);
+	void set_reuse_addr(bool on);
+	void set_reuse_port(bool on);
+	void set_keep_alive(bool on);
 
 private:
 	int sockfd_;

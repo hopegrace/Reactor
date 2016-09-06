@@ -1,7 +1,7 @@
 #include <string>
 
 #include <gtest/gtest.h>
-#include <base/strings/strings.h>
+#include <ownlib/base/strings/strings.h>
 
 using namespace std;
 using namespace sduzh::base::strings;
@@ -65,7 +65,7 @@ TEST_F(StringsTest, rstrip) {
 }
 
 TEST_F(StringsTest, strip) {
-	string s = "sduzh";
+	s = "sduzh";
 	strip(&s);
 	EXPECT_EQ(s, "sduzh");
 	EXPECT_EQ(strip("sduzh"), "sduzh");
@@ -136,7 +136,7 @@ TEST_F(StringsTest, to_uint) {
 	EXPECT_FALSE(ok);
 
 	val = to_uint(" 0 ", &ok);
-	EXPECT_EQ(val, 0);
+	EXPECT_EQ(val, static_cast<unsigned int>(0));
 	EXPECT_TRUE(ok);
 
 	val = to_uint(" 4294967295 ", &ok);
@@ -152,15 +152,15 @@ TEST_F(StringsTest, to_float) {
 	EXPECT_FALSE(ok);
 
 	val = to_float(" 0.123 ", &ok);
-	EXPECT_FLOAT_EQ(val, 0.123);
+	EXPECT_FLOAT_EQ(val,static_cast<float>( 0.123));
 	EXPECT_TRUE(ok);
 
 	val = to_float("-1.234", &ok);
-	EXPECT_FLOAT_EQ(val, -1.234);
+	EXPECT_FLOAT_EQ(val, static_cast<float>(-1.234));
 	EXPECT_TRUE(ok);
 
 	val = to_float("100", &ok);
-	EXPECT_FLOAT_EQ(val, 100);
+	EXPECT_FLOAT_EQ(val, static_cast<float>(100));
 	EXPECT_TRUE(ok);
 }
 
@@ -174,19 +174,19 @@ TEST_F(StringsTest, split) {
 	EXPECT_TRUE(words.empty());
 
 	words = split(" one two  three");
-	EXPECT_EQ(words.size(), 3);
+	EXPECT_EQ(words.size(), static_cast<size_t>(3));
 	EXPECT_EQ(words[0], "one");
 	EXPECT_EQ(words[1], "two");
 	EXPECT_EQ(words[2], "three");
 
 	words = split("\none\ntwo\nthree", '\n');
-	EXPECT_EQ(words.size(), 3);
+	EXPECT_EQ(words.size(), static_cast<size_t>(3));
 	EXPECT_EQ(words[0], "one");
 	EXPECT_EQ(words[1], "two");
 	EXPECT_EQ(words[2], "three");
 
 	words = split("one two;three", ';');
-	EXPECT_EQ(words.size(), 2);
+	EXPECT_EQ(words.size(), static_cast<size_t>(2));
 	EXPECT_EQ(words[0], "one two");
 	EXPECT_EQ(words[1], "three");
 }

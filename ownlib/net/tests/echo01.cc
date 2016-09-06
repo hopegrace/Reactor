@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <libgen.h>
-#include <net/Socket.h>
-#include <net/InetAddress.h>
+#include <ownlib/net/Socket.h>
+#include <ownlib/net/InetAddress.h>
 
 using namespace sduzh::net;
 
@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 	Socket server;
 	assert(server.fd() >= 0);
 
-	server.bind(InetAddress("0.0.0.0", port));
+	server.bind(InetAddress("0.0.0.0", static_cast<uint16_t>(port)));
 	server.listen(5);
 	InetAddress peer_addr;
 	int fd = server.accept(&peer_addr);

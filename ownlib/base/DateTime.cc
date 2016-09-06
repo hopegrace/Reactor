@@ -50,14 +50,14 @@ DateTime DateTime::current()
 {
     struct timeval curr;
     ::gettimeofday(&curr, NULL);
-    return DateTime(curr.tv_sec, curr.tv_usec);
+    return DateTime(curr.tv_sec, static_cast<int>(curr.tv_usec));
 }
 
 DateTime DateTime::add_time(const DateTime &add)
 {
    size_t ms = micro_seconds_ + add.micro_seconds_;
    time_t s = seconds_ + add.seconds_;
-   return DateTime(s + ms/kMicroSecondsPerSecond, ms%kMicroSecondsPerSecond);
+   return DateTime(s + ms/kMicroSecondsPerSecond, static_cast<int>(ms % kMicroSecondsPerSecond));
 }
 
 } // namespace base

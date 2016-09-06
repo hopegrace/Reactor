@@ -91,7 +91,15 @@ void Socket::sendall(const char *data, size_t len) {
 	}
 }
 
-void Socket::setblocking(bool block) {
+void Socket::shutdownread() {
+	::shutdown(sockfd_, SHUT_RD);
+}
+
+void Socket::shutdownwrite() {
+	::shutdown(sockfd_, SHUT_WR);
+}
+
+void Socket::set_blocking(bool block) {
 	int flag = fcntl(sockfd_, F_GETFD, 0);
 	if (flag < 0) {
 		perror("fcntl");
@@ -110,12 +118,30 @@ void Socket::setblocking(bool block) {
 	}
 }
 
-void Socket::shutdownread() {
-	::shutdown(sockfd_, SHUT_RD);
+void Socket::set_reuse_addr(bool on) {
+  int optval = on ? 1 : 0;
+  ::setsockopt(sockfd_, SOL_SOCKET, SO_REUSEADDR,
+               &optval, static_cast<socklen_t>(sizeof optval));
+  // FIXME CHECK
 }
 
-void Socket::shutdownwrite() {
-	::shutdown(sockfd_, SHUT_WR);
+void Socket::set_reuse_port(bool on) {
+#ifdef SO_REUSEPORT
+  int optval = on ? 1 : 0;
+  int ret = ::setsockopt(sockfd_, SOL_SOCKET, SO_REUSEPORT,
+                         &optval, static_cast<socklen_t>(sizeof optval));
+  if (ret < 0 && on)
+  {
+    fprintf(stderr, "SO_REUSEPORT failed\n");
+  }
+#endif
+}
+
+void Socket::set_keep_alive(bool on) {
+  int optval = on ? 1 : 0;
+  ::setsockopt(sockfd_, SOL_SOCKET, SO_KEEPALIVE,
+               &optval, static_cast<socklen_t>(sizeof optval));
+  // FIXME CHECK
 }
 
 } // namespace net

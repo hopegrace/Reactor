@@ -103,7 +103,7 @@ void Select::set_exceptset(const FdSet &xlist) {
 int Select::select(EventList *events, int timeout_ms) {
 	int ret = 0;
 	int nfds = 1 + detail::max_int_three(max_xfd_, max_rfd_, max_wfd_);
-	// copy fdset, may affect performance
+
 	fd_set readfds = readfds_;
 	fd_set writefds = writefds_;
 	fd_set exceptfds = exceptfds_;
@@ -142,9 +142,7 @@ int Select::select(EventList *events, int timeout_ms) {
 					break;
 			}
 		}
-	} else if (num_event == 0) {
-		printf("select timeout\n");
-	} else {
+	} else if (num_event < 0) {
 		perror("select");
 	}
 	return num_event;

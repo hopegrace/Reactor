@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -14,6 +15,9 @@ namespace net {
 
 Socket::Socket() {
 	sockfd_ = ::socket(AF_INET, SOCK_STREAM, 0);
+	if (sockfd_ < 0) {
+		perror("socket");
+	}
 }
 
 Socket::Socket(int fd) : sockfd_(fd) {
@@ -77,8 +81,24 @@ ssize_t Socket::recv(char *buff, size_t max_len) {
 	return ::recv(sockfd_, buff, max_len, 0);
 }
 
+ssize_t Socket::send(const char *data) {
+	return this->send(data, strlen(data));
+}
+
 ssize_t Socket::send(const char *data, size_t len) {
 	return ::send(sockfd_, data, len, 0);
+}
+
+ssize_t Socket::send(const string_t &data) {
+	return this->send(data.c_str(), data.size());
+}
+
+void Socket::sendall(const char *data) {
+	sendall(data, strlen(data));
+}
+
+void Socket::sendall(const string_t &data) {
+	sendall(data.c_str(), data.size());
 }
 
 void Socket::sendall(const char *data, size_t len) {

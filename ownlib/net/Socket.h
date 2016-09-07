@@ -34,8 +34,13 @@ public:
 	/// abort if error
 	void listen(int backlog=5);
 	ssize_t recv(char *buff, size_t max_len);
+	/// send string 
+	ssize_t send(const char *data);
 	ssize_t send(const char *data, size_t len);
+	ssize_t send(const string_t &data);
+	void sendall(const char *data);
 	void sendall(const char *data, size_t len);	
+	void sendall(const string_t &data);
 	void shutdownread();
 	void shutdownwrite();
 

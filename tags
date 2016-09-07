@@ -4439,16 +4439,19 @@ sequence_created_	build/googletest/gmock/include/gmock/gmock-spec-builders.h	/^ 
 set	build/googletest/gtest/include/gtest/internal/gtest-port.h	/^  void set(const T& value) { *pointer() = value; }$/;"	f	class:testing::internal::ThreadLocal
 set	build/googletest/gtest/include/gtest/internal/gtest-port.h	/^  void set(const T& value) { value_ = value; }$/;"	f	class:testing::internal::ThreadLocal
 set_address	ownlib/net/InetAddress.cc	/^bool InetAddress::set_address(struct sockaddr_in addr) {$/;"	f	class:sduzh::net::InetAddress
+set_blocking	ownlib/net/Socket.cc	/^void Socket::set_blocking(bool block) {$/;"	f	class:sduzh::net::Socket
 set_cardinality	build/googletest/gmock/include/gmock/gmock-spec-builders.h	/^  void set_cardinality(const Cardinality& a_cardinality) {$/;"	f	class:testing::internal::ExpectationBase
 set_elapsed_time	build/googletest/gtest/include/gtest/gtest.h	/^  void set_elapsed_time(TimeInMillis elapsed) { elapsed_time_ = elapsed; }$/;"	f	class:testing::TestResult
 set_exceptset	ownlib/net/Select.cc	/^void Select::set_exceptset(const FdSet &xlist) {$/;"	f	class:sduzh::net::Select
 set_host	ownlib/net/InetAddress.cc	/^bool InetAddress::set_host(const string_t &host) {$/;"	f	class:sduzh::net::InetAddress
+set_keep_alive	ownlib/net/Socket.cc	/^void Socket::set_keep_alive(bool on) {$/;"	f	class:sduzh::net::Socket
 set_port	ownlib/net/InetAddress.cc	/^bool InetAddress::set_port(uint16_t port) {$/;"	f	class:sduzh::net::InetAddress
 set_readset	ownlib/net/Select.cc	/^void Select::set_readset(const FdSet &rlist) {$/;"	f	class:sduzh::net::Select
+set_reuse_addr	ownlib/net/Socket.cc	/^void Socket::set_reuse_addr(bool on) {$/;"	f	class:sduzh::net::Socket
+set_reuse_port	ownlib/net/Socket.cc	/^void Socket::set_reuse_port(bool on) {$/;"	f	class:sduzh::net::Socket
 set_should_run	build/googletest/gtest/include/gtest/gtest.h	/^  void set_should_run(bool should) { should_run_ = should; }$/;"	f	class:testing::TestCase
 set_up_tc_	build/googletest/gtest/include/gtest/gtest.h	/^  Test::SetUpTestCaseFunc set_up_tc_;$/;"	m	class:testing::TestCase
 set_writeset	ownlib/net/Select.cc	/^void Select::set_writeset(const FdSet &wlist) {$/;"	f	class:sduzh::net::Select
-setblocking	ownlib/net/Socket.cc	/^void Socket::setblocking(bool block) {$/;"	f	class:sduzh::net::Socket
 severity_	build/googletest/gtest/include/gtest/internal/gtest-port.h	/^  const GTestLogSeverity severity_;$/;"	m	class:testing::internal::GTestLog
 should_run	build/googletest/gtest/include/gtest/gtest.h	/^  bool should_run() const { return should_run_; }$/;"	f	class:testing::TestCase
 should_run	build/googletest/gtest/include/gtest/gtest.h	/^  bool should_run() const { return should_run_; }$/;"	f	class:testing::TestInfo

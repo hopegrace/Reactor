@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <stdio.h>
 #include "Select.h"
 #include <map>
@@ -35,7 +36,7 @@ void Select::remove_event(int fd) {
 }
 
 int Select::select(EventList *events, int timeout_ms) {
-	int ret = 0;
+	int num_event = 0;
 
 	fd_set readfds = readfds_;
 	fd_set writefds = writefds_;
@@ -44,19 +45,18 @@ int Select::select(EventList *events, int timeout_ms) {
 	events->clear();
 
 	if (timeout_ms < 0) {
-		ret = ::select(1 + maxfd_, &readfds, &writefds, &exceptfds, 0); 
+		num_event = ::select(1 + maxfd_, &readfds, &writefds, &exceptfds, 0); 
 	} else {
 		struct timeval tv;
 		tv.tv_sec = timeout_ms / 1000;
 		tv.tv_usec = timeout_ms % 1000;
-		ret = ::select(1 + maxfd_, &readfds, &writefds, &exceptfds, &tv);
+		num_event = ::select(1 + maxfd_, &readfds, &writefds, &exceptfds, &tv);
 	}
 
-	int num_event = ret;
+	int savederrno = errno;
 	if (num_event > 0 && events) {
-		std::map<int, SelectEvent> file_event;
 		for (int fd = 0; fd <= maxfd_; fd++) {
-			SelectEvent event = file_event[fd]; 
+			SelectEvent event;
 			event.fd = fd;
 
 			if (FD_ISSET(fd, &readfds)) {
@@ -76,7 +76,12 @@ int Select::select(EventList *events, int timeout_ms) {
 			}
 		}
 	} else if (num_event < 0) {
-		perror("select");
+		if (savederrno != EINTR) {
+			errno = savederrno;
+			perror("Select::select");
+		}
+	} else {
+		/**/
 	}
 	return num_event;
 }

@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.6)
 
 project(OwnLib C CXX)
 
+find_package(Threads REQUIRED)
+
 enable_testing()
 
 if (NOT CMAKE_BUILD_TYPE)
@@ -26,24 +28,22 @@ set(CXX_FLAGS
  -march=native
  -rdynamic
  -std=c++11
+ -pthread
  )
 
 string(REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
 
-set(CMAKE_CXX_COMPILER "g++")
 set(CMAKE_CXX_FLAGS_DEBUG  "-O0")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2 -finline-limit=1000 -DNDEBUG")
+
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
-set(GOOGLE_TEST_ROOT ${PROJECT_BINARY_DIR}/googletest)
+set(EXT_PROJECT_DIR ${PROJECT_SOURCE_DIR}/ext)
+add_subdirectory(${EXT_PROJECT_DIR}/googletest)
 
-include_directories(${PROJECT_SOURCE_DIR})
-include_directories(${GOOGLE_TEST_ROOT}/gtest/include)
-include_directories(${GOOGLE_TEST_ROOT}/gmock/include)
-link_directories(${GOOGLE_TEST_ROOT}/gtest)
-link_directories(${GOOGLE_TEST_ROOT}/gmock)
-link_directories(${PROJECT_BINARY_DIR}/lib)
+include_directories(${PROJECT_SOURCE_DIR} ${GTEST_INCLUDE_DIRS})
+link_directories(${PROJECT_BINARY_DIR}/lib ${GTEST_LIBS_DIR})
 
 string(TOUPPER ${CMAKE_BUILD_TYPE} BUILD_TYPE)
 

@@ -32,8 +32,8 @@ int main(int argc, char *argv[])
 	}
 
 	Select poller;
-	poller.add_readfd(STDIN_FILENO);
-	poller.add_readfd(conn.fd());
+	poller.update_event(STDIN_FILENO, EVENT_READABLE);
+	poller.update_event(conn.fd(), EVENT_READABLE);
 
 	for (;;) {
 		std::vector<SelectEvent> events;
@@ -54,7 +54,8 @@ int main(int argc, char *argv[])
 			ssize_t nread = conn.recv(buffer, sizeof buffer);
 			if (nread <= 0) 
 				break;
-			write(STDOUT_FILENO, buffer, nread);
+			ssize_t nw = write(STDOUT_FILENO, buffer, nread);
+			static_cast<void>(nw);
 		}
 	}
 

@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
 	server.bind(InetAddress("0.0.0.0", static_cast<uint16_t>(port)));
 	server.listen(5);
 	
-	selector.add_readfd(server.fd());
+	selector.update_event(server.fd(), EVENT_READABLE);
 
 	for (;;) {
 		std::vector<SelectEvent> events;
@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
 				clients[client_fd]->set_blocking(false);
 				clients[client_fd]->sendall("Welcome!\n");
 
-				selector.add_readfd(client_fd);
+				selector.update_event(client_fd, EVENT_READABLE);
 			} else {
 				assert(clients.find(fd) != clients.end());
 				Socket *client = clients[fd];
@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
 					printf("[%s]%s:%d disconnected\n", now.to_string().c_str(), peer.host().c_str(), peer.port());
 					delete clients[fd];
 					clients.erase(fd);
-					selector.remove_readfd(fd);
+					selector.remove_event(fd);
 				} else {
 					for (auto it = clients.begin(); it != clients.end(); ++it) {
 						if (it->second == client)

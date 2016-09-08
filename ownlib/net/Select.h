@@ -9,16 +9,9 @@
 namespace sduzh {
 namespace net {
 
-struct SelectEvent {
-	int fd;
-	int events;
-
-	SelectEvent(): fd(-1), events(EVENT_NONE) {}
-};
-
 class Select {
 public:
-	typedef std::vector<SelectEvent> EventList;
+	typedef std::vector<PollEvent> EventList;
 
 	Select();
 

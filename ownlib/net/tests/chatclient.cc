@@ -36,13 +36,13 @@ int main(int argc, char *argv[])
 	poller.update_event(conn.fd(), EVENT_READABLE);
 
 	for (;;) {
-		std::vector<SelectEvent> events;
+		std::vector<PollEvent> events;
 		int nevent = poller.select(&events);
 		if (nevent <= 0) 
 			break;
 
 		char buffer[1024];
-		SelectEvent event = events[0];
+		PollEvent event = events[0];
 		if (event.fd == STDIN_FILENO) {
 			ssize_t nread = read(STDIN_FILENO, buffer, sizeof(buffer) - 1);
 			if (nread <= 0) 

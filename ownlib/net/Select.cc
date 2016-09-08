@@ -56,7 +56,7 @@ int Select::select(EventList *events, int timeout_ms) {
 	int savederrno = errno;
 	if (num_event > 0 && events) {
 		for (int fd = 0; fd <= maxfd_; fd++) {
-			SelectEvent event;
+			PollEvent event;
 			event.fd = fd;
 
 			if (FD_ISSET(fd, &readfds)) {

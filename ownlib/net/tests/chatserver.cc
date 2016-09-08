@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
 	selector.update_event(server.fd(), EVENT_READABLE);
 
 	for (;;) {
-		std::vector<SelectEvent> events;
+		std::vector<PollEvent> events;
 		int nevents = selector.select(&events);
 
 		if (nevents < 0) {
@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
 
 		assert(nevents == static_cast<int>(events.size()));
 		for (int i = 0; i < nevents; i++) {
-			SelectEvent event = events[i];
+			PollEvent event = events[i];
 			int fd = event.fd;
 			assert(event.events & EVENT_READABLE);
 			if (fd == server.fd()) {

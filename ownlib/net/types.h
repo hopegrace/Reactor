@@ -12,6 +12,9 @@ namespace net {
 struct PollEvent {
 	int fd;
 	short events;
+
+	PollEvent(): fd(-1), events(EVENT_NONE) {
+	}
 }; 
 
 } // namespace net

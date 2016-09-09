@@ -4,6 +4,8 @@
 namespace sduzh {
 namespace net {
 
+#define OVERRIDE override
+
 #define EVENT_NONE       0
 #define EVENT_READABLE   1
 #define EVENT_WRITABLE   2

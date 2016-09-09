@@ -1,18 +1,18 @@
 #include <errno.h>
 #include <stdio.h>
-#include "Select.h"
 #include <map>
+#include "SelectPoller.h"
 
 namespace sduzh {
 namespace net {
 
-Select::Select(): maxfd_(-1) {
+SelectPoller::SelectPoller(): Poller(), maxfd_(-1) {
 	FD_ZERO(&readfds_);
 	FD_ZERO(&writefds_);
 	FD_ZERO(&exceptfds_);
 }
 
-void Select::update_event(int fd, int events) {
+void SelectPoller::update_event(int fd, int events) {
 	FD_CLR(fd, &readfds_);
 	FD_CLR(fd, &writefds_);
 	FD_CLR(fd, &exceptfds_);
@@ -27,7 +27,7 @@ void Select::update_event(int fd, int events) {
 	if (fd > maxfd_) maxfd_ = fd;
 }
 
-void Select::remove_event(int fd) {
+void SelectPoller::remove_event(int fd) {
 	FD_CLR(fd, &readfds_);
 	FD_CLR(fd, &writefds_);
 	FD_CLR(fd, &exceptfds_);
@@ -35,7 +35,7 @@ void Select::remove_event(int fd) {
 	if (fd == maxfd_) update_maxfd();
 }
 
-int Select::select(EventList *events, int timeout_ms) {
+int SelectPoller::poll(EventList *events, int timeout_ms) {
 	int num_event = 0;
 
 	fd_set readfds = readfds_;
@@ -78,7 +78,7 @@ int Select::select(EventList *events, int timeout_ms) {
 	} else if (num_event < 0) {
 		if (savederrno != EINTR) {
 			errno = savederrno;
-			perror("Select::select");
+			perror("SelectPoller::select");
 		}
 	} else {
 		/**/
@@ -86,7 +86,7 @@ int Select::select(EventList *events, int timeout_ms) {
 	return num_event;
 }
 
-void Select::update_maxfd() {
+void SelectPoller::update_maxfd() {
 	for (int fd = maxfd_; fd >= 0; fd--) {
 		if (FD_ISSET(fd, &readfds_) || FD_ISSET(fd, &writefds_) || 
 				FD_ISSET(fd, &exceptfds_)) {

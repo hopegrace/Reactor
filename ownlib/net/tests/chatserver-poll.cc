@@ -6,8 +6,8 @@
 #include <libgen.h> // basename
 #include <ownlib/base/DateTime.h>
 #include <ownlib/net/InetAddress.h>
+#include <ownlib/net/PollPoller.h>
 #include <ownlib/net/Socket.h>
-#include <ownlib/net/SelectPoller.h>
 
 using namespace std;
 using namespace sduzh::base;
@@ -17,12 +17,12 @@ map<int, Socket*> clients;
 char buffer[1024];
 
 int main(int argc, char *argv[]) {
-	if (argc < 2) {
+	if (argc != 2) {
 		printf("Usage: %s listen port\n", basename(argv[0]));
 		return 1;
 	}
 
-	SelectPoller poller;
+	PollPoller poller;
 
 	int port = atoi(argv[1]);
 	Socket server;

@@ -9,8 +9,8 @@
 #include <fcntl.h>
 #include <ownlib/base/DateTime.h>
 #include <ownlib/net/InetAddress.h>
+#include <ownlib/net/SelectPoller.h>
 #include <ownlib/net/Socket.h>
-#include <ownlib/net/Select.h>
 
 using namespace sduzh::base;
 using namespace sduzh::net;
@@ -31,13 +31,13 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	Select poller;
+	SelectPoller poller;
 	poller.update_event(STDIN_FILENO, EVENT_READABLE);
 	poller.update_event(conn.fd(), EVENT_READABLE);
 
 	for (;;) {
 		std::vector<PollEvent> events;
-		int nevent = poller.select(&events);
+		int nevent = poller.poll(&events);
 		if (nevent <= 0) 
 			break;
 

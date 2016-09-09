@@ -2,8 +2,9 @@
 #define SDUZH_OWNLIB_NET_POLL_POLLER_H
 
 #include <vector>
-#include <map>
+#include <unordered_map>
 #include <poll.h>
+
 #include <ownlib/net/Poller.h>
 
 namespace sduzh {
@@ -11,22 +12,19 @@ namespace net {
 
 class PollPoller : public Poller {
 public:
-	PollPoller(): Poller(), fdindex_(), pollfds_() {
-	}
+	PollPoller();
+	~PollPoller();
 
-	void update_event(int fd, int events) OVERRIDE;
-	void remove_event(int fd) OVERRIDE;
+	void update_channel(Channel *channel) override;
+	void remove_channel(Channel *channel) override;
 
-	int poll(EventList *events, int timeout_ms=-1) OVERRIDE;
+	int poll(ChannelList *active_channels, int timeout_ms=-1) override;
 
 private:
-	/// fd index in pollfd list, -1 if not exists
-	int pollfd_index(int fd);
+	typedef std::unordered_map<int, Channel*> ChannelMap;
+	typedef std::vector<struct pollfd> 		  PollFdList;
 
-	typedef std::vector<struct pollfd> PollFdList;
-	typedef std::map<int, int>         PollFdMap;
-
-	PollFdMap  fdindex_;
+	ChannelMap channels_;
 	PollFdList pollfds_;
 };
 

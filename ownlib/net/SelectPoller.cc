@@ -1,7 +1,10 @@
+#include <assert.h>
 #include <errno.h>
 #include <stdio.h>
 #include <map>
-#include "SelectPoller.h"
+
+#include <ownlib/net/SelectPoller.h>
+#include <ownlib/net/Channel.h>
 
 namespace sduzh {
 namespace net {
@@ -12,7 +15,10 @@ SelectPoller::SelectPoller(): Poller(), maxfd_(-1) {
 	FD_ZERO(&exceptfds_);
 }
 
-void SelectPoller::update_event(int fd, int events) {
+void SelectPoller::update_channel(Channel *channel) {
+	int fd = channel->fd();
+	short events = channel->events();
+
 	FD_CLR(fd, &readfds_);
 	FD_CLR(fd, &writefds_);
 	FD_CLR(fd, &exceptfds_);
@@ -24,25 +30,34 @@ void SelectPoller::update_event(int fd, int events) {
 	if (events & EVENT_ERROR)
 		FD_SET(fd, &exceptfds_);
 
-	if (fd > maxfd_) maxfd_ = fd;
+	if (channels_.find(fd) == channels_.end())  {
+		channels_[fd] = channel;
+		if (fd > maxfd_) maxfd_ = fd;
+	}
 }
 
-void SelectPoller::remove_event(int fd) {
-	FD_CLR(fd, &readfds_);
-	FD_CLR(fd, &writefds_);
-	FD_CLR(fd, &exceptfds_);
+void SelectPoller::remove_channel(Channel *channel) {
+	int fd = channel->fd();
+	auto it = channels_.find(fd);
+	if (it != channels_.end()) {
+		channels_.erase(it);
 
-	if (fd == maxfd_) update_maxfd();
+		FD_CLR(fd, &readfds_);
+		FD_CLR(fd, &writefds_);
+		FD_CLR(fd, &exceptfds_);
+
+		if (fd == maxfd_) update_maxfd();
+	}
 }
 
-int SelectPoller::poll(EventList *events, int timeout_ms) {
+int SelectPoller::poll(ChannelList *active_channels, int timeout_ms) {
 	int num_event = 0;
 
 	fd_set readfds = readfds_;
 	fd_set writefds = writefds_;
 	fd_set exceptfds = exceptfds_;
 
-	events->clear();
+	active_channels->clear();
 
 	if (timeout_ms < 0) {
 		num_event = ::select(1 + maxfd_, &readfds, &writefds, &exceptfds, 0); 
@@ -52,26 +67,26 @@ int SelectPoller::poll(EventList *events, int timeout_ms) {
 		tv.tv_usec = timeout_ms % 1000;
 		num_event = ::select(1 + maxfd_, &readfds, &writefds, &exceptfds, &tv);
 	}
-
+	assert(num_event <= static_cast<int>(channels_.size()));
 	int savederrno = errno;
-	if (num_event > 0 && events) {
+	if (num_event > 0 && active_channels) {
 		for (int fd = 0; fd <= maxfd_; fd++) {
-			PollEvent event;
-			event.fd = fd;
-
+			short revents = EVENT_NONE;
 			if (FD_ISSET(fd, &readfds)) {
-				event.events |= EVENT_READABLE;
+				revents |= EVENT_READABLE;
 			}
 			if (FD_ISSET(fd, &writefds)) {
-				event.events |= EVENT_WRITABLE;
+				revents |= EVENT_WRITABLE;
 			}
 			if (FD_ISSET(fd, &exceptfds)) {
-				event.events |= EVENT_ERROR;
+				revents |= EVENT_ERROR;
 			}
 
-			if (event.events != EVENT_NONE) {
-				events->push_back(event);
-				if (static_cast<int>(events->size()) == num_event)
+			if (revents != EVENT_NONE) {
+				Channel *channel = channels_[fd];
+				channel->set_revents(revents);
+				active_channels->push_back(channel);
+				if (static_cast<int>(active_channels->size()) == num_event)
 					break;
 			}
 		}
@@ -80,9 +95,7 @@ int SelectPoller::poll(EventList *events, int timeout_ms) {
 			errno = savederrno;
 			perror("SelectPoller::select");
 		}
-	} else {
-		/**/
-	}
+	} 	
 	return num_event;
 }
 
@@ -91,6 +104,7 @@ void SelectPoller::update_maxfd() {
 		if (FD_ISSET(fd, &readfds_) || FD_ISSET(fd, &writefds_) || 
 				FD_ISSET(fd, &exceptfds_)) {
 			maxfd_ = fd;
+			assert(channels_.find(fd) != channels_.end());
 			return;
 		}
 	}

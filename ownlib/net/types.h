@@ -12,7 +12,7 @@ namespace net {
 #define EVENT_ERROR      4
 
 struct PollEvent {
-	int fd;
+	int fd; 
 	short events;
 
 	PollEvent(): fd(-1), events(EVENT_NONE) {

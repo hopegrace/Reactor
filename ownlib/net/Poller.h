@@ -7,18 +7,21 @@
 namespace sduzh {
 namespace net {
 
+class Channel;
+
 class Poller {
 public:
-	typedef std::vector<PollEvent> EventList;
+	typedef std::vector<Channel*> ChannelList;
 
 	Poller() {}
 	virtual ~Poller() {}
 
-	virtual void update_event(int fd, int events) = 0;
-	virtual void remove_event(int fd) = 0;
+	/// add or update a channel
+	virtual void update_channel(Channel *channel) = 0;
+	virtual void remove_channel(Channel *channel) = 0;
 
 	/// -1 means infinity
-	virtual int poll(EventList *events, int timeout_ms=-1) = 0;
+	virtual int poll(ChannelList *active_channels, int timeout_ms=-1) = 0;
 };
 
 } // namespace net

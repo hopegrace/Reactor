@@ -5,6 +5,7 @@
 #include <map>
 #include <libgen.h> // basename
 #include <ownlib/base/DateTime.h>
+#include <ownlib/net/EventLoop.h>
 #include <ownlib/net/InetAddress.h>
 #include <ownlib/net/Socket.h>
 #include <ownlib/net/SelectPoller.h>

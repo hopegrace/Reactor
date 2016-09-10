@@ -13,12 +13,14 @@ EventLoop::~EventLoop() {
 }
 
 void EventLoop::loop() {
-	ChannelList active_channels;
+	for (;;) {
+		ChannelList active_channels;
 
-	poller_->poll(&active_channels);
+		poller_->poll(&active_channels);
 
-	for (Channel *channel : active_channels) {
-		channel->process_events();
+		for (Channel *channel : active_channels) {
+			channel->process_events();
+		}
 	}
 }
 

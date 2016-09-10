@@ -20,7 +20,7 @@ public:
 
 	bool valid() const { return valid_; }
 	
-	string_t host() const { return host_; }
+	const char *host() const { return host_.c_str(); }
 	uint16_t port() const { return port_; }
 	const struct sockaddr_in &sockaddr() const { return sockaddr_; }
 

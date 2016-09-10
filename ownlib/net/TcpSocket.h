@@ -1,5 +1,5 @@
-#ifndef SDUZH_TOOLS_SOCKET_H
-#define SDUZH_TOOLS_SOCKET_H
+#ifndef SDUZH_OWNLIB_NET_TCP_SOCKET_H_
+#define SDUZH_OWNLIB_NET_TCP_SOCKET_H
 
 #include <string>
 #include <sys/types.h>
@@ -9,17 +9,17 @@ namespace net {
 
 class InetAddress;
 
-class Socket {
+class TcpSocket {
 public:
 	typedef std::string string_t;
 
 	/// will create a socket 
-	Socket();
-	Socket(int fd);
-	~Socket();
+	TcpSocket();
+	TcpSocket(int fd);
+	~TcpSocket();
 
-	Socket(const Socket &) = delete;
-	Socket & operator = (const Socket &) = delete;
+	TcpSocket(const TcpSocket &) = delete;
+	TcpSocket & operator = (const TcpSocket &) = delete;
 
 	int accept(InetAddress *peer);
 	/// abort if error

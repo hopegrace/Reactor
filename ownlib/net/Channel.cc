@@ -7,7 +7,7 @@ namespace net {
 Channel::Channel(EventLoop *loop, int fd):
 	loop_(loop),
 	fd_(fd),
-	events_(EVENT_NONE),
+	events_(EVENT_READABLE),
 	revents_(EVENT_NONE),
 	index_(-1),
 	read_callback_(),

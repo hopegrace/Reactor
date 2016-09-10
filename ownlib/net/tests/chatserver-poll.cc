@@ -7,13 +7,13 @@
 #include <ownlib/base/DateTime.h>
 #include <ownlib/net/InetAddress.h>
 #include <ownlib/net/PollPoller.h>
-#include <ownlib/net/Socket.h>
+#include <ownlib/net/TcpSocket.h>
 
 using namespace std;
 using namespace sduzh::base;
 using namespace sduzh::net;
 
-map<int, Socket*> clients;
+map<int, TcpSocket*> clients;
 char buffer[1024];
 
 int main(int argc, char *argv[]) {
@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
 	PollPoller poller;
 
 	int port = atoi(argv[1]);
-	Socket server;
+	TcpSocket server;
 	server.set_blocking(false);
 	server.set_reuse_addr(true);
 	server.bind(InetAddress("0.0.0.0", static_cast<uint16_t>(port)));
@@ -54,14 +54,14 @@ int main(int argc, char *argv[]) {
 				printf("[%s]%s:%d connected\n", now.to_string().c_str(), client_addr.host().c_str(), client_addr.port());
 
 				assert(clients.find(client_fd) == clients.end());
-				clients[client_fd] = new Socket(client_fd);
+				clients[client_fd] = new TcpSocket(client_fd);
 				clients[client_fd]->set_blocking(false);
 				clients[client_fd]->sendall("Welcome!\n");
 
 				poller.update_event(client_fd, EVENT_READABLE);
 			} else {
 				assert(clients.find(fd) != clients.end());
-				Socket *client = clients[fd];
+				TcpSocket *client = clients[fd];
 				DateTime now = DateTime::current();
 				InetAddress peer = client->getpeername();
 				int head = snprintf(buffer, sizeof buffer, "[%s]%s:%d:\n", now.to_string().c_str(),

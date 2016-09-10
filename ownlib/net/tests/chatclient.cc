@@ -10,7 +10,7 @@
 #include <ownlib/base/DateTime.h>
 #include <ownlib/net/InetAddress.h>
 #include <ownlib/net/SelectPoller.h>
-#include <ownlib/net/Socket.h>
+#include <ownlib/net/TcpSocket.h>
 
 using namespace sduzh::base;
 using namespace sduzh::net;
@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 	
 	uint16_t port = static_cast<uint16_t>(atoi(argv[2]));
 
-	Socket conn;
+	TcpSocket conn;
 	int ret = conn.connect(InetAddress(argv[1], port));
 	if (ret < 0) {
 		perror("connect");

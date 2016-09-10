@@ -14,7 +14,7 @@ public:
     DateTime(int y, int M, int d, int h, int m, int s, int ms=0);
 
     inline time_t micro_seconds() const { return seconds_ * kMicroSecondsPerSecond + micro_seconds_; }
-    std::string to_string() const;
+    const char *to_string() const;
 
     static DateTime current();
 
@@ -38,6 +38,8 @@ private:
 
     time_t seconds_;
     size_t micro_seconds_; // micro seconds
+
+	mutable char stime_[32];
 };
 
 } // namespace base

@@ -34,8 +34,10 @@ public:
 	void set_message_callback(const MessageCallback &cb) { msg_cb_ = cb; }
 
 private:
-	void on_new_connection(int fd);
-	void on_disconnected(TcpConnection *conn);
+	/// called by Channel
+	void on_connection(int fd);
+	/// called by TcpConnection
+	void on_close(TcpConnection *conn);
 
 	typedef std::unordered_map<int, TcpConnection*> ConnectionMap;
 	EventLoop *loop_;

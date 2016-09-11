@@ -20,7 +20,7 @@ TcpServer::TcpServer(EventLoop *loop):
 		bind_channel_(new Channel(loop, bind_socket_->fd())) {
 
 	using namespace std::placeholders;
-	bind_channel_->set_read_callback(std::bind(&TcpServer::on_new_connection, this, _1));
+	bind_channel_->set_read_callback(std::bind(&TcpServer::on_connection, this, _1));
 }
 
 TcpServer::~TcpServer() {
@@ -36,7 +36,7 @@ void TcpServer::start(const InetAddress &bind_addr) {
 	bind_socket_->listen(5);
 }
 
-void TcpServer::on_new_connection(int fd) {
+void TcpServer::on_connection(int fd) {
 	assert(fd == bind_socket_->fd());
 	InetAddress client_addr;
 	int client = bind_socket_->accept(&client_addr);
@@ -46,7 +46,7 @@ void TcpServer::on_new_connection(int fd) {
 		TcpConnection *conn = new TcpConnection(loop_, client);
 		
 		using namespace std::placeholders;
-		conn->set_disconnected_callback(std::bind(&TcpServer::on_disconnected, this, _1));
+		conn->set_disconnected_callback(std::bind(&TcpServer::on_close, this, _1));
 		conn->set_write_complete_callback(write_complete_cb_);
 		conn->set_message_callback(msg_cb_);
 
@@ -58,7 +58,7 @@ void TcpServer::on_new_connection(int fd) {
 	}
 }
 
-void TcpServer::on_disconnected(TcpConnection *conn) {
+void TcpServer::on_close(TcpConnection *conn) {
 	InetAddress peer = conn->peer_address();
 	printf("%s:%d disconnected\n", peer.host(), peer.port());
 	if (conn_cb_) {

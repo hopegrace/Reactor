@@ -44,14 +44,29 @@ void TcpServer::on_new_connection(int fd) {
 	if (conn_cb_) {
 		assert(connections_.find(client) == connections_.end());
 		TcpConnection *conn = new TcpConnection(loop_, client);
-		conn->set_message_callback(msg_cb_);
+		
+		using namespace std::placeholders;
+		conn->set_disconnected_callback(std::bind(&TcpServer::on_disconnected, this, _1));
 		conn->set_write_complete_callback(write_complete_cb_);
+		conn->set_message_callback(msg_cb_);
+
 		// TODO error callback
 		connections_[client] = conn;
 		conn_cb_(conn);
 	} else {
 		::close(fd);
 	}
+}
+
+void TcpServer::on_disconnected(TcpConnection *conn) {
+	InetAddress peer = conn->peer_address();
+	printf("%s:%d disconnected\n", peer.host(), peer.port());
+	if (conn_cb_) {
+		conn_cb_(conn);
+	}
+	assert(connections_.find(conn->fd()) != connections_.end());
+	connections_.erase(conn->fd());
+	delete connections_[conn->fd()];
 }
 
 } // namespace net

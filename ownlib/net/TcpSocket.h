@@ -1,13 +1,14 @@
-#ifndef SDUZH_OWNLIB_NET_TCP_SOCKET_H_
+#ifndef SDUZH_OWNLIB_NET_TCP_SOCKET_H
 #define SDUZH_OWNLIB_NET_TCP_SOCKET_H
 
 #include <string>
 #include <sys/types.h>
 
+#include <ownlib/net/InetAddress.h>
+
+
 namespace sduzh {
 namespace net {
-
-class InetAddress;
 
 class TcpSocket {
 public:

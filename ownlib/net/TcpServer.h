@@ -2,11 +2,13 @@
 #define SDUZH_OWNLIB_NET_TCP_SERVER_H
 
 #include <functional>
+#include <unordered_map>
+
+#include <ownlib/net/Buffer.h>
 
 namespace sduzh {
 namespace net {
 
-class Buffer;
 class Channel;
 class EventLoop;
 class InetAddress;
@@ -15,7 +17,7 @@ class TcpSocket;
 
 class TcpServer {
 public:
-	typedef std::function<void (TcpConnection*)> 			NewConnectionCallback;
+	typedef std::function<void (TcpConnection*)> 			ConnectionCallback;
 	typedef std::function<void (TcpConnection*)>            WriteCompleteCallback;
 	typedef std::function<void (TcpConnection*, Buffer *)>  MessageCallback;
 
@@ -27,19 +29,20 @@ public:
 
 	void start(const InetAddress &bind_addr);
 
-	void set_new_connection_callback(const NewConnectionCallback &cb) { conn_cb_ = cb; }
+	void set_connection_callback(const ConnectionCallback &cb) { conn_cb_ = cb; }
 	void set_write_complete_callback(const WriteCompleteCallback &cb) { write_complete_cb_ = cb; }
 	void set_message_callback(const MessageCallback &cb) { msg_cb_ = cb; }
 
 private:
 	void on_new_connection(int fd);
+	void on_disconnected(TcpConnection *conn);
 
 	typedef std::unordered_map<int, TcpConnection*> ConnectionMap;
 	EventLoop *loop_;
 	TcpSocket *bind_socket_;
 	Channel *bind_channel_;
 
-	NewConnectionCallback conn_cb_;
+	ConnectionCallback conn_cb_;
 	WriteCompleteCallback write_complete_cb_; // TODO rename
 	MessageCallback msg_cb_;
 

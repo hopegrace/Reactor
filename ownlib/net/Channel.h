@@ -1,5 +1,5 @@
 #ifndef SDUZH_OWNLIB_NET_CHANNEL_H
-#define SDUZH_WONLIB_NET_CHANNEL_H
+#define SDUZH_OWNLIB_NET_CHANNEL_H
 
 #include <functional>
 
@@ -29,6 +29,7 @@ public:
 	void disable_read()  { events_ &= ~EVENT_READABLE; update_channel(); }
 	void disable_write() { events_ &= ~EVENT_WRITABLE; update_channel(); }
 	void disable_error() { events_ &= ~EVENT_ERROR; update_channel(); }
+	void disable_all()   { events_ = EVENT_NONE; update_channel(); }
 
 	void enable_read()  { events_ |= EVENT_READABLE; update_channel(); }
 	void enable_write() { events_ |= EVENT_WRITABLE; update_channel(); }

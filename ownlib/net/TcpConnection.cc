@@ -1,5 +1,7 @@
 #include <ownlib/net/TcpConnection.h>
 
+#include <assert.h>
+
 namespace sduzh {
 namespace net {
 
@@ -7,11 +9,14 @@ TcpConnection::TcpConnection(EventLoop *loop, int fd):
 		loop_(loop),
 		socket_(fd),
 		channel_(loop, fd),
-		msg_cb_(),
+		connected_(true),
+		disconnected_cb_(),
+		write_complete_cb_(),
+		message_cb_(),
 		read_buffer_(),
 		write_buffer_() {
 	using namespace std::placeholders;
-	channel_.set_read_callbac(std::bind(&TcpConnection::on_readable, this, _1));
+	channel_.set_read_callback(std::bind(&TcpConnection::on_readable, this, _1));
 	channel_.set_write_callback(std::bind(&TcpConnection::on_writable, this, _1));
 }
 
@@ -55,7 +60,22 @@ void TcpConnection::on_readable(int fd) {
 	assert(fd == socket_.fd());
 	static_cast<void>(fd);
 
-	// TODO read data, call message callback
+	// TODO use buffer
+	char buffer[1024];
+	ssize_t nread = socket_.recv(buffer, sizeof buffer);
+	if (nread < 0) {
+		perror("TcpConnection::recv");
+		// TODO how to handle?
+		socket_.shutdownread();
+		handle_closed();
+	} else if (nread == 0) {
+		handle_closed();
+	} else {
+		read_buffer_.insert(read_buffer_.end(), buffer, buffer + nread);
+		if (message_cb_) {
+			message_cb_(this, &read_buffer_);
+		}
+	}
 }
 
 void TcpConnection::on_writable(int fd) {
@@ -63,6 +83,14 @@ void TcpConnection::on_writable(int fd) {
 	static_cast<void>(fd);
 	assert(write_buffer_.size());
 	// TODO send data. if done, call write complete callback
+}
+
+void TcpConnection::handle_closed() {
+	channel_.disable_all();
+	connected_ = false;
+	if (disconnected_cb_) {
+		disconnected_cb_(this);
+	}
 }
 
 } // namespace net

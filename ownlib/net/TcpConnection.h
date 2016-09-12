@@ -13,9 +13,7 @@ class EventLoop;
 
 class TcpConnection {
 public:
-	typedef std::function<void (TcpConnection *)> DisconnectedCallback;
-	typedef std::function<void (TcpConnection *)> WriteCompleteCallback;
-	typedef std::function<void (TcpConnection *, Buffer *)> MessageCallback;
+	typedef std::function<void (TcpConnection*)> EventCallback;
 
 	TcpConnection(EventLoop *loop, int fd);
 	~TcpConnection();
@@ -27,6 +25,8 @@ public:
 	int fd() const { return socket_.fd(); }
 	bool connected() const { return connected_; }
 
+	Buffer *message() { return &read_buffer_; }
+
 	InetAddress peer_address() const { return socket_.getpeername(); }
 	InetAddress local_address() const { return socket_.getsockname(); }
 
@@ -36,15 +36,17 @@ public:
 
 	void write(const char *buffer, size_t len);
 
-	void set_disconnected_callback(const DisconnectedCallback &cb) { disconnected_cb_ = cb; }
-	void set_write_complete_callback(const WriteCompleteCallback &cb) { write_complete_cb_ = cb; }
-	void set_message_callback(const MessageCallback &cb) { message_cb_ = cb; }
+	void set_connection_callback(const EventCallback &cb) { connection_cb_ = cb; } 
+	void set_write_complete_callback(const EventCallback &cb) { write_complete_cb_ = cb; }
+	void set_message_callback(const EventCallback &cb) { message_cb_ = cb; }
+	void set_close_callback(const EventCallback &cb) { close_cb_ = cb; }
+
+	void connection_established();
 
 private:
-	void on_readable(int fd);
-	void on_writable(int fd);
-
-	void handle_closed();
+	void on_read(int fd);
+	void on_write(int fd);
+	void on_close(int fd);
 
 	EventLoop *loop_;
 	TcpSocket socket_;
@@ -52,9 +54,10 @@ private:
 
 	bool connected_;
 
-	DisconnectedCallback  disconnected_cb_;
-	WriteCompleteCallback write_complete_cb_;
-	MessageCallback       message_cb_;
+	EventCallback connection_cb_;
+	EventCallback message_cb_;
+	EventCallback write_complete_cb_;
+	EventCallback close_cb_;
 
 	Buffer read_buffer_;
 	Buffer write_buffer_;

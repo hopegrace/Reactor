@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <ownlib/base/DateTime.h>
+#include <ownlib/base/SimpleLogger.h>
 #include <ownlib/net/InetAddress.h>
 #include <ownlib/net/SelectPoller.h>
 #include <ownlib/net/TcpSocket.h>
@@ -32,8 +33,8 @@ int main(int argc, char *argv[])
 	}
 
 	SelectPoller poller;
-	poller.update_event(STDIN_FILENO, EVENT_READABLE);
-	poller.update_event(conn.fd(), EVENT_READABLE);
+	poller.update_event(STDIN_FILENO, EVENT_READ);
+	poller.update_event(conn.fd(), EVENT_READ);
 
 	for (;;) {
 		std::vector<PollEvent> events;

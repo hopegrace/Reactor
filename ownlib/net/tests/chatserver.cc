@@ -6,6 +6,7 @@
 #include <vector>
 #include <libgen.h> // basename
 #include <ownlib/base/DateTime.h>
+#include <ownlib/base/SimpleLogger.h>
 #include <ownlib/net/Channel.h>
 #include <ownlib/net/EventLoop.h>
 #include <ownlib/net/InetAddress.h>
@@ -21,7 +22,7 @@ public:
 	ChatServer(EventLoop *loop): loop_(loop), server_(loop) {
 		using namespace std::placeholders;
 		server_.set_connection_callback(std::bind(&ChatServer::on_connection, this, _1));
-		server_.set_message_callback(std::bind(&ChatServer::on_message, this, _1, _2));
+		server_.set_message_callback(std::bind(&ChatServer::on_message, this, _1));
 	}
 
 	void start(uint16_t port) {
@@ -32,18 +33,31 @@ private:
 	void on_connection(TcpConnection *conn) {
 		InetAddress peer = conn->peer_address();
 		if (conn->connected()) {
-			printf("%s:%d connected\n", peer.host(), peer.port());
+			LOG(Info) << peer.host() << ":" << static_cast<long>(peer.port()) << " connected";
+			clients_[conn->fd()] = conn;
 		} else {
-			printf("%s:%d disconnected\n", peer.host(), peer.port());
+			LOG(Info) << peer.host() << ":" << static_cast<long>(peer.port()) << " disconnected";
+			clients_.erase(conn->fd());
 		}
 	}
 
-	void on_message(TcpConnection *conn, Buffer *buffer) {
+	void on_message(TcpConnection *conn) {
+		InetAddress address = conn->peer_address();
+		Buffer *msg = conn->message();
+		for (auto it = clients_.begin(); it != clients_.end(); ++it) {
+			TcpConnection *client = it->second;
+			if (client != conn) {
+				client->write(msg->data(), msg->size());
+			}
+		}
+		msg->clear();
 	}
 
+	typedef std::map<int, TcpConnection*> ClientList;
 
 	EventLoop *loop_;
 	TcpServer server_;
+	ClientList clients_;
 };
 
 int main(int argc, char *argv[]) {

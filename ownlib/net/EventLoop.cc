@@ -19,7 +19,7 @@ void EventLoop::loop() {
 		poller_->poll(&active_channels);
 
 		for (Channel *channel : active_channels) {
-			channel->process_events();
+			channel->handle_events();
 		}
 	}
 }

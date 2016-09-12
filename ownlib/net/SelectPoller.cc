@@ -23,9 +23,9 @@ void SelectPoller::update_channel(Channel *channel) {
 	FD_CLR(fd, &writefds_);
 	FD_CLR(fd, &exceptfds_);
 
-	if (events & EVENT_READABLE)
+	if (events & EVENT_READ)
 		FD_SET(fd, &readfds_);
-	if (events & EVENT_WRITABLE) 
+	if (events & EVENT_WRITE) 
 		FD_SET(fd, &writefds_);
 	if (events & EVENT_ERROR)
 		FD_SET(fd, &exceptfds_);
@@ -73,10 +73,10 @@ int SelectPoller::poll(ChannelList *active_channels, int timeout_ms) {
 		for (int fd = 0; fd <= maxfd_; fd++) {
 			short revents = EVENT_NONE;
 			if (FD_ISSET(fd, &readfds)) {
-				revents |= EVENT_READABLE;
+				revents |= EVENT_READ;
 			}
 			if (FD_ISSET(fd, &writefds)) {
-				revents |= EVENT_WRITABLE;
+				revents |= EVENT_WRITE;
 			}
 			if (FD_ISSET(fd, &exceptfds)) {
 				revents |= EVENT_ERROR;

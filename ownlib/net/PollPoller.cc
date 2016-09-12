@@ -27,18 +27,18 @@ PollPoller::~PollPoller() {
 void PollPoller::update_channel(Channel *channel) {
 	int fd = channel->fd();
 	short events = channel->events();
-	struct pollfd pollfd;
 
+	struct pollfd pollfd;
 	pollfd.fd = fd;
-	pollfd.events = 0;
+	pollfd.events = 0; // 即使channel disableall,也会通知close事件. OK?
 	pollfd.revents = 0;
 
-	if (events & EVENT_READABLE)
-		pollfd.events |= (POLLIN | POLLRDHUP);
-	if (events & EVENT_WRITABLE)
+	if (events & EVENT_READ)
+		pollfd.events |= POLLIN; // 不支持urgent data(POLLPRI)
+	if (events & EVENT_WRITE)
 		pollfd.events |= POLLOUT;
-	if (events & EVENT_ERROR)
-		pollfd.events |= POLLPRI;
+	if (events & EVENT_CLOSE)
+		pollfd.events |= POLLRDHUP;
 
 	auto it = channels_.find(fd);
 	if (it == channels_.end()) {  // add
@@ -89,12 +89,10 @@ int PollPoller::poll(ChannelList *active_channels, int timeout_ms) {
 			if (pollfd.fd >= 0 && pollfd.revents != 0) {
 				Channel *channel = channels_[pollfd.fd];
 				short revents = EVENT_NONE;
-				if (pollfd.revents & (POLLIN | POLLPRI | POLLRDHUP | POLLHUP)) 
-					revents |= EVENT_READABLE;
-				if (pollfd.revents & POLLOUT)
-					revents |= EVENT_WRITABLE;
-				if (pollfd.revents & (POLLERR | POLLNVAL))
-					revents |= EVENT_ERROR;
+				if (pollfd.revents & (POLLRDHUP | POLLHUP)) { revents |= EVENT_CLOSE; }
+				if (pollfd.revents & (POLLERR | POLLNVAL))  { revents |= EVENT_ERROR; }
+				if (pollfd.revents & (POLLIN | POLLPRI))    { revents |= EVENT_READ; }
+				if (pollfd.revents & POLLOUT)               { revents |= EVENT_WRITE; }
 				channel->set_revents(revents);
 				active_channels->push_back(channel);
 				if (static_cast<int>(active_channels->size()) == num_event)

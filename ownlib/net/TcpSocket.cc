@@ -8,7 +8,10 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#include "InetAddress.h"
+#include <ownlib/base/SimpleLogger.h>
+#include <ownlib/net/InetAddress.h>
+
+using namespace sduzh::base;
 
 namespace sduzh {
 namespace net {
@@ -152,7 +155,7 @@ void TcpSocket::set_reuse_port(bool on) {
                          &optval, static_cast<socklen_t>(sizeof optval));
   if (ret < 0 && on)
   {
-    fprintf(stderr, "SO_REUSEPORT failed\n");
+	LOG(Error) << "SO_REUSEPORT failed";
   }
 #endif
 }

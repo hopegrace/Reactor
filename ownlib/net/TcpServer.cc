@@ -4,12 +4,14 @@
 #include <iostream>
 #include <unistd.h>
 
+#include <ownlib/base/SimpleLogger.h>
 #include <ownlib/net/Channel.h>
 #include <ownlib/net/InetAddress.h>
 #include <ownlib/net/TcpConnection.h>
 #include <ownlib/net/TcpSocket.h>
 
 using namespace std;
+using namespace sduzh::base;
 
 namespace sduzh {
 namespace net {
@@ -40,33 +42,35 @@ void TcpServer::on_connection(int fd) {
 	assert(fd == bind_socket_->fd());
 	InetAddress client_addr;
 	int client = bind_socket_->accept(&client_addr);
-	cout << client_addr.host() << ":" << client_addr.port() << " connected\n";	
-	if (conn_cb_) {
+	LOG(Info) << client_addr.host() << ":" << client_addr.port() << " connected\n";	
+	if (connection_cb_) {
 		assert(connections_.find(client) == connections_.end());
 		TcpConnection *conn = new TcpConnection(loop_, client);
 		
 		using namespace std::placeholders;
-		conn->set_disconnected_callback(std::bind(&TcpServer::on_close, this, _1));
+		conn->set_connection_callback(connection_cb_);
+		conn->set_message_callback(message_cb_);
 		conn->set_write_complete_callback(write_complete_cb_);
-		conn->set_message_callback(msg_cb_);
+		conn->set_close_callback(std::bind(&TcpServer::on_close, this, _1));
 
-		// TODO error callback
 		connections_[client] = conn;
-		conn_cb_(conn);
+
+		conn->connection_established();
 	} else {
+		cout << "no connection callback, close it\n";
 		::close(fd);
 	}
 }
 
 void TcpServer::on_close(TcpConnection *conn) {
+	assert(connections_[conn->fd()] == conn);
 	InetAddress peer = conn->peer_address();
-	printf("%s:%d disconnected\n", peer.host(), peer.port());
-	if (conn_cb_) {
-		conn_cb_(conn);
+	LOG(Info) << peer.host() << ":" << static_cast<long>(peer.port()) << " closed";
+	if (connection_cb_) {
+		connection_cb_(conn);
 	}
-	assert(connections_.find(conn->fd()) != connections_.end());
 	connections_.erase(conn->fd());
-	delete connections_[conn->fd()];
+	delete conn;
 }
 
 } // namespace net

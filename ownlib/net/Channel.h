@@ -12,7 +12,7 @@ class EventLoop;
 
 class Channel {
 public:
-	typedef std::function<void (int)> EventCallback;
+	typedef std::function<void ()> EventCallback;
 
 	Channel(EventLoop *loop, int fd);
 	~Channel();
@@ -30,6 +30,8 @@ public:
 
 	void enable_read()  { events_ |= (EVENT_READ | EVENT_CLOSE); update_channel(); }
 	void enable_write() { events_ |= EVENT_WRITE; update_channel(); }
+
+	void remove();
 
 	/// requested events
 	short events() const { return events_; }

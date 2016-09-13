@@ -22,7 +22,7 @@ TcpServer::TcpServer(EventLoop *loop):
 		bind_channel_(new Channel(loop, bind_socket_->fd())) {
 
 	using namespace std::placeholders;
-	bind_channel_->set_read_callback(std::bind(&TcpServer::on_connection, this, _1));
+	bind_channel_->set_read_callback(std::bind(&TcpServer::on_connection, this));
 }
 
 TcpServer::~TcpServer() {
@@ -38,8 +38,7 @@ void TcpServer::start(const InetAddress &bind_addr) {
 	bind_socket_->listen(5);
 }
 
-void TcpServer::on_connection(int fd) {
-	assert(fd == bind_socket_->fd());
+void TcpServer::on_connection() {
 	InetAddress client_addr;
 	int client = bind_socket_->accept(&client_addr);
 	LOG(Info) << client_addr.host() << ":" << client_addr.port() << " connected\n";	
@@ -58,7 +57,7 @@ void TcpServer::on_connection(int fd) {
 		conn->connection_established();
 	} else {
 		cout << "no connection callback, close it\n";
-		::close(fd);
+		::close(client);
 	}
 }
 
@@ -66,9 +65,6 @@ void TcpServer::on_close(TcpConnection *conn) {
 	assert(connections_[conn->fd()] == conn);
 	InetAddress peer = conn->peer_address();
 	LOG(Info) << peer.host() << ":" << static_cast<long>(peer.port()) << " closed";
-	if (connection_cb_) {
-		connection_cb_(conn);
-	}
 	connections_.erase(conn->fd());
 	delete conn;
 }

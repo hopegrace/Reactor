@@ -32,7 +32,7 @@ public:
 	void set_write_complete_callback(const EventCallback &cb) { write_complete_cb_ = cb; }
 
 private:
-	void on_connection(int fd);
+	void on_connection();
 
 	/// called by TcpConnection
 	void on_close(TcpConnection *conn);

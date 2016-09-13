@@ -23,16 +23,17 @@ public:
 	TcpConnection &operator=(const TcpConnection &) = delete;
 
 	int fd() const { return socket_.fd(); }
-	bool connected() const { return connected_; }
+	bool connected() const { return state_ == kConnected; }
 
 	Buffer *message() { return &read_buffer_; }
 
-	InetAddress peer_address() const { return socket_.getpeername(); }
-	InetAddress local_address() const { return socket_.getsockname(); }
+	const InetAddress &peer_address() const { return peer_addr_; }
+	const InetAddress &local_address() const { return local_addr_; }
 
+	/// force close, not wait for write complete
+	void abort();
+	/// will wait for write complete
 	void close();
-	void shutdown_read();
-	void shutdown_write();
 
 	void write(const char *buffer, size_t len);
 
@@ -44,15 +45,19 @@ public:
 	void connection_established();
 
 private:
-	void on_read(int fd);
-	void on_write(int fd);
-	void on_close(int fd);
+	void on_read();
+	void on_write();
+	void on_close();
+	void on_error();
+
+	enum StateE { kConnecting, kConnected, kDisconnected, kDisconnecting };
+
+	void set_state(StateE s) { state_ = s; }
 
 	EventLoop *loop_;
 	TcpSocket socket_;
 	Channel channel_;
-
-	bool connected_;
+	StateE state_;
 
 	EventCallback connection_cb_;
 	EventCallback message_cb_;
@@ -61,6 +66,9 @@ private:
 
 	Buffer read_buffer_;
 	Buffer write_buffer_;
+
+	InetAddress local_addr_;
+	InetAddress peer_addr_;
 }; 
 } // namespace net
 } // nemespace sduzh

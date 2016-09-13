@@ -33,10 +33,10 @@ Channel::Channel(EventLoop *loop, int fd):
 	events_(EVENT_READ),
 	revents_(EVENT_NONE),
 	index_(-1),
-	read_cb_(default_read_callback),
-	write_cb_(default_write_callback),
-	close_cb_(default_close_callback),
-	error_cb_(default_error_callback) 
+	read_cb_(std::bind(default_read_callback, fd_)),
+	write_cb_(std::bind(default_write_callback, fd_)),
+	close_cb_(std::bind(default_close_callback, fd_)),
+	error_cb_(std::bind(default_error_callback, fd_)) 
 {
 	loop_->add_channel(this);
 }
@@ -47,24 +47,18 @@ Channel::~Channel() {
 }
 
 void Channel::handle_events() {
-	if (revents_ & EVENT_READ) {
-		read_cb_(fd_);
-	}
-	if (revents_ & EVENT_WRITE) {
-		write_cb_(fd_);
-	}
-	if (revents_ & EVENT_ERROR) {
-		error_cb_(fd_);
-	}
-	if (revents_ & EVENT_CLOSE) {
-		close_cb_(fd_);
-	}
-
-	// revents_ = EVENT_NONE;
+	if (revents_ & EVENT_READ)  { read_cb_(); }
+	if (revents_ & EVENT_WRITE) { write_cb_(); }
+	if (revents_ & EVENT_ERROR) { error_cb_(); }
+	if (revents_ & EVENT_CLOSE) { close_cb_(); }
 }
 
 void Channel::update_channel() {
 	loop_->update_channel(this);
+}
+
+void Channel::remove() {
+	loop_->remove_channel(this);
 }
 
 } // namespace net

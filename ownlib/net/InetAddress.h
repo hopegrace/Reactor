@@ -28,12 +28,15 @@ public:
 	bool set_port(uint16_t port);
 	bool set_address(struct sockaddr_in addr);
 
+	std::string to_string() const;
+
 private:
 	bool valid_;
 
 	string_t host_;
 	uint16_t port_;
 	struct sockaddr_in sockaddr_;
+	mutable string_t saddr_;
 }; // class InetAddress
 
 } // namespace net

@@ -1,6 +1,9 @@
 #include "InetAddress.h"
 #include <strings.h>
+#include <sstream>
 #include <arpa/inet.h>
+
+using namespace std;
 
 namespace sduzh {
 namespace net {
@@ -51,6 +54,15 @@ bool InetAddress::set_address(struct sockaddr_in addr) {
 		host_.assign(buff);
 	}
 	return valid_;
+}
+
+string InetAddress::to_string() const {
+	if (saddr_.empty()) {
+		stringstream ss;
+		ss << host() << ":" << port();
+		saddr_ = ss.str();
+	}
+	return saddr_;
 }
 
 } // namespace net

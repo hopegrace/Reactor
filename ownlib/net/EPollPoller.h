@@ -1,6 +1,7 @@
 #ifndef SDUZH_OWNLIB_NET_EPOLL_POLLER_H
 #define SDUZH_OWNLIB_NET_EPOLL_POLLER_H
 
+#include <unordered_map>
 #include <sys/epoll.h>
 #include <ownlib/net/Poller.h>
 
@@ -19,10 +20,12 @@ public:
 	int poll(ChannelList *active_channels, int timeout_ms=-1) override;
 
 private:
-	typedef std::vector<struct epoll_event> EPollList;
+	uint32_t to_epoll_events(int events);
+
+	typedef std::unordered_map<int, Channel*> ChannelMap;
 
 	int epfd_;	
-	EPollList events_;  // wait events
+	ChannelMap channels_;
 };
 
 

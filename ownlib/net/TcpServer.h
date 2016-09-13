@@ -5,6 +5,7 @@
 #include <unordered_map>
 
 #include <ownlib/net/Buffer.h>
+#include <ownlib/net/Callbacks.h>
 
 namespace sduzh {
 namespace net {
@@ -17,27 +18,28 @@ class TcpSocket;
 
 class TcpServer {
 public:
-	typedef std::function<void (TcpConnection*)> EventCallback;
-
 	TcpServer(EventLoop *loop);
 	~TcpServer();
 
 	TcpServer(const TcpServer &) = delete;
 	TcpServer &operator=(const TcpServer &) = delete;
 
+	/// default true
+	void set_reuse_addr(bool on);
+
 	void start(const InetAddress &bind_addr);
 
-	void set_connection_callback(const EventCallback &cb) { connection_cb_ = cb; }
-	void set_message_callback(const EventCallback &cb) { message_cb_ = cb; }
-	void set_write_complete_callback(const EventCallback &cb) { write_complete_cb_ = cb; }
+	void set_connection_callback(const ConnectionCallback &cb) { connection_cb_ = cb; }
+	void set_message_callback(const MessageCallback &cb) { message_cb_ = cb; }
+	void set_write_complete_callback(const WriteCompleteCallback &cb) { write_complete_cb_ = cb; }
 
 private:
 	void on_connection();
 
 	/// called by TcpConnection
-	void on_close(TcpConnection *conn);
+	void on_close(const TcpConnectionPtr &conn);
 
-	typedef std::unordered_map<int, TcpConnection*> ConnectionMap;
+	typedef std::unordered_map<int, TcpConnectionPtr> ConnectionMap;
 
 	EventLoop *loop_;
 	TcpSocket *bind_socket_;
@@ -45,9 +47,9 @@ private:
 	Channel *bind_channel_;
 
 	// user specifiy callbacks
-	EventCallback connection_cb_;
-	EventCallback write_complete_cb_; // TODO rename
-	EventCallback message_cb_;
+	ConnectionCallback    connection_cb_;
+	MessageCallback 	  message_cb_;
+	WriteCompleteCallback write_complete_cb_; 
 
 	ConnectionMap connections_;
 };

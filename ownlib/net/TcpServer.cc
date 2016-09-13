@@ -20,7 +20,8 @@ TcpServer::TcpServer(EventLoop *loop):
 		loop_(loop),
 		bind_socket_(new TcpSocket()),
 		bind_channel_(new Channel(loop, bind_socket_->fd())) {
-
+	bind_socket_->set_blocking(false);
+	bind_socket_->set_reuse_addr(true);
 	using namespace std::placeholders;
 	bind_channel_->set_read_callback(std::bind(&TcpServer::on_connection, this));
 }
@@ -28,9 +29,10 @@ TcpServer::TcpServer(EventLoop *loop):
 TcpServer::~TcpServer() {
 	delete bind_channel_;
 	delete bind_socket_;
-	for (auto it = connections_.begin(); it != connections_.end(); ++it) {
-		delete it->second;
-	}
+}
+
+void TcpServer::set_reuse_addr(bool on) {
+	bind_socket_->set_reuse_addr(on);
 }
 
 void TcpServer::start(const InetAddress &bind_addr) {
@@ -44,7 +46,7 @@ void TcpServer::on_connection() {
 	LOG(Info) << client_addr.host() << ":" << client_addr.port() << " connected\n";	
 	if (connection_cb_) {
 		assert(connections_.find(client) == connections_.end());
-		TcpConnection *conn = new TcpConnection(loop_, client);
+		TcpConnectionPtr conn = std::make_shared<TcpConnection>(loop_, client);
 		
 		using namespace std::placeholders;
 		conn->set_connection_callback(connection_cb_);
@@ -61,12 +63,11 @@ void TcpServer::on_connection() {
 	}
 }
 
-void TcpServer::on_close(TcpConnection *conn) {
+void TcpServer::on_close(const TcpConnectionPtr &conn) {
 	assert(connections_[conn->fd()] == conn);
 	InetAddress peer = conn->peer_address();
 	LOG(Info) << peer.host() << ":" << static_cast<long>(peer.port()) << " closed";
 	connections_.erase(conn->fd());
-	delete conn;
 }
 
 } // namespace net

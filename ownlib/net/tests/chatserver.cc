@@ -30,7 +30,7 @@ public:
 	}
 
 private:
-	void on_connection(TcpConnection *conn) {
+	void on_connection(const TcpConnectionPtr &conn) {
 		InetAddress peer = conn->peer_address();
 		if (conn->connected()) {
 			LOG(Info) << peer.host() << ":" << static_cast<long>(peer.port()) << " connected";
@@ -41,11 +41,11 @@ private:
 		}
 	}
 
-	void on_message(TcpConnection *conn) {
+	void on_message(const TcpConnectionPtr &conn) {
 		InetAddress address = conn->peer_address();
 		Buffer *msg = conn->message();
 		for (auto it = clients_.begin(); it != clients_.end(); ++it) {
-			TcpConnection *client = it->second;
+			TcpConnectionPtr &client = it->second;
 			if (client != conn) {
 				client->write(msg->data(), msg->size());
 			}
@@ -53,7 +53,7 @@ private:
 		msg->clear();
 	}
 
-	typedef std::map<int, TcpConnection*> ClientList;
+	typedef std::map<int, TcpConnectionPtr> ClientList;
 
 	EventLoop *loop_;
 	TcpServer server_;

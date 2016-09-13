@@ -10,7 +10,7 @@ using namespace sduzh::base;
 namespace sduzh {
 namespace net {
 
-static void default_connection_callback(TcpConnection *conn) {
+static void default_connection_callback(const TcpConnectionPtr &conn) {
 	if (conn->connected()) {
 		LOG(Info) << conn->peer_address().to_string() << " connected\n";
 	} else {
@@ -18,11 +18,12 @@ static void default_connection_callback(TcpConnection *conn) {
 	}
 }
 
-static void default_message_callback(TcpConnection *conn) {
+static void default_message_callback(const TcpConnectionPtr &conn) {
 	conn->message()->clear();
 }
 
 TcpConnection::TcpConnection(EventLoop *loop, int fd):
+		std::enable_shared_from_this<TcpConnection>(),
 		loop_(loop),
 		socket_(fd),
 		channel_(loop, fd),
@@ -31,10 +32,11 @@ TcpConnection::TcpConnection(EventLoop *loop, int fd):
 		message_cb_(default_message_callback),
 		write_complete_cb_(),
 		close_cb_(),
-		read_buffer_(),
-		write_buffer_(),
+		input_buffer_(),
+		output_buffer_(),
 		local_addr_(socket_.getsockname()), 
 		peer_addr_(socket_.getpeername()) {
+	socket_.set_blocking(false);
 	channel_.set_read_callback(std::bind(&TcpConnection::on_read, this));
 	channel_.set_write_callback(std::bind(&TcpConnection::on_write, this));
 	channel_.set_close_callback(std::bind(&TcpConnection::on_close, this));
@@ -53,18 +55,19 @@ void TcpConnection::abort() {
 void TcpConnection::close() {
 	if (state_ == kConnected) {
 		set_state(kDisconnecting);
-		if (write_buffer_.empty()) { // no data to write
+		if (output_buffer_.empty()) { // no data to write
 			on_close();
 		} 
 	}
 }
 
+// TODO more efficiency
 void TcpConnection::write(const char *buffer, size_t len) {
 	if (state_ == kConnected) {
-		if (!write_buffer_.empty()) {
+		if (!output_buffer_.empty()) {
 		    assert(channel_.events() & EVENT_WRITE);
 			// TODO limit size
-		    write_buffer_.insert(write_buffer_.end(), buffer, buffer + len);
+		    output_buffer_.insert(output_buffer_.end(), buffer, buffer + len);
 		} else {
 			assert(state_ == kConnected);
 		    assert((channel_.events() & EVENT_WRITE) == 0);
@@ -74,11 +77,11 @@ void TcpConnection::write(const char *buffer, size_t len) {
 		    } else if (nsend < static_cast<int>(len)) {
 				buffer += nsend;
 				len -= nsend;
-		    	write_buffer_.insert(write_buffer_.end(), buffer, buffer + len);
+		    	output_buffer_.insert(output_buffer_.end(), buffer, buffer + len);
 		    	channel_.enable_write();
 		    } else {  // nsend == len
 		    	if (write_complete_cb_) {
-		    		write_complete_cb_(this);
+		    		write_complete_cb_(shared_from_this());
 		    	}
 		    }
 		}
@@ -89,38 +92,38 @@ void TcpConnection::write(const char *buffer, size_t len) {
 
 void TcpConnection::on_read() {
 	// TODO use Buffer
-	char buffer[1024];
+	char buffer[4096];
 	ssize_t nread = socket_.recv(buffer, sizeof buffer);
 	if (nread < 0) {
 		LOG(Error) << strerror(errno);
 	} else if (nread == 0) {
 		on_close();
 	} else {
-		read_buffer_.insert(read_buffer_.end(), buffer, buffer + nread);
-		message_cb_(this);
+		input_buffer_.insert(input_buffer_.end(), buffer, buffer + nread);
+		message_cb_(shared_from_this());
 	}
 }
 
-// TODO more efficient
+// TODO more efficiency
 void TcpConnection::on_write() {
 	assert(state_ == kConnected || state_ == kDisconnecting);
-	assert(write_buffer_.size());
-	ssize_t nsend = socket_.send(write_buffer_.data(), write_buffer_.size());
+	assert(output_buffer_.size());
+	ssize_t nsend = socket_.send(output_buffer_.data(), output_buffer_.size());
 	if (nsend < 0) {
 		LOG(Error) << strerror(errno);
 	} else {
-		if (nsend == static_cast<ssize_t>(write_buffer_.size())) {
-			write_buffer_.clear();
+		if (nsend == static_cast<ssize_t>(output_buffer_.size())) {
+			output_buffer_.clear();
 			channel_.disable_write();
 			if (write_complete_cb_) { 
-				write_complete_cb_(this); 
+				write_complete_cb_(shared_from_this()); 
 			}
 			if (state_ == kDisconnecting) { 
 				on_close(); 
 			}
 		} else {
-			auto begin = write_buffer_.begin();
-			write_buffer_.erase(begin, begin + nsend);
+			auto begin = output_buffer_.begin();
+			output_buffer_.erase(begin, begin + nsend);
 		}
 	}
 }
@@ -129,25 +132,32 @@ void TcpConnection::on_close() {
 	assert(state_ == kConnected || state_ == kDisconnecting);
 	set_state(kDisconnected);
 	channel_.disable_all();
-	connection_cb_(this);
+	connection_cb_(shared_from_this());
 	channel_.remove();
 	// socket_.close();
 	if (close_cb_) {
-		// may delete 'this'
-		close_cb_(this);
+		close_cb_(shared_from_this());
 	}
 }
 
 void TcpConnection::on_error() {
 	// TODO 
+	LOG(Info) << "not implement";
 }
 
 void TcpConnection::connection_established() {
 	if (state_ == kConnecting) {
 		set_state(kConnected);
-		connection_cb_(this); 
+		connection_cb_(shared_from_this()); 
 	}
+}
+
+void TcpConnection::set_tcp_nodelay(bool on) {
+	// TODO 
+	(void)on;
+	assert(!"not yet implement");
 }
 
 } // namespace net
 } // namespace sduzh
+

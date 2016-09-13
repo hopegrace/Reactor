@@ -1,7 +1,9 @@
 #ifndef SDUZH_OWNLIB_NET_TCP_CONNECTION_H
 #define SDUZH_OWNLIB_NET_TCP_CONNECTION_H
 
+#include <memory>
 #include <ownlib/net/Buffer.h>
+#include <ownlib/net/Callbacks.h>
 #include <ownlib/net/Channel.h>
 #include <ownlib/net/InetAddress.h>
 #include <ownlib/net/TcpSocket.h>
@@ -11,10 +13,8 @@ namespace net {
 
 class EventLoop;
 
-class TcpConnection {
+class TcpConnection : public std::enable_shared_from_this<TcpConnection> {
 public:
-	typedef std::function<void (TcpConnection*)> EventCallback;
-
 	TcpConnection(EventLoop *loop, int fd);
 	~TcpConnection();
 
@@ -25,7 +25,7 @@ public:
 	int fd() const { return socket_.fd(); }
 	bool connected() const { return state_ == kConnected; }
 
-	Buffer *message() { return &read_buffer_; }
+	void set_tcp_nodelay(bool on);
 
 	const InetAddress &peer_address() const { return peer_addr_; }
 	const InetAddress &local_address() const { return local_addr_; }
@@ -35,12 +35,13 @@ public:
 	/// will wait for write complete
 	void close();
 
+	Buffer *message() { return &input_buffer_; }
 	void write(const char *buffer, size_t len);
 
-	void set_connection_callback(const EventCallback &cb) { connection_cb_ = cb; } 
-	void set_write_complete_callback(const EventCallback &cb) { write_complete_cb_ = cb; }
-	void set_message_callback(const EventCallback &cb) { message_cb_ = cb; }
-	void set_close_callback(const EventCallback &cb) { close_cb_ = cb; }
+	void set_connection_callback(const ConnectionCallback &cb) { connection_cb_ = cb; } 
+	void set_write_complete_callback(const WriteCompleteCallback &cb) { write_complete_cb_ = cb; }
+	void set_message_callback(const MessageCallback &cb) { message_cb_ = cb; }
+	void set_close_callback(const CloseCallback &cb) { close_cb_ = cb; }
 
 	void connection_established();
 
@@ -59,17 +60,18 @@ private:
 	Channel channel_;
 	StateE state_;
 
-	EventCallback connection_cb_;
-	EventCallback message_cb_;
-	EventCallback write_complete_cb_;
-	EventCallback close_cb_;
+	ConnectionCallback    connection_cb_;
+	MessageCallback       message_cb_;
+	WriteCompleteCallback write_complete_cb_;
+	CloseCallback         close_cb_;
 
-	Buffer read_buffer_;
-	Buffer write_buffer_;
+	Buffer input_buffer_;
+	Buffer output_buffer_;
 
 	InetAddress local_addr_;
 	InetAddress peer_addr_;
 }; 
+
 } // namespace net
 } // nemespace sduzh
 

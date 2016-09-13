@@ -22,14 +22,13 @@ public:
 		using namespace std::placeholders;
 		server_.set_connection_callback(std::bind(&EchoServer::new_connection, this, _1));
 		server_.set_message_callback(std::bind(&EchoServer::new_message, this, _1));
-		server_.set_write_complete_callback(std::bind(&EchoServer::on_write_complete, this, _1));
 	}
 
 	void start(uint16_t port) {
 		server_.start(InetAddress("0.0.0.0", port));
 	}
 
-	void new_connection(TcpConnection *conn) {
+	void new_connection(const TcpConnectionPtr &conn) {
 		if (conn->connected()) {
 			clients_[conn->fd()] = conn;
 		} else {
@@ -37,19 +36,15 @@ public:
 		}
 	}	
 
-	void new_message(TcpConnection *conn) {	
+	void new_message(const TcpConnectionPtr &conn) {	
 		conn->write(conn->message()->data(), conn->message()->size());
 		conn->message()->clear();
-	}
-
-	void on_write_complete(TcpConnection *conn) {
-		std::cout << "write complete" << std::endl;
 	}
 
 private:
 	EventLoop *loop_;
 
-	typedef std::map<int, TcpConnection*> ClientMap;
+	typedef std::map<int, TcpConnectionPtr> ClientMap;
 
 	TcpServer server_;
 	ClientMap clients_;

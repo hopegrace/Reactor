@@ -1,8 +1,5 @@
-# 自己的C++库
+# 单线程C++Reactor网络库
 
-+ base
-	基本库
+学习网络编程的练手项目，单线程版[muduo](https://github.com/chenshuo/muduo)
 
-+ net
-	网络编程相关
-	Linux socket API的简单封装
+

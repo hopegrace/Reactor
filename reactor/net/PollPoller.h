@@ -1,42 +1,34 @@
-#ifndef SDUZH_OWN_LIB_NET_SELECT_POLLER_H
-#define SDUZH_OWN_LIB_NET_SELECT_POLLER_H
+#ifndef SDUZH_OWNLIB_NET_POLL_POLLER_H
+#define SDUZH_OWNLIB_NET_POLL_POLLER_H
 
 #include <vector>
 #include <unordered_map>
-#include <sys/select.h>
+#include <poll.h>
 
-#include <ownlib/net/types.h>  // EVENT_NONE
-#include <ownlib/net/Poller.h>
+#include <reactor/net/Poller.h>
 
 namespace sduzh {
 namespace net {
 
-class SelectPoller : public Poller {
+class PollPoller : public Poller {
 public:
-	SelectPoller();
+	PollPoller();
+	~PollPoller();
 
 	void update_channel(Channel *channel) override;
 	void remove_channel(Channel *channel) override;
-	
-	/// timeout < 0 means infinite
+
 	int poll(ChannelList *active_channels, int timeout_ms=-1) override;
 
 private:
-	void update_maxfd();
-
 	typedef std::unordered_map<int, Channel*> ChannelMap;
-
-	int maxfd_;
-
-	fd_set readfds_;
-	fd_set writefds_;
-	fd_set exceptfds_;
+	typedef std::vector<struct pollfd> 		  PollFdList;
 
 	ChannelMap channels_;
-}; 
+	PollFdList pollfds_;
+};
 
 } // namespace net
 } // namespace sduzh
-
 
 #endif

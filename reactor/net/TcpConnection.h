@@ -2,11 +2,11 @@
 #define SDUZH_OWNLIB_NET_TCP_CONNECTION_H
 
 #include <memory>
-#include <ownlib/net/Buffer.h>
-#include <ownlib/net/Callbacks.h>
-#include <ownlib/net/Channel.h>
-#include <ownlib/net/InetAddress.h>
-#include <ownlib/net/TcpSocket.h>
+#include <reactor/net/Buffer.h>
+#include <reactor/net/Callbacks.h>
+#include <reactor/net/Channel.h>
+#include <reactor/net/InetAddress.h>
+#include <reactor/net/TcpSocket.h>
 
 namespace sduzh {
 namespace net {

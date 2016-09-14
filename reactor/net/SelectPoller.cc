@@ -3,8 +3,8 @@
 #include <stdio.h>
 #include <map>
 
-#include <ownlib/net/SelectPoller.h>
-#include <ownlib/net/Channel.h>
+#include <reactor/net/SelectPoller.h>
+#include <reactor/net/Channel.h>
 
 namespace sduzh {
 namespace net {

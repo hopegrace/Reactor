@@ -2,14 +2,14 @@
 #define _GNU_SOURCE
 #endif
 
-#include <ownlib/net/PollPoller.h>
+#include <reactor/net/PollPoller.h>
 
 #include <assert.h>
 #include <errno.h>
 #include <stdio.h>
 #include <algorithm>
 
-#include <ownlib/net/Channel.h>
+#include <reactor/net/Channel.h>
 
 namespace sduzh {
 namespace net {

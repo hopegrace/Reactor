@@ -1,9 +1,9 @@
-#include <ownlib/net/TcpConnection.h>
+#include <reactor/net/TcpConnection.h>
 
 #include <assert.h>
 #include <errno.h>
 #include <string.h>
-#include <ownlib/base/SimpleLogger.h>
+#include <reactor/base/SimpleLogger.h>
 
 using namespace sduzh::base;
 
@@ -92,7 +92,7 @@ void TcpConnection::write(const char *buffer, size_t len) {
 
 void TcpConnection::on_read() {
 	// TODO use Buffer
-	char buffer[4096];
+	char buffer[65536];
 	ssize_t nread = socket_.recv(buffer, sizeof buffer);
 	if (nread < 0) {
 		LOG(Error) << strerror(errno);

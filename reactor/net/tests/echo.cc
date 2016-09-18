@@ -38,8 +38,9 @@ public:
 	}	
 
 	void new_message(const TcpConnectionPtr &conn) {	
-		conn->write(conn->message()->data(), conn->message()->size());
-		conn->message()->clear();
+		Buffer *buffer = conn->message();
+		conn->write(buffer->data(), buffer->readable_bytes());
+		buffer->clear();
 	}
 
 private:

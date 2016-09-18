@@ -47,7 +47,7 @@ private:
 		for (auto it = clients_.begin(); it != clients_.end(); ++it) {
 			TcpConnectionPtr &client = it->second;
 			if (client != conn) {
-				client->write(msg->data(), msg->size());
+				client->write(msg->data(), msg->readable_bytes());
 			}
 		}
 		msg->clear();

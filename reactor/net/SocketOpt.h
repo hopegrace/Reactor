@@ -3,15 +3,16 @@
 
 namespace sduzh {
 namespace net {
+namespace sockets {
 
-namespace SocketOpt {
+int set_blocking(int fd, bool on);
+int set_tcp_nodelay(int fd, bool on);
+int set_reuse_addr(int fd, bool on);
+int set_reuse_port(int fd, bool on);
 
-void set_blocking(int fd, bool on);
-void reuse_addr(int fd, bool on);
-void reuse_port(int fd, bool on);
+void set_nonblock_or_die(int fd);
 
-} // namespace SocketOpt
-
+} // namespace sockets
 } // namespace net
 } // namespace sduzh
 

@@ -43,7 +43,7 @@ void TcpServer::start(const InetAddress &bind_addr) {
 void TcpServer::on_connection() {
 	InetAddress client_addr;
 	int client = bind_socket_->accept(&client_addr);
-	LOG(Info) << client_addr.host() << ":" << client_addr.port() << " connected\n";	
+	LOG(Info) << client_addr.host() << ":" << client_addr.port() << " connected";	
 	if (connection_cb_) {
 		assert(connections_.find(client) == connections_.end());
 		TcpConnectionPtr conn = std::make_shared<TcpConnection>(loop_, client);
@@ -58,7 +58,7 @@ void TcpServer::on_connection() {
 
 		conn->connection_established();
 	} else {
-		cout << "no connection callback, close it\n";
+		cout << "no connection callback, close it";
 		::close(client);
 	}
 }

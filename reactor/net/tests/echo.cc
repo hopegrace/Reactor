@@ -31,6 +31,7 @@ public:
 	void new_connection(const TcpConnectionPtr &conn) {
 		if (conn->connected()) {
 			clients_[conn->fd()] = conn;
+			conn->set_tcp_nodelay(true);
 		} else {
 			clients_.erase(conn->fd());
 		}

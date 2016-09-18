@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <string.h>
 #include <reactor/base/SimpleLogger.h>
+#include <reactor/net/SocketOpt.h>
 
 using namespace sduzh::base;
 
@@ -153,9 +154,10 @@ void TcpConnection::connection_established() {
 }
 
 void TcpConnection::set_tcp_nodelay(bool on) {
-	// TODO 
-	(void)on;
-	assert(!"not yet implement");
+	int r = sockets::set_tcp_nodelay(socket_.fd(), on);
+	if (r < 0) {
+		LOG(Error) << strerror(errno);
+	}
 }
 
 } // namespace net

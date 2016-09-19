@@ -19,14 +19,17 @@ using namespace sduzh::net;
 
 class ChatServer {
 public:
-	ChatServer(EventLoop *loop): loop_(loop), server_(loop) {
+	ChatServer(EventLoop *loop, InetAddress addr): 
+		loop_(loop), 
+		server_(loop, addr) {
+
 		using namespace std::placeholders;
 		server_.set_connection_callback(std::bind(&ChatServer::on_connection, this, _1));
 		server_.set_message_callback(std::bind(&ChatServer::on_message, this, _1));
 	}
 
-	void start(uint16_t port) {
-		server_.start(InetAddress("0.0.0.0", port));
+	void start() {
+		server_.start();
 	}
 
 private:
@@ -66,10 +69,9 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-	uint16_t port = static_cast<uint16_t>(atoi(argv[1]));
 	EventLoop loop;
-	ChatServer server(&loop);
-	server.start(port);
+	ChatServer server(&loop, InetAddress("0.0.0.0", 9090));
+	server.start();
 	loop.loop();
 
 	return 0;

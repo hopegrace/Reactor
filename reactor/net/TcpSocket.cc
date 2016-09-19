@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <netinet/tcp.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -165,6 +166,39 @@ void TcpSocket::set_keep_alive(bool on) {
   ::setsockopt(sockfd_, SOL_SOCKET, SO_KEEPALIVE,
                &optval, static_cast<socklen_t>(sizeof optval));
   // FIXME CHECK
+}
+
+bool TcpSocket::get_tcp_info(struct tcp_info* tcpi) const
+{
+	socklen_t len = sizeof(*tcpi);
+	bzero(tcpi, len);
+	return ::getsockopt(sockfd_, SOL_TCP, TCP_INFO, tcpi, &len) == 0;
+}
+
+bool TcpSocket::get_tcp_info_string(char* buf, int len) const
+{
+	struct tcp_info tcpi;
+	bool ok = get_tcp_info(&tcpi);
+	if (ok)
+	{
+	  snprintf(buf, len, "unrecovered=%u "
+	           "rto=%u ato=%u snd_mss=%u rcv_mss=%u "
+	           "lost=%u retrans=%u rtt=%u rttvar=%u "
+	           "sshthresh=%u cwnd=%u total_retrans=%u",
+	           tcpi.tcpi_retransmits,  // Number of unrecovered [RTO] timeouts
+	           tcpi.tcpi_rto,          // Retransmit timeout in usec
+	           tcpi.tcpi_ato,          // Predicted tick of soft clock in usec
+	           tcpi.tcpi_snd_mss,
+	           tcpi.tcpi_rcv_mss,
+	           tcpi.tcpi_lost,         // Lost packets
+	           tcpi.tcpi_retrans,      // Retransmitted packets out
+	           tcpi.tcpi_rtt,          // Smoothed round trip time in usec
+	           tcpi.tcpi_rttvar,       // Medium deviation
+	           tcpi.tcpi_snd_ssthresh,
+	           tcpi.tcpi_snd_cwnd,
+	           tcpi.tcpi_total_retrans);  // Total retransmits for entire connection
+	}
+	return ok;
 }
 
 } // namespace net

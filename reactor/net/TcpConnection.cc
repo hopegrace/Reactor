@@ -6,6 +6,7 @@
 #include <reactor/base/SimpleLogger.h>
 #include <reactor/net/SocketOpt.h>
 
+using namespace std;
 using namespace sduzh::base;
 
 namespace sduzh {
@@ -62,6 +63,17 @@ void TcpConnection::close() {
 	}
 }
 
+bool TcpConnection::get_tcp_info(struct tcp_info *tcpi) const {
+	return socket_.get_tcp_info(tcpi);
+}
+
+string TcpConnection::get_tcp_info_string() const {
+	char buffer[1024];
+	buffer[0] = '\0';
+	socket_.get_tcp_info_string(buffer, sizeof buffer);
+	return buffer;
+}
+
 // TODO more efficiency
 void TcpConnection::write(const char *buffer, size_t len) {
 	if (state_ == kConnected) {
@@ -70,7 +82,6 @@ void TcpConnection::write(const char *buffer, size_t len) {
 			// TODO limit size
 		    output_buffer_.append(buffer, len);
 		} else {
-			assert(state_ == kConnected);
 		    assert((channel_.events() & EVENT_WRITE) == 0);
 		    ssize_t nsend = socket_.send(buffer, len);
 		    if (nsend < 0) {

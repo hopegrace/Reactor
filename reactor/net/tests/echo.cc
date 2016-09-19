@@ -6,6 +6,7 @@
 #include <iostream>
 #include <functional>
 #include <map>
+#include <reactor/base/SimpleLogger.h>
 #include <reactor/net/EventLoop.h>
 #include <reactor/net/InetAddress.h>
 #include <reactor/net/TcpConnection.h>
@@ -15,17 +16,17 @@ using namespace sduzh::net;
 
 class EchoServer {
 public:
-	EchoServer(EventLoop *loop): 
+	EchoServer(EventLoop *loop, const InetAddress &addr): 
 		loop_(loop), 
-		server_(loop)
+		server_(loop, addr)
 	{
 		using namespace std::placeholders;
 		server_.set_connection_callback(std::bind(&EchoServer::new_connection, this, _1));
 		server_.set_message_callback(std::bind(&EchoServer::new_message, this, _1));
 	}
 
-	void start(uint16_t port) {
-		server_.start(InetAddress("0.0.0.0", port));
+	void start() {
+		server_.start();
 	}
 
 	void new_connection(const TcpConnectionPtr &conn) {
@@ -35,6 +36,7 @@ public:
 		} else {
 			clients_.erase(conn->fd());
 		}
+		LOG(Debug) << conn->get_tcp_info_string();
 	}	
 
 	void new_message(const TcpConnectionPtr &conn) {	
@@ -54,15 +56,9 @@ private:
 
 int main(int argc, char *argv[])
 {
-	if (argc < 2) {
-		fprintf(stderr, "Usage; %s port", basename(argv[0]));
-		return 1;
-	}
-	int port = atoi(argv[1]);
-
 	EventLoop loop;
-	EchoServer server(&loop);
-	server.start(static_cast<uint16_t>(port));
+	EchoServer server(&loop, InetAddress("0.0.0.0", 9090));
+	server.start();
 	loop.loop();
 		
 	return 0;

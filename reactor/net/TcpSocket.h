@@ -7,6 +7,8 @@
 #include <reactor/net/InetAddress.h>
 
 
+struct tcp_info;
+
 namespace sduzh {
 namespace net {
 
@@ -50,6 +52,9 @@ public:
 	void set_reuse_addr(bool on);
 	void set_reuse_port(bool on);
 	void set_keep_alive(bool on);
+
+	bool get_tcp_info(struct tcp_info* tcpi) const;
+	bool get_tcp_info_string(char* buf, int len) const;
 
 private:
 	int sockfd_;

@@ -24,6 +24,9 @@ public:
 
 	int fd() const { return socket_.fd(); }
 	bool connected() const { return state_ == kConnected; }
+	bool disconnected() const { return state_ == kDisconnected; }
+	bool get_tcp_info(struct tcp_info *) const;
+	std::string get_tcp_info_string() const;
 
 	void set_tcp_nodelay(bool on);
 

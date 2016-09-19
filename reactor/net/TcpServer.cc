@@ -6,7 +6,6 @@
 
 #include <reactor/base/SimpleLogger.h>
 #include <reactor/net/Channel.h>
-#include <reactor/net/InetAddress.h>
 #include <reactor/net/TcpConnection.h>
 #include <reactor/net/TcpSocket.h>
 
@@ -16,8 +15,9 @@ using namespace sduzh::base;
 namespace sduzh {
 namespace net {
 
-TcpServer::TcpServer(EventLoop *loop):
+TcpServer::TcpServer(EventLoop *loop, const InetAddress &addr):
 		loop_(loop),
+		bind_addr_(addr),
 		bind_socket_(new TcpSocket()),
 		bind_channel_(new Channel(loop, bind_socket_->fd())) {
 	bind_socket_->set_blocking(false);
@@ -35,8 +35,8 @@ void TcpServer::set_reuse_addr(bool on) {
 	bind_socket_->set_reuse_addr(on);
 }
 
-void TcpServer::start(const InetAddress &bind_addr) {
-	bind_socket_->bind(bind_addr);
+void TcpServer::start() {
+	bind_socket_->bind(bind_addr_);
 	bind_socket_->listen(5);
 }
 

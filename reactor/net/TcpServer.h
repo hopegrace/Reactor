@@ -5,6 +5,7 @@
 #include <unordered_map>
 
 #include <reactor/net/Buffer.h>
+#include <reactor/net/InetAddress.h>
 #include <reactor/net/Callbacks.h>
 
 namespace sduzh {
@@ -18,7 +19,7 @@ class TcpSocket;
 
 class TcpServer {
 public:
-	TcpServer(EventLoop *loop);
+	TcpServer(EventLoop *loop, const InetAddress &addr);
 	~TcpServer();
 
 	TcpServer(const TcpServer &) = delete;
@@ -26,8 +27,8 @@ public:
 
 	/// default true
 	void set_reuse_addr(bool on);
-
-	void start(const InetAddress &bind_addr);
+	
+	void start();
 
 	void set_connection_callback(const ConnectionCallback &cb) { connection_cb_ = cb; }
 	void set_message_callback(const MessageCallback &cb) { message_cb_ = cb; }
@@ -42,6 +43,7 @@ private:
 	typedef std::unordered_map<int, TcpConnectionPtr> ConnectionMap;
 
 	EventLoop *loop_;
+	InetAddress bind_addr_;
 	TcpSocket *bind_socket_;
 	// TODO replace with Acceptor
 	Channel *bind_channel_;

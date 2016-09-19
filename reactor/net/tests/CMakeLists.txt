@@ -7,4 +7,7 @@ target_link_libraries(chatserver net base)
 add_executable(echo echo.cc)
 target_link_libraries(echo net base)
 
+add_executable(discard discard.cc)
+target_link_libraries(discard net base)
+
 

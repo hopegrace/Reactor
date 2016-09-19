@@ -18,13 +18,13 @@ Buffer::Buffer(size_t size):
 
 int Buffer::read_fd(int fd) {
 	char buff[65536];
-	int writables = writable_bytes();
+	size_t writables = writable_bytes();
 	assert(writables >= 0);
 
 	// TODO more efficiency
 	if (rindex_ > kMaxReadIndex) {
 		LOG(Debug) << "move data to head";
-		int n = readable_bytes();
+		size_t n = readable_bytes();
 		memmove(&data_[kInitialReadIndex], &data_[rindex_], n);
 		rindex_ = kInitialReadIndex;
 		windex_ = kInitialReadIndex + n;
@@ -40,38 +40,15 @@ int Buffer::read_fd(int fd) {
 	if (nread < 0) {
 		LOG(Error) << "Buffer::read_fd " << strerror(errno);
 
-	} else if (nread <= writables) {
+	} else if (nread <= static_cast<int>(writables)) {
 		windex_ += nread;
 
 	} else { // nread > nfree
-		LOG(Debug) << "append buffer " << (nread-writables) << " bytes";
+		LOG(Debug) << "append buffer " << (nread-static_cast<int>(writables)) << " bytes";
 		windex_ += writables;
 		append(buff, nread - writables);
 	}
 	return nread;
-}
-
-void Buffer::retrieve(size_t size) {
-	if (static_cast<int>(size) > readable_bytes()) { 
-		size = readable_bytes();
-	}
-
-	rindex_ += static_cast<int>(size);
-	if (rindex_ == windex_) { // readable bytes == 0
-		LOG(Debug) << "data empty, reset read/write index";
-		rindex_ = kInitialReadIndex;
-		windex_ = kInitialReadIndex;
-	}
-}
-
-void Buffer::append(const char *data, size_t len) {
-	data_.insert(data_.begin() + windex_, data, data + len);
-	windex_ += static_cast<int>(len);
-}
-
-void Buffer::clear() {
-	rindex_ = kInitialReadIndex;
-	windex_ = kInitialReadIndex;
 }
 
 } // namespace net

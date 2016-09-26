@@ -19,33 +19,21 @@ Buffer::Buffer(size_t size):
 int Buffer::read_fd(int fd) {
 	char buff[65536];
 	size_t writables = writable_bytes();
-	assert(writables >= 0);
-
-	// TODO more efficiency
-	if (rindex_ > kMaxReadIndex) {
-		LOG(Debug) << "move data to head";
-		size_t n = readable_bytes();
-		memmove(&data_[kInitialReadIndex], &data_[rindex_], n);
-		rindex_ = kInitialReadIndex;
-		windex_ = kInitialReadIndex + n;
-	}
-
 	struct iovec buffers[2];
-	buffers[0].iov_base = &data_[windex_];
+	buffers[0].iov_base = begin_write();
 	buffers[0].iov_len = writables;
 	buffers[1].iov_base = buff;
 	buffers[1].iov_len = sizeof(buff);
 
 	int nread = static_cast<int>(::readv(fd, buffers, 2));
 	if (nread < 0) {
-		LOG(Error) << "Buffer::read_fd " << strerror(errno);
+		LOG(Error) << "Buffer::read_fd" << strerror(errno);
 
 	} else if (nread <= static_cast<int>(writables)) {
-		windex_ += nread;
+		has_written(nread);
 
-	} else { // nread > nfree
-		LOG(Debug) << "append buffer " << (nread-static_cast<int>(writables)) << " bytes";
-		windex_ += writables;
+	} else { 
+		has_written(writables);
 		append(buff, nread - writables);
 	}
 	return nread;

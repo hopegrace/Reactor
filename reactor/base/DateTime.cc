@@ -8,15 +8,15 @@ namespace base {
 
 const char *DateTime::kFormat = "%4d-%02d-%02d %02d:%02d:%02d.%06d";
 
-DateTime::DateTime(time_t t, int ms):
+DateTime::DateTime(time_t t, int us):
     seconds_(t),
-    micro_seconds_(ms)
+    micro_seconds_(us)
 {
 }
 
-DateTime::DateTime(int y, int M, int d, int h, int m, int s, int ms):
+DateTime::DateTime(int y, int M, int d, int h, int m, int s, int us):
     seconds_(0),
-    micro_seconds_(ms)
+    micro_seconds_(us)
 {
     struct tm tm_time;
     tm_time.tm_sec = s;
@@ -55,15 +55,15 @@ DateTime DateTime::current()
 
 DateTime DateTime::add_time(const DateTime &add)
 {
-    size_t ms = micro_seconds_ + add.micro_seconds_;
+    size_t us = micro_seconds_ + add.micro_seconds_;
     time_t s = seconds_ + add.seconds_;
-    return DateTime(s + ms/kMicroSecondsPerSecond, static_cast<int>(ms % kMicroSecondsPerSecond));
+    return DateTime(s + us/kMicroSecondsPerSecond, static_cast<int>(us % kMicroSecondsPerSecond));
 }
 
 DateTime DateTime::sub_time(const DateTime &sub) 
 {
 	if (micro_seconds_  < sub.micro_seconds_) {
-		micro_seconds_ += 1000;
+		micro_seconds_ += kMicroSecondsPerSecond;
 		seconds_ -= 1;
 	}
     size_t ms = micro_seconds_ - sub.micro_seconds_;

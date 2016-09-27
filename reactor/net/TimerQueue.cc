@@ -46,8 +46,8 @@ TimerQueue::~TimerQueue() {
 TimerId TimerQueue::add_timer(const DateTime &when, const Callback &cb, double interval) {
 	// TODO 
 	struct itimerspec ts;
-	ts.it_value.tv_sec = when.micro_seconds() / 1000;
-	ts.it_value.tv_nsec = (when.micro_seconds() % 1000) * 1000000; // 10^6
+	ts.it_value.tv_sec = when.micro_seconds() / 1000000;
+	ts.it_value.tv_nsec = (when.micro_seconds() % 1000000) * 1000; 
 
 	time_t s = static_cast<time_t>(interval);
 	ts.it_interval.tv_sec = s;

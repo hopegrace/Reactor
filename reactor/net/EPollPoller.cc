@@ -68,6 +68,10 @@ int EPollPoller::poll(ChannelList *active_channels, int timeout_ms) {
 			if (events[i].events & EPOLLRDHUP) { revents |= EVENT_CLOSE; }
 			if (events[i].events & EPOLLHUP) { revents |= EVENT_CLOSE; }
 			if (events[i].events & EPOLLERR) { revents |= EVENT_ERROR; }
+			
+			if ((revents & EVENT_CLOSE) && (revents & EVENT_READ)) {
+				revents &= ~EVENT_CLOSE;
+			}
 			channel->set_revents(static_cast<short>(revents));
 			active_channels->push_back(channel);
 		}

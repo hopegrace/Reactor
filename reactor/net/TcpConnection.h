@@ -57,6 +57,7 @@ private:
 	enum StateE { kConnecting, kConnected, kDisconnected, kDisconnecting };
 
 	void set_state(StateE s) { state_ = s; }
+	std::string str_state(StateE s);
 
 	EventLoop *loop_;
 	TcpSocket socket_;

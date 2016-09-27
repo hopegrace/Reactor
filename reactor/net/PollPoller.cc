@@ -30,7 +30,7 @@ void PollPoller::update_channel(Channel *channel) {
 
 	struct pollfd pollfd;
 	pollfd.fd = fd;
-	pollfd.events = 0; // 即使channel disableall,也会通知close事件. OK?
+	pollfd.events = 0; 
 	pollfd.revents = 0;
 
 	if (events & EVENT_READ)
@@ -93,6 +93,10 @@ int PollPoller::poll(ChannelList *active_channels, int timeout_ms) {
 				if (pollfd.revents & (POLLERR | POLLNVAL))  { revents |= EVENT_ERROR; }
 				if (pollfd.revents & (POLLIN | POLLPRI))    { revents |= EVENT_READ; }
 				if (pollfd.revents & POLLOUT)               { revents |= EVENT_WRITE; }
+
+				if ((revents & EVENT_CLOSE) && (revents & EVENT_READ)) {
+					revents &= ~EVENT_CLOSE;
+				}
 				channel->set_revents(revents);
 				active_channels->push_back(channel);
 				if (static_cast<int>(active_channels->size()) == num_event)

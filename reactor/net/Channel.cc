@@ -30,7 +30,7 @@ void default_error_callback(int fd) {
 Channel::Channel(EventLoop *loop, int fd):
 	loop_(loop),
 	fd_(fd),
-	events_(EVENT_READ),
+	events_(EVENT_NONE),
 	revents_(EVENT_NONE),
 	index_(-1),
 	read_cb_(std::bind(default_read_callback, fd_)),

@@ -10,4 +10,7 @@ target_link_libraries(echo net base)
 add_executable(discard discard.cc)
 target_link_libraries(discard net base)
 
+add_executable(test_timer_queue test_timer_queue.cc)
+target_link_libraries(test_timer_queue net base)
+
 

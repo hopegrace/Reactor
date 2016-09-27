@@ -31,6 +31,23 @@ public:
     }
 
     DateTime add_time(const DateTime &add);
+	DateTime sub_time(const DateTime &sub);
+
+	DateTime operator + (const DateTime &rhs) { 
+		return add_time(rhs);
+	}
+
+	DateTime operator - (const DateTime &rhs) {
+		return sub_time(rhs);
+	}
+
+	void operator += (const DateTime &rhs) {
+		*this = *this + rhs;
+	}
+
+	void operator -= (const DateTime &rhs) {
+		*this = *this - rhs;
+	}
 
 private:
     static const char *kFormat;

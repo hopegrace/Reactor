@@ -55,9 +55,20 @@ DateTime DateTime::current()
 
 DateTime DateTime::add_time(const DateTime &add)
 {
-   size_t ms = micro_seconds_ + add.micro_seconds_;
-   time_t s = seconds_ + add.seconds_;
-   return DateTime(s + ms/kMicroSecondsPerSecond, static_cast<int>(ms % kMicroSecondsPerSecond));
+    size_t ms = micro_seconds_ + add.micro_seconds_;
+    time_t s = seconds_ + add.seconds_;
+    return DateTime(s + ms/kMicroSecondsPerSecond, static_cast<int>(ms % kMicroSecondsPerSecond));
+}
+
+DateTime DateTime::sub_time(const DateTime &sub) 
+{
+	if (micro_seconds_  < sub.micro_seconds_) {
+		micro_seconds_ += 1000;
+		seconds_ -= 1;
+	}
+    size_t ms = micro_seconds_ - sub.micro_seconds_;
+    time_t s = seconds_ - sub.seconds_;
+	return DateTime(s + ms/kMicroSecondsPerSecond, static_cast<int>(ms % kMicroSecondsPerSecond));
 }
 
 } // namespace base

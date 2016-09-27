@@ -24,6 +24,7 @@ TcpServer::TcpServer(EventLoop *loop, const InetAddress &addr):
 	bind_socket_->set_reuse_addr(true);
 	using namespace std::placeholders;
 	bind_channel_->set_read_callback(std::bind(&TcpServer::on_connection, this));
+	bind_channel_->enable_read();
 }
 
 TcpServer::~TcpServer() {

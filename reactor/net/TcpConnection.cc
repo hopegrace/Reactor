@@ -38,11 +38,13 @@ TcpConnection::TcpConnection(EventLoop *loop, int fd):
 		output_buffer_(1024),
 		local_addr_(socket_.getsockname()), 
 		peer_addr_(socket_.getpeername()) {
+
 	socket_.set_blocking(false);
 	channel_.set_read_callback(std::bind(&TcpConnection::on_read, this));
 	channel_.set_write_callback(std::bind(&TcpConnection::on_write, this));
 	channel_.set_close_callback(std::bind(&TcpConnection::on_close, this));
 	channel_.set_error_callback(std::bind(&TcpConnection::on_error, this));
+	channel_.enable_read();
 }
 
 TcpConnection::~TcpConnection() {
@@ -136,15 +138,14 @@ void TcpConnection::on_write() {
 }
 
 void TcpConnection::on_close() {
+	LOG(Debug) << "state: " << str_state(state_);
 	assert(state_ == kConnected || state_ == kDisconnecting);
 	set_state(kDisconnected);
 	channel_.disable_all();
-	connection_cb_(shared_from_this());
-	channel_.remove();
-	// socket_.close();
-	if (close_cb_) {
-		close_cb_(shared_from_this());
-	}
+
+	TcpConnectionPtr guard_this(shared_from_this());
+	connection_cb_(guard_this);
+	close_cb_(guard_this);
 }
 
 void TcpConnection::on_error() {
@@ -163,6 +164,16 @@ void TcpConnection::set_tcp_nodelay(bool on) {
 	int r = sockets::set_tcp_nodelay(socket_.fd(), on);
 	if (r < 0) {
 		LOG(Error) << strerror(errno);
+	}
+}
+
+std::string TcpConnection::str_state(StateE s) {
+	switch (s) {
+		case kConnecting: return "connecting";
+		case kConnected:  return "connected";
+		case kDisconnecting: return "disconnecting";
+		case kDisconnected: return "disconnected";
+		default: return "unknown";
 	}
 }
 

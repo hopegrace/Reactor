@@ -1,11 +1,13 @@
 #ifndef SDUZH_REACTOR_NET_TIMER_QUEUE_H
 #define SDUZH_REACTOR_NET_TIMER_QUEUE_H
 
-#include <pair>
+#include <utility>
 #include <set>
 #include <memory>
 #include <reactor/base/DateTime.h>
 #include <reactor/net/Channel.h>
+
+using sduzh::base::DateTime;
 
 namespace sduzh {
 namespace net {
@@ -16,19 +18,17 @@ class TimerId;
 
 class TimerQueue {
 public:
-	typedef std::function<void()> TimerCallback;
+	typedef std::function<void()> Callback;
 
 	TimerQueue(EventLoop *loop);
 	~TimerQueue();
 
+	/// disable copy-ctor, copy assignment
 	TimerQueue(const TimerQueue &) = delete;
 	TimerQueue & operator = (const TimerQueue &) = delete;
 
-	TimerQueue(const TimerQueue &) = delete;
-	TimerQueue &operator=(const TimerQueue &) = delete;
-	
 	/// repeat if @c interval > 0.0
-	TimerId add_timer(const DateTime &when, const TimerCallback &cb, double interval);
+	TimerId add_timer(const DateTime &when, const Callback &cb, double interval);
 	void cancel(TimerId id);
 
 private:

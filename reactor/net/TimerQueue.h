@@ -2,10 +2,17 @@
 #define SDUZH_REACTOR_NET_TIMER_QUEUE_H
 
 #include <utility>
-#include <set>
 #include <memory>
-#include <reactor/base/DateTime.h>
+#include <set>
+#include <vector>
 #include <reactor/net/Channel.h>
+
+
+namespace sduzh { 
+namespace base { 
+class DateTime;
+}
+}
 
 using sduzh::base::DateTime;
 
@@ -32,17 +39,25 @@ public:
 	void cancel(TimerId id);
 
 private:
+	typedef std::pair<DateTime, Timer *> Entry;
+	typedef std::set<Entry> TimerList;
+	typedef std::vector<Timer *> ExpiredList;
+
 	/// channel callback
 	void on_read();
 
-	typedef std::pair<DateTime, Timer*> Entry;
-	typedef std::set<Entry> TimerList;
+	TimerId add_timer(Timer *timer);
+	void earliest_changed();
+	ExpiredList expired_timers();
+
+	const time_t kMicroSecondsPerSecond = 1000000;
 
 	EventLoop *loop_;
 	int timerfd_;
 	Channel channel_;
 
 	TimerList timers_;
+	ExpiredList expires_;  // expired timers
 };
 
 } // namespace net

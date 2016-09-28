@@ -4,6 +4,7 @@
 #include <sys/timerfd.h>
 #include <unistd.h>
 
+#include <reactor/base/DateTime.h>
 #include <reactor/base/SimpleLogger.h>
 #include <reactor/net/Timer.h>
 #include <reactor/net/TimerId.h>
@@ -44,20 +45,50 @@ TimerQueue::~TimerQueue() {
 }
 
 TimerId TimerQueue::add_timer(const DateTime &when, const Callback &cb, double interval) {
-	// TODO 
-	struct itimerspec ts;
-	ts.it_value.tv_sec = when.micro_seconds() / 1000000;
-	ts.it_value.tv_nsec = (when.micro_seconds() % 1000000) * 1000; 
+	return add_timer(new Timer(when, cb, interval));
+}
 
-	time_t s = static_cast<time_t>(interval);
-	ts.it_interval.tv_sec = s;
-	ts.it_interval.tv_nsec = static_cast<long>((interval - static_cast<double>(s)) * 1000000000);  // 10^9
+TimerId TimerQueue::add_timer(Timer *timer) {
+	timers_.insert(std::make_pair(timer->when(), timer));
+	auto it = timers_.begin();
+	if (it->second == timer) {
+		earliest_changed();
+	}
+	return TimerId();
+}
+
+void TimerQueue::earliest_changed() {
+	struct itimerspec ts;
+
+	if (!timers_.empty()) {
+		Timer * timer = timers_.begin()->second;
+		time_t when(timer->when().micro_seconds());
+		ts.it_value.tv_sec = when / kMicroSecondsPerSecond;
+		ts.it_value.tv_nsec = when % kMicroSecondsPerSecond * 1000; 
+		LOG(Debug) << "earliest timer is " << timer->when().to_string();
+	} else {
+		ts.it_value.tv_sec = 0;
+		ts.it_value.tv_nsec = 0;
+		LOG(Debug) << "stop timer";
+	}
+	ts.it_interval.tv_sec = 0;
+	ts.it_interval.tv_nsec = 0;
+
 	int ret = timerfd_settime(timerfd_, TFD_TIMER_ABSTIME, &ts, NULL);
 	if (ret < 0) {
-		LOG(Error) << strerror(errno);
+		LOG(Error) << "timerfd_settime in TimerQueue::earliest_changed(): " << strerror(errno);
 	}
+}
 
-	return TimerId();
+TimerQueue::ExpiredList TimerQueue::expired_timers() {
+	ExpiredList result;
+	DateTime now(DateTime::current());
+	auto end = timers_.upper_bound(std::make_pair(now, static_cast<Timer*>(nullptr)));
+	for (auto it = timers_.begin(); it != end; ++it) {
+		result.push_back(it->second);
+	}
+	timers_.erase(timers_.begin(), end);
+	return result;
 }
 
 void TimerQueue::on_read() {
@@ -66,9 +97,23 @@ void TimerQueue::on_read() {
 	ssize_t ret = ::read(timerfd_, &val, sizeof val);
 	if (ret != 8) {
 		LOG(Error) << strerror(errno);
+		return;
 	}
-	// TODO call back
-	LOG(Debug) << "timeout";
+
+	expires_ = expired_timers();
+	for (Timer *t : expires_) {
+		t->expired();
+	}
+
+	for (Timer *t : expires_) {
+		if (t->repeat()) {
+			add_timer(t);
+		} else {
+			delete t;
+		}
+	}
+
+	expires_.clear();
 }
 
 } // namespace net

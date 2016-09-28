@@ -18,30 +18,6 @@ public:
 
     static DateTime current();
 
-    bool operator == (const DateTime &other) {
-        return seconds_ == other.seconds_ && micro_seconds_ == other.micro_seconds_;
-    }
-
-    bool operator != (const DateTime &other) {
-        return !(*this==other);
-    }
-
-    bool operator < (const DateTime &other) {
-        return micro_seconds() < other.micro_seconds();
-    }
-
-	bool operator <= (const DateTime &other) {
-		return (*this < other) || (*this == other); 
-	}
-
-	bool operator >= (const DateTime &other) {
-		return !(*this < other);
-	}
-
-	bool operator > (const DateTime &other) {
-		return (*this >= other) && (*this != other);
-	}
-
     DateTime add_time(const DateTime &add);
 	/// rhs must be <= *this
 	DateTime sub_time(const DateTime &sub);
@@ -72,6 +48,30 @@ private:
 
 	mutable char stime_[32];
 };
+
+inline bool operator == (const DateTime &lhs, const DateTime &rhs) {
+	return lhs.micro_seconds() == rhs.micro_seconds();
+}
+
+inline bool operator != (const DateTime &lhs, const DateTime &rhs) {
+	return !(lhs == rhs);
+}
+
+inline bool operator < (const DateTime &lhs, const DateTime &rhs) {
+	return lhs.micro_seconds() < rhs.micro_seconds();
+}
+
+inline bool operator <= (const DateTime &lhs, const DateTime &rhs) {
+	return (lhs < rhs) || (lhs == rhs);
+}
+
+inline bool operator > (const DateTime &lhs, const DateTime &rhs) {
+	return !(lhs <= rhs);
+}
+
+inline bool operator >= (const DateTime &lhs, const DateTime &rhs) {
+	return (lhs > rhs) || (lhs == rhs);
+}
 
 } // namespace base
 } // namespace sduzh

@@ -2,12 +2,20 @@
 #define SDUZH_REACTOR_NET_TIMER_H
 
 #include <functional>
+#include <memory>
 #include <reactor/base/DateTime.h>
+
+namespace sduzh { 
+namespace base {
+
+class DateTime;
+
+}}
+
+using sduzh::base::DateTime;
 
 namespace sduzh {
 namespace net {
-
-class TimerQueue;
 
 /// internal class for TimerQueue use
 class Timer {
@@ -15,11 +23,16 @@ public:
 	typedef std::function<void()> Callback;
 
 	Timer(const DateTime &time, const Callback &callback, double interval):
-		expire_time_(time),
+		when_(time),
 		callback_(callback),
 		interval_(interval),
 		repeat_(interval > 0.0) {
 
+	}
+
+	void cancel() {
+		interval_ = 0.0;
+		repeat_ = false;
 	}
 
 	void expired() {
@@ -28,15 +41,16 @@ public:
 		if (repeat_) {
 			size_t s = static_cast<size_t>(interval_);
 			size_t ms = static_cast<size_t>(1000 * (interval_ - static_cast<double>(s)));
-			expire_time_ += DateTime(s, static_cast<int>(ms));
+			when_ += DateTime(s, static_cast<int>(ms));
 		}
 	}
 
-	DateTime expire_time() const { return expire_time_; }
+	/// the next unhandled expired time
+	DateTime when() const { return when_; }
 	bool repeat() const { return repeat_; }
 
 private:
-	DateTime expire_time_;
+	DateTime when_;  
 	Callback callback_;
 	double interval_;
 	bool repeat_;

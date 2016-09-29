@@ -3,16 +3,9 @@
 
 #include <functional>
 #include <memory>
+
 #include <reactor/base/DateTime.h>
-
-namespace sduzh { 
-namespace base {
-
-class DateTime;
-
-}}
-
-using sduzh::base::DateTime;
+#include <reactor/net/Callbacks.h>
 
 namespace sduzh {
 namespace net {
@@ -20,9 +13,7 @@ namespace net {
 /// internal class for TimerQueue use
 class Timer {
 public:
-	typedef std::function<void()> Callback;
-
-	Timer(const DateTime &time, const Callback &callback, double interval):
+	Timer(const DateTime &time, const TimerCallback &callback, double interval):
 		when_(time),
 		callback_(callback),
 		interval_(interval),
@@ -51,7 +42,7 @@ public:
 
 private:
 	DateTime when_;  
-	Callback callback_;
+	TimerCallback callback_;
 	double interval_;
 	bool repeat_;
 };

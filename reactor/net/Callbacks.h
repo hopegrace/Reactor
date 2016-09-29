@@ -16,6 +16,8 @@ typedef std::function<void (const TcpConnectionPtr &)> MessageCallback;
 typedef std::function<void (const TcpConnectionPtr &)> WriteCompleteCallback;
 typedef std::function<void (const TcpConnectionPtr &)> CloseCallback;
 
+typedef std::function<void ()> TimerCallback;
+
 } // namespace net
 } // namespace sduzh
 

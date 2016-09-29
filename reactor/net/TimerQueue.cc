@@ -1,16 +1,14 @@
 #include <reactor/net/TimerQueue.h>
-
+#include <assert.h>
 #include <string.h>
 #include <sys/timerfd.h>
 #include <unistd.h>
 
-#include <reactor/base/DateTime.h>
 #include <reactor/base/SimpleLogger.h>
 #include <reactor/net/Timer.h>
 #include <reactor/net/TimerId.h>
 
 using namespace std;
-using namespace sduzh::base;
 
 namespace sduzh {
 namespace net {
@@ -42,19 +40,26 @@ TimerQueue::~TimerQueue() {
 	channel_.disable_all();
 	channel_.remove();
 	::close(timerfd_);
+
+	for (auto item : timers_) { 
+		delete item.second;
+	}
 }
 
-TimerId TimerQueue::add_timer(const DateTime &when, const Callback &cb, double interval) {
+TimerId TimerQueue::add_timer(const DateTime &when, const TimerCallback &cb, double interval) {
 	return add_timer(new Timer(when, cb, interval));
 }
 
 TimerId TimerQueue::add_timer(Timer *timer) {
-	timers_.insert(std::make_pair(timer->when(), timer));
-	auto it = timers_.begin();
-	if (it->second == timer) {
+	bool changed = insert(timer);
+	if (changed) {
 		earliest_changed();
 	}
 	return TimerId();
+}
+
+void TimerQueue::cancel(TimerId id) {
+	// TODO
 }
 
 void TimerQueue::earliest_changed() {
@@ -85,10 +90,19 @@ TimerQueue::ExpiredList TimerQueue::expired_timers() {
 	DateTime now(DateTime::current());
 	auto end = timers_.upper_bound(std::make_pair(now, static_cast<Timer*>(nullptr)));
 	for (auto it = timers_.begin(); it != end; ++it) {
-		result.push_back(it->second);
+		auto ret = result.insert(it->second);
+		assert(ret.second); (void)ret;
 	}
+
 	timers_.erase(timers_.begin(), end);
+
 	return result;
+}
+
+bool TimerQueue::insert(Timer *timer) {
+	auto ret = timers_.insert(std::make_pair(timer->when(), timer));
+	assert(ret.second == true);
+	return ret.first == timers_.begin(); // earliest changed
 }
 
 void TimerQueue::on_read() {
@@ -107,12 +121,13 @@ void TimerQueue::on_read() {
 
 	for (Timer *t : expires_) {
 		if (t->repeat()) {
-			add_timer(t);
+			insert(t);
 		} else {
 			delete t;
 		}
 	}
 
+	earliest_changed();
 	expires_.clear();
 }
 

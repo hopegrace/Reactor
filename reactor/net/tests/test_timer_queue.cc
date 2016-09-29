@@ -4,11 +4,17 @@
 #include <reactor/net/TimerId.h>
 #include <reactor/net/TimerQueue.h>
 
+using namespace sduzh;
 using namespace sduzh::base;
 using namespace sduzh::net;
 
+EventLoop loop;
+
 void bar() {
+	static int cnt = 0;
 	LOG(Info) << "bar";
+	if (++cnt == 10)
+		loop.quit();
 }
 
 void foo() {
@@ -18,7 +24,6 @@ void foo() {
 int main() {
 	SimpleLogger::setLogLevel(Info);
 
-	EventLoop loop;
 	TimerQueue queue(&loop);
 
 	DateTime now(DateTime::current());

@@ -4,14 +4,19 @@
 
 
 namespace sduzh {
-namespace base {
 
 const char *DateTime::kFormat = "%4d-%02d-%02d %02d:%02d:%02d.%06d";
 
-DateTime::DateTime(time_t t, int us):
-    seconds_(t),
-    micro_seconds_(us)
-{
+DateTime::DateTime():
+	seconds_(0),
+	micro_seconds_(0) {
+	
+}
+
+DateTime::DateTime(time_t s, time_t us):
+    seconds_(s),
+    micro_seconds_(us) {
+		
 }
 
 DateTime::DateTime(int y, int M, int d, int h, int m, int s, int us):
@@ -55,9 +60,23 @@ DateTime DateTime::current()
 
 DateTime DateTime::add_time(const DateTime &add)
 {
-    size_t us = micro_seconds_ + add.micro_seconds_;
-    time_t s = seconds_ + add.seconds_;
-    return DateTime(s + us/kMicroSecondsPerSecond, static_cast<int>(us % kMicroSecondsPerSecond));
+	time_t x = add.micro_seconds() / kMicroSecondsPerSecond;
+	time_t y = add.micro_seconds() % kMicroSecondsPerSecond;
+	time_t s = seconds_ + x;
+	time_t us = micro_seconds_ + y;
+	if (us > kMicroSecondsPerSecond) {
+		s += 1;
+		us -= kMicroSecondsPerSecond;
+	}
+	return DateTime(s, us);
+}
+
+DateTime DateTime::add_seconds(double add) 
+{
+	//FIXME when add < 0
+	//may lose precision
+	time_t delta = static_cast<time_t>(add * kMicroSecondsPerSecond);
+	return add_time(DateTime(delta / kMicroSecondsPerSecond, delta % kMicroSecondsPerSecond));
 }
 
 DateTime DateTime::sub_time(const DateTime &sub) 
@@ -66,10 +85,9 @@ DateTime DateTime::sub_time(const DateTime &sub)
 		micro_seconds_ += kMicroSecondsPerSecond;
 		seconds_ -= 1;
 	}
-    size_t ms = micro_seconds_ - sub.micro_seconds_;
+    size_t us = micro_seconds_ - sub.micro_seconds_;
     time_t s = seconds_ - sub.seconds_;
-	return DateTime(s + ms/kMicroSecondsPerSecond, static_cast<int>(ms % kMicroSecondsPerSecond));
+	return DateTime(s + us/kMicroSecondsPerSecond, us % kMicroSecondsPerSecond);
 }
 
-} // namespace base
 } // namespace sduzh

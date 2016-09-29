@@ -3,10 +3,11 @@
 #include "reactor/base/DateTime.h"
 
 using namespace std;
-using namespace sduzh::base;
 
 using ::testing::InitGoogleTest;
 using ::testing::Test;
+
+using sduzh::DateTime;
 
 TEST(test_DateTime, to_micro_seconds) {
 	DateTime t(1000, 1);

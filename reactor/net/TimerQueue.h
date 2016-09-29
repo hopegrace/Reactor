@@ -5,16 +5,10 @@
 #include <memory>
 #include <set>
 #include <vector>
+
+#include <reactor/base/DateTime.h>
+#include <reactor/net/Callbacks.h>
 #include <reactor/net/Channel.h>
-
-
-namespace sduzh { 
-namespace base { 
-class DateTime;
-}
-}
-
-using sduzh::base::DateTime;
 
 namespace sduzh {
 namespace net {
@@ -25,8 +19,6 @@ class TimerId;
 
 class TimerQueue {
 public:
-	typedef std::function<void()> Callback;
-
 	TimerQueue(EventLoop *loop);
 	~TimerQueue();
 
@@ -35,13 +27,13 @@ public:
 	TimerQueue & operator = (const TimerQueue &) = delete;
 
 	/// repeat if @c interval > 0.0
-	TimerId add_timer(const DateTime &when, const Callback &cb, double interval);
+	TimerId add_timer(const DateTime &when, const TimerCallback &cb, double interval);
 	void cancel(TimerId id);
 
 private:
 	typedef std::pair<DateTime, Timer *> Entry;
 	typedef std::set<Entry> TimerList;
-	typedef std::vector<Timer *> ExpiredList;
+	typedef std::set<Timer *> ExpiredList;
 
 	/// channel callback
 	void on_read();
@@ -49,6 +41,7 @@ private:
 	TimerId add_timer(Timer *timer);
 	void earliest_changed();
 	ExpiredList expired_timers();
+	bool insert(Timer *timer);
 
 	const time_t kMicroSecondsPerSecond = 1000000;
 

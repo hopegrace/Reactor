@@ -1,19 +1,24 @@
 #include <reactor/net/EventLoop.h>
-#include <reactor/net/PollPoller.h>
+
 #include <reactor/net/Channel.h>
+#include <reactor/net/PollPoller.h>
+#include <reactor/net/TimerId.h>
+#include <reactor/net/TimerQueue.h>
 
 namespace sduzh {
 namespace net {
 
-EventLoop::EventLoop(): poller_(new PollPoller()) {
+EventLoop::EventLoop(): 
+	poller_(new PollPoller()), 
+	timerq_(new TimerQueue(this)),
+	quit_(false) {
 }
 
 EventLoop::~EventLoop() {
-	delete poller_;
 }
 
 void EventLoop::loop() {
-	for (;;) {
+	while (!quit_) {
 		ChannelList active_channels;
 
 		poller_->poll(&active_channels);
@@ -34,6 +39,19 @@ void EventLoop::remove_channel(Channel *channel) {
 
 void EventLoop::update_channel(Channel *channel) {
 	poller_->update_channel(channel);
+}
+
+TimerId EventLoop::run_after(double delay, const TimerCallback &cb) {
+	return run_at(DateTime::current().add_seconds(delay), cb);
+}
+
+TimerId EventLoop::run_at(const DateTime &time, const TimerCallback &cb) {
+	return timerq_->add_timer(time, cb, 0.0);
+}
+
+TimerId EventLoop::run_every(double interval, const TimerCallback &cb) {
+	DateTime first(DateTime::current().add_seconds(interval));
+	return timerq_->add_timer(first, cb, interval);
 }
 
 } // namespace net

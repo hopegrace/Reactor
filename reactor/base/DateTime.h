@@ -5,12 +5,15 @@
 #include <time.h>
 
 namespace sduzh {
-namespace base {
 
+///
+/// FIXME bad API
+/// 
 class DateTime
 {
 public:
-    explicit DateTime(time_t seconds = 0, int us=0);
+	DateTime();
+    DateTime(time_t seconds, time_t us);
     DateTime(int y, int M, int d, int h, int m, int s, int us=0);
 
     inline time_t micro_seconds() const { return seconds_ * kMicroSecondsPerSecond + micro_seconds_; }
@@ -19,6 +22,8 @@ public:
     static DateTime current();
 
     DateTime add_time(const DateTime &add);
+	DateTime add_seconds(double add);
+
 	/// rhs must be <= *this
 	DateTime sub_time(const DateTime &sub);
 
@@ -73,7 +78,6 @@ inline bool operator >= (const DateTime &lhs, const DateTime &rhs) {
 	return (lhs > rhs) || (lhs == rhs);
 }
 
-} // namespace base
 } // namespace sduzh
 
 #endif // 

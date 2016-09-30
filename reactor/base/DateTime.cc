@@ -58,7 +58,7 @@ DateTime DateTime::current()
     return DateTime(curr.tv_sec, static_cast<int>(curr.tv_usec));
 }
 
-DateTime DateTime::add_time(const DateTime &add)
+DateTime DateTime::add_time(const DateTime &add) const
 {
 	time_t x = add.micro_seconds() / kMicroSecondsPerSecond;
 	time_t y = add.micro_seconds() % kMicroSecondsPerSecond;
@@ -71,23 +71,12 @@ DateTime DateTime::add_time(const DateTime &add)
 	return DateTime(s, us);
 }
 
-DateTime DateTime::add_seconds(double add) 
+DateTime DateTime::add_seconds(double add) const
 {
 	//FIXME when add < 0
 	//may lose precision
 	time_t delta = static_cast<time_t>(add * kMicroSecondsPerSecond);
 	return add_time(DateTime(delta / kMicroSecondsPerSecond, delta % kMicroSecondsPerSecond));
-}
-
-DateTime DateTime::sub_time(const DateTime &sub) 
-{
-	if (micro_seconds_  < sub.micro_seconds_) {
-		micro_seconds_ += kMicroSecondsPerSecond;
-		seconds_ -= 1;
-	}
-    size_t us = micro_seconds_ - sub.micro_seconds_;
-    time_t s = seconds_ - sub.seconds_;
-	return DateTime(s + us/kMicroSecondsPerSecond, us % kMicroSecondsPerSecond);
 }
 
 } // namespace sduzh

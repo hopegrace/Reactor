@@ -28,34 +28,12 @@ TEST(test_DateTime, add_jinwei) {
 	EXPECT_EQ(t3.micro_seconds(), 201*1000000 + 1);
 }
 
-TEST(test_DateTime, sub) {
-	DateTime t1(100, 200);
-	DateTime t2(100, 900);
-	DateTime t3(t2 - t1);
-	EXPECT_EQ(t3.micro_seconds(), 700);
-}
-
-TEST(test_DateTime, sub_jiewei) {
-	DateTime t1(102, 200);
-	DateTime t2(100, 900);
-	DateTime t3(t1 - t2);
-	EXPECT_EQ(t3.micro_seconds(), 1000000 + (1000200 - 900));
-}
-
 TEST(test_DateTime, self_add) {
 	DateTime t1(100, 0);
 	DateTime t2(0, 100);
 
 	t1 += t2;
 	EXPECT_EQ(t1.micro_seconds(), 100*1000000 + 100);
-}
-
-TEST(test_DateTime, self_sub) {
-	DateTime t1(100, 0);
-	DateTime t2(0, 1);
-
-	t1 -= t2;
-	EXPECT_EQ(t1.micro_seconds(), 99*1000000 + 999999);
 }
 
 TEST(test_DateTime, compare) {

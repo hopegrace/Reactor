@@ -9,13 +9,13 @@
 #include <reactor/base/DateTime.h>
 #include <reactor/net/Callbacks.h>
 #include <reactor/net/Channel.h>
+#include <reactor/net/TimerId.h>
 
 namespace sduzh {
 namespace net {
 
 class EventLoop;
 class Timer;
-class TimerId;
 
 class TimerQueue {
 public:
@@ -28,20 +28,22 @@ public:
 
 	/// repeat if @c interval > 0.0
 	TimerId add_timer(const DateTime &when, const TimerCallback &cb, double interval);
-	void cancel(TimerId id);
+	void cancel(const TimerId &id);
 
 private:
-	typedef std::pair<DateTime, Timer *> Entry;
+	typedef std::shared_ptr<Timer> TimerPtr;
+	typedef std::pair<DateTime, TimerPtr> Entry;
 	typedef std::set<Entry> TimerList;
-	typedef std::set<Timer *> ExpiredList;
+	typedef std::set<TimerPtr> ExpireList;
 
-	/// channel callback
+	TimerId add_timer(const TimerPtr &);
+	bool insert(const TimerPtr &);
+
 	void on_read();
+	void reset();
 
-	TimerId add_timer(Timer *timer);
-	void earliest_changed();
-	ExpiredList expired_timers();
-	bool insert(Timer *timer);
+	ExpireList get_expired(const DateTime &);
+	void restart(const ExpireList &, const DateTime &);
 
 	const time_t kMicroSecondsPerSecond = 1000000;
 
@@ -50,7 +52,6 @@ private:
 	Channel channel_;
 
 	TimerList timers_;
-	ExpiredList expires_;  // expired timers
 };
 
 } // namespace net

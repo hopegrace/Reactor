@@ -12,6 +12,8 @@ namespace sduzh {
 class DateTime
 {
 public:
+    static const int kMicroSecondsPerSecond = 1000 * 1000; // 10^6
+
 	DateTime();
     DateTime(time_t seconds, time_t us);
     DateTime(int y, int M, int d, int h, int m, int s, int us=0);
@@ -21,32 +23,19 @@ public:
 
     static DateTime current();
 
-    DateTime add_time(const DateTime &add);
-	DateTime add_seconds(double add);
+    DateTime add_time(const DateTime &add) const;
+	DateTime add_seconds(double add) const;
 
-	/// rhs must be <= *this
-	DateTime sub_time(const DateTime &sub);
-
-	DateTime operator + (const DateTime &rhs) { 
+	DateTime operator + (const DateTime &rhs) const { 
 		return add_time(rhs);
-	}
-
-	/// rhs must be <= *this
-	DateTime operator - (const DateTime &rhs) {
-		return sub_time(rhs);
 	}
 
 	void operator += (const DateTime &rhs) {
 		*this = *this + rhs;
 	}
 
-	void operator -= (const DateTime &rhs) {
-		*this = *this - rhs;
-	}
-
 private:
     static const char *kFormat;
-    static const int kMicroSecondsPerSecond = 1000 * 1000; // 10^6
 
     time_t seconds_;
     size_t micro_seconds_; // micro seconds(us)

@@ -41,6 +41,10 @@ void EventLoop::update_channel(Channel *channel) {
 	poller_->update_channel(channel);
 }
 
+void EventLoop::cancel_timer(const TimerId &id) {
+	timerq_->cancel(id);
+}
+
 TimerId EventLoop::run_after(double delay, const TimerCallback &cb) {
 	return run_at(DateTime::current().add_seconds(delay), cb);
 }

@@ -28,6 +28,8 @@ public:
 
 	void quit() { quit_ = true; }
 
+	void cancel_timer(const TimerId &id);
+
 	///
 	/// run callback fater @c delay seconds
 	///

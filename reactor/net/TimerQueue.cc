@@ -15,7 +15,7 @@ namespace net {
 
 namespace detail {
 
-int create_timerfd_or_die() {
+int create_timerfd() {
 	int fd = timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK | TFD_CLOEXEC);
 	if (fd < 0) {
 		LOG(Fatal) << strerror(errno);
@@ -23,11 +23,36 @@ int create_timerfd_or_die() {
 	return fd;
 }
 
+void set_timerfd(int fd, const DateTime &when) {
+	struct itimerspec ts;
+	time_t us(when.micro_seconds());
+	ts.it_value.tv_sec = us / DateTime::kMicroSecondsPerSecond;
+	ts.it_value.tv_nsec = us % DateTime::kMicroSecondsPerSecond * 1000; 
+	ts.it_interval.tv_sec = 0;
+	ts.it_interval.tv_nsec = 0;
+
+	int ret = timerfd_settime(fd, TFD_TIMER_ABSTIME, &ts, NULL);
+	if (ret < 0) {
+		LOG(Error) << "timerfd_settime(): " << strerror(errno);
+	}
+}
+
+void close_timerfd(int fd) {
+	set_timerfd(fd, DateTime(0, 0));
+}
+
+void read_timerfd(int fd) {
+	uint64_t val;
+	if (::read(fd, &val, sizeof val) != sizeof(val)) {
+		LOG(Error) << "read_timerfd(): " << strerror(errno);
+	}
+}
+
 } // namespace detail
 
 TimerQueue::TimerQueue(EventLoop *loop):
 	loop_(loop),
-	timerfd_(detail::create_timerfd_or_die()),
+	timerfd_(detail::create_timerfd()),
 	channel_(loop, timerfd_),
 	timers_() {
 
@@ -37,98 +62,77 @@ TimerQueue::TimerQueue(EventLoop *loop):
 }
 
 TimerQueue::~TimerQueue() {
-	channel_.disable_all();
-	channel_.remove();
+	/// no need to remove channel, because we are in dtor of EventLoop
 	::close(timerfd_);
-
-	for (auto item : timers_) { 
-		delete item.second;
-	}
 }
 
 TimerId TimerQueue::add_timer(const DateTime &when, const TimerCallback &cb, double interval) {
-	return add_timer(new Timer(when, cb, interval));
+	return add_timer(std::make_shared<Timer>(when, cb, interval));
 }
 
-TimerId TimerQueue::add_timer(Timer *timer) {
-	bool changed = insert(timer);
-	if (changed) {
-		earliest_changed();
+TimerId TimerQueue::add_timer(const TimerPtr &timer) {
+	bool earliest_changed = insert(timer);
+	if (earliest_changed) {
+		reset();
 	}
-	return TimerId();
+	return TimerId(timer);
 }
 
-void TimerQueue::cancel(TimerId id) {
-	// TODO
+void TimerQueue::cancel(const TimerId &id) {
+	TimerPtr timer(id.lock());
+	if (timer) { timer->cancel(); }
 }
 
-void TimerQueue::earliest_changed() {
-	struct itimerspec ts;
-
+void TimerQueue::reset() {
 	if (!timers_.empty()) {
-		Timer * timer = timers_.begin()->second;
-		time_t when(timer->when().micro_seconds());
-		ts.it_value.tv_sec = when / kMicroSecondsPerSecond;
-		ts.it_value.tv_nsec = when % kMicroSecondsPerSecond * 1000; 
-		LOG(Debug) << "earliest timer is " << timer->when().to_string();
+		TimerPtr timer = timers_.begin()->second;
+		detail::set_timerfd(timerfd_, timer->when());
+		LOG(Debug) << "earliest time of timer queue is " << timer->when().to_string();
 	} else {
-		ts.it_value.tv_sec = 0;
-		ts.it_value.tv_nsec = 0;
-		LOG(Debug) << "stop timer";
-	}
-	ts.it_interval.tv_sec = 0;
-	ts.it_interval.tv_nsec = 0;
-
-	int ret = timerfd_settime(timerfd_, TFD_TIMER_ABSTIME, &ts, NULL);
-	if (ret < 0) {
-		LOG(Error) << "timerfd_settime in TimerQueue::earliest_changed(): " << strerror(errno);
+		LOG(Debug) << "stop timerfd";
+		detail::close_timerfd(timerfd_);
 	}
 }
 
-TimerQueue::ExpiredList TimerQueue::expired_timers() {
-	ExpiredList result;
-	DateTime now(DateTime::current());
-	auto end = timers_.upper_bound(std::make_pair(now, static_cast<Timer*>(nullptr)));
+TimerQueue::ExpireList TimerQueue::get_expired(const DateTime &now) {
+	ExpireList result;
+	auto end = timers_.upper_bound(std::make_pair(now, TimerPtr()));
 	for (auto it = timers_.begin(); it != end; ++it) {
-		auto ret = result.insert(it->second);
-		assert(ret.second); (void)ret;
+		result.insert(it->second);
 	}
-
 	timers_.erase(timers_.begin(), end);
 
 	return result;
 }
 
-bool TimerQueue::insert(Timer *timer) {
+bool TimerQueue::insert(const TimerPtr &timer) {
 	auto ret = timers_.insert(std::make_pair(timer->when(), timer));
 	assert(ret.second == true);
 	return ret.first == timers_.begin(); // earliest changed
 }
 
 void TimerQueue::on_read() {
-	errno = 0;
-	uint64_t val;
-	ssize_t ret = ::read(timerfd_, &val, sizeof val);
-	if (ret != 8) {
-		LOG(Error) << strerror(errno);
-		return;
+	DateTime now(DateTime::current());
+	detail::read_timerfd(timerfd_);
+
+	ExpireList expires = get_expired(now);
+	for (TimerPtr timer: expires) {
+		timer->run();
 	}
 
-	expires_ = expired_timers();
-	for (Timer *t : expires_) {
-		t->expired();
+	restart(expires, now);
+}
+
+void TimerQueue::restart(const ExpireList &expires, const DateTime &now) {
+	for (auto it = expires.begin(); it != expires.end(); ++it) {
+		assert(it->use_count() == 1);
+		if ((*it)->repeat()) {
+			(*it)->restart(now);
+			insert(*it);
+		} 
 	}
 
-	for (Timer *t : expires_) {
-		if (t->repeat()) {
-			insert(t);
-		} else {
-			delete t;
-		}
-	}
-
-	earliest_changed();
-	expires_.clear();
+	reset();
 }
 
 } // namespace net

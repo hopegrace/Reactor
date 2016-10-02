@@ -3,7 +3,7 @@
 namespace sduzh {
 namespace net {
 
-Timer::Timer(const DateTime &time, const TimerCallback &callback, double interval):
+Timer::Timer(const Timestamp &time, const TimerCallback &callback, double interval):
 	when_(time),
 	callback_(callback),
 	interval_(interval),
@@ -18,9 +18,10 @@ void Timer::cancel() {
 	repeat_ = false;
 }
 
-void Timer::restart(const DateTime &now) {
+void Timer::restart(const Timestamp &now) {
 	if (repeat_) {
-		when_ = now.add_seconds(interval_);
+		when_ = now + Timestamp(
+				static_cast<int64_t>(interval_ * Timestamp::kMicroSecondsPerSecond));
 	}
 }
 

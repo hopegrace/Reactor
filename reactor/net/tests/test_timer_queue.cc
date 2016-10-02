@@ -1,4 +1,4 @@
-#include <reactor/base/DateTime.h>
+#include <reactor/base/Timestamp.h>
 #include <reactor/base/SimpleLogger.h>
 #include <reactor/net/EventLoop.h>
 #include <reactor/net/TimerId.h>
@@ -14,6 +14,7 @@ TimerQueue queue(&loop);
 TimerId id1;
 TimerId id2;
 TimerId id3;
+TimerId id4;
 
 void bar() {
 	static int cnt = 0;
@@ -44,11 +45,11 @@ void quit() {
 }
 
 int main() {
-	DateTime now(DateTime::current());
-	id1 = queue.add_timer(now + DateTime(0,0), bar, 1); // 10s
-	id2 = queue.add_timer(now + DateTime(0,0), foo, 2); // 20s
-	queue.add_timer(now + DateTime(21, 0), cancel, 0);
-	queue.add_timer(now + DateTime(22, 0), quit, 0);
+	Timestamp now(Timestamp::current());
+	id1 = queue.add_timer(now.add_seconds(1), bar, 1); 
+	id2 = queue.add_timer(now.add_seconds(2), foo, 2); 
+	id3 = queue.add_timer(now.add_seconds(21), cancel, 0);
+	id4 = queue.add_timer(now.add_seconds(22), quit, 0);
 	
 	loop.loop();
 	return 0;

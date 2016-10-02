@@ -46,15 +46,17 @@ void EventLoop::cancel_timer(const TimerId &id) {
 }
 
 TimerId EventLoop::run_after(double delay, const TimerCallback &cb) {
-	return run_at(DateTime::current().add_seconds(delay), cb);
+	int64_t delay_us = static_cast<int64_t>(delay * 1000000);
+	return run_at(Timestamp::current().add_microseconds(delay_us), cb);
 }
 
-TimerId EventLoop::run_at(const DateTime &time, const TimerCallback &cb) {
+TimerId EventLoop::run_at(const Timestamp &time, const TimerCallback &cb) {
 	return timerq_->add_timer(time, cb, 0.0);
 }
 
 TimerId EventLoop::run_every(double interval, const TimerCallback &cb) {
-	DateTime first(DateTime::current().add_seconds(interval));
+	int64_t delay_us = static_cast<int64_t>(interval * 1000000);
+	Timestamp first(Timestamp::current().add_microseconds(delay_us));
 	return timerq_->add_timer(first, cb, interval);
 }
 

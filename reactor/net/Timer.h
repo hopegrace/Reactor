@@ -4,7 +4,7 @@
 #include <functional>
 #include <memory>
 
-#include <reactor/base/DateTime.h>
+#include <reactor/base/Timestamp.h>
 #include <reactor/net/Callbacks.h>
 
 namespace sduzh {
@@ -13,17 +13,17 @@ namespace net {
 /// internal class for TimerQueue use
 class Timer {
 public:
-	Timer(const DateTime &time, const TimerCallback &callback, double interval);
+	Timer(const Timestamp &time, const TimerCallback &callback, double interval);
 
 	void cancel(); 
-	void restart(const DateTime &now);
+	void restart(const Timestamp &now);
 	void run();
 
-	DateTime when() const { return when_; }
+	Timestamp when() const { return when_; }
 	bool repeat() const { return repeat_; }
 
 private:
-	DateTime when_;  
+	Timestamp when_;  
 	TimerCallback callback_;
 	double interval_;
 	bool repeat_;

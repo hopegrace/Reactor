@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <reactor/base/SimpleLogger.h>
-#include <reactor/base/DateTime.h>
+#include <reactor/base/Timestamp.h>
 
 using namespace std;
 
@@ -31,7 +31,7 @@ SimpleLogger::SimpleLogger(
     buff_()
 {
     buff_.reserve(128);
-    std::string curr_time = DateTime::current().to_string();
+    std::string curr_time = Timestamp::current().to_string();
     buff_.append(curr_time).append(" ");
     buff_.append(level==Debug ? " DEBUG " :
                     level==Info  ? " INFO  " :

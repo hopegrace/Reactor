@@ -23,11 +23,11 @@ int create_timerfd() {
 	return fd;
 }
 
-void set_timerfd(int fd, const DateTime &when) {
+void set_timerfd(int fd, const Timestamp &when) {
 	struct itimerspec ts;
-	time_t us(when.micro_seconds());
-	ts.it_value.tv_sec = us / DateTime::kMicroSecondsPerSecond;
-	ts.it_value.tv_nsec = us % DateTime::kMicroSecondsPerSecond * 1000; 
+	time_t us(when.microseconds());
+	ts.it_value.tv_sec = us / Timestamp::kMicroSecondsPerSecond;
+	ts.it_value.tv_nsec = us % Timestamp::kMicroSecondsPerSecond * 1000; 
 	ts.it_interval.tv_sec = 0;
 	ts.it_interval.tv_nsec = 0;
 
@@ -38,7 +38,7 @@ void set_timerfd(int fd, const DateTime &when) {
 }
 
 void close_timerfd(int fd) {
-	set_timerfd(fd, DateTime(0, 0));
+	set_timerfd(fd, Timestamp(0));
 }
 
 void read_timerfd(int fd) {
@@ -66,7 +66,7 @@ TimerQueue::~TimerQueue() {
 	::close(timerfd_);
 }
 
-TimerId TimerQueue::add_timer(const DateTime &when, const TimerCallback &cb, double interval) {
+TimerId TimerQueue::add_timer(const Timestamp &when, const TimerCallback &cb, double interval) {
 	return add_timer(std::make_shared<Timer>(when, cb, interval));
 }
 
@@ -94,7 +94,7 @@ void TimerQueue::reset() {
 	}
 }
 
-TimerQueue::ExpireList TimerQueue::get_expired(const DateTime &now) {
+TimerQueue::ExpireList TimerQueue::get_expired(const Timestamp &now) {
 	ExpireList result;
 	auto end = timers_.upper_bound(std::make_pair(now, TimerPtr()));
 	for (auto it = timers_.begin(); it != end; ++it) {
@@ -112,7 +112,7 @@ bool TimerQueue::insert(const TimerPtr &timer) {
 }
 
 void TimerQueue::on_read() {
-	DateTime now(DateTime::current());
+	Timestamp now(Timestamp::current());
 	detail::read_timerfd(timerfd_);
 
 	ExpireList expires = get_expired(now);
@@ -123,7 +123,7 @@ void TimerQueue::on_read() {
 	restart(expires, now);
 }
 
-void TimerQueue::restart(const ExpireList &expires, const DateTime &now) {
+void TimerQueue::restart(const ExpireList &expires, const Timestamp &now) {
 	for (auto it = expires.begin(); it != expires.end(); ++it) {
 		assert(it->use_count() == 1);
 		if ((*it)->repeat()) {

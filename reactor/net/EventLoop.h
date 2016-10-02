@@ -6,7 +6,7 @@
 #include <vector>
 
 #include <reactor/net/Callbacks.h>
-#include <reactor/base/DateTime.h>
+#include <reactor/base/Timestamp.h>
 #include <reactor/net/TimerId.h>
 
 namespace sduzh {
@@ -37,7 +37,7 @@ public:
 	///
 	/// run callback at 'time'
 	///
-	TimerId run_at(const DateTime &time, const TimerCallback &cb);
+	TimerId run_at(const Timestamp &time, const TimerCallback &cb);
 	///
 	/// run callback every  @c interval seconds
 	///

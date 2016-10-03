@@ -16,6 +16,7 @@ target_link_libraries(test_timer_queue net base)
 add_executable(test_loop_timer test_loop_timer.cc)
 target_link_libraries(test_loop_timer net base)
 
-
+add_executable(test_acceptor test_acceptor.cc)
+target_link_libraries(test_acceptor net base)
 
 

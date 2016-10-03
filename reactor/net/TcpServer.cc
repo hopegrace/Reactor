@@ -17,34 +17,24 @@ namespace net {
 
 TcpServer::TcpServer(EventLoop *loop, const InetAddress &addr):
 		loop_(loop),
-		bind_addr_(addr),
-		bind_socket_(new TcpSocket()),
-		bind_channel_(new Channel(loop, bind_socket_->fd())) {
-	bind_socket_->set_blocking(false);
-	bind_socket_->set_reuse_addr(true);
+		acceptor_(loop, addr),
+		started_(false) {
+
 	using namespace std::placeholders;
-	bind_channel_->set_read_callback(std::bind(&TcpServer::on_connection, this));
-	bind_channel_->enable_read();
+	acceptor_.set_new_connection_callback(std::bind(&TcpServer::on_connection, this, _1, _2, _3));
 }
 
 TcpServer::~TcpServer() {
-	delete bind_channel_;
-	delete bind_socket_;
-}
-
-void TcpServer::set_reuse_addr(bool on) {
-	bind_socket_->set_reuse_addr(on);
 }
 
 void TcpServer::start() {
-	bind_socket_->bind(bind_addr_);
-	bind_socket_->listen(5);
+	if (!started_) {
+		acceptor_.listen();
+		started_ = true;
+	}
 }
 
-void TcpServer::on_connection() {
-	InetAddress client_addr;
-	int client = bind_socket_->accept(&client_addr);
-	LOG(Info) << client_addr.host() << ":" << client_addr.port() << " connected";	
+void TcpServer::on_connection(int client, const InetAddress &client_addr, Timestamp time) {
 	if (connection_cb_) {
 		assert(connections_.find(client) == connections_.end());
 		TcpConnectionPtr conn = std::make_shared<TcpConnection>(loop_, client);

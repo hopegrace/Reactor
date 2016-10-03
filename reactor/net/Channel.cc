@@ -38,7 +38,7 @@ Channel::Channel(EventLoop *loop, int fd):
 	close_cb_(std::bind(default_close_callback, fd_)),
 	error_cb_(std::bind(default_error_callback, fd_)) 
 {
-	loop_->add_channel(this);
+	//loop_->add_channel(this);
 }
 
 Channel::~Channel() {

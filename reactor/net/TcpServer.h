@@ -4,6 +4,7 @@
 #include <functional>
 #include <unordered_map>
 
+#include <reactor/net/Acceptor.h>
 #include <reactor/net/Buffer.h>
 #include <reactor/net/InetAddress.h>
 #include <reactor/net/Callbacks.h>
@@ -25,9 +26,6 @@ public:
 	TcpServer(const TcpServer &) = delete;
 	TcpServer &operator=(const TcpServer &) = delete;
 
-	/// default true
-	void set_reuse_addr(bool on);
-	
 	void start();
 
 	void set_connection_callback(const ConnectionCallback &cb) { connection_cb_ = cb; }
@@ -35,7 +33,7 @@ public:
 	void set_write_complete_callback(const WriteCompleteCallback &cb) { write_complete_cb_ = cb; }
 
 private:
-	void on_connection();
+	void on_connection(int fd, const InetAddress &addr, Timestamp time);
 
 	/// called by TcpConnection
 	void on_close(const TcpConnectionPtr &conn);
@@ -43,11 +41,9 @@ private:
 	typedef std::unordered_map<int, TcpConnectionPtr> ConnectionMap;
 
 	EventLoop *loop_;
-	InetAddress bind_addr_;
-	TcpSocket *bind_socket_;
-	// TODO replace with Acceptor
-	Channel *bind_channel_;
-
+	Acceptor acceptor_;
+	
+	bool started_;
 	// user specifiy callbacks
 	ConnectionCallback    connection_cb_;
 	MessageCallback 	  message_cb_;

@@ -6,9 +6,6 @@
 
 namespace sduzh {
 
-///
-/// FIXME bad API
-/// 
 class Timestamp
 {
 public:

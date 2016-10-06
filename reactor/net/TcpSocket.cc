@@ -11,6 +11,7 @@
 
 #include <reactor/base/SimpleLogger.h>
 #include <reactor/net/InetAddress.h>
+#include <reactor/net/SocketOpt.h>
 
 using namespace sduzh::base;
 
@@ -166,6 +167,16 @@ void TcpSocket::set_keep_alive(bool on) {
   ::setsockopt(sockfd_, SOL_SOCKET, SO_KEEPALIVE,
                &optval, static_cast<socklen_t>(sizeof optval));
   // FIXME CHECK
+}
+
+int TcpSocket::get_error() const {
+	int err = 0;
+	socklen_t optlen = sizeof(err);
+	int ret = ::getsockopt(sockfd_, SOL_SOCKET, SO_ERROR, &err, &optlen);
+	if (ret) {
+		LOG(Error) << "in TcpSocket::get_error " << ret;
+	}
+	return err;
 }
 
 bool TcpSocket::get_tcp_info(struct tcp_info* tcpi) const

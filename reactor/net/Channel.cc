@@ -42,7 +42,7 @@ Channel::Channel(EventLoop *loop, int fd):
 }
 
 Channel::~Channel() {
-	events_ = EVENT_NONE;
+	disable_all();
 	loop_->remove_channel(this);
 }
 

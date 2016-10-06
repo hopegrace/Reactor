@@ -53,6 +53,8 @@ public:
 	void set_reuse_port(bool on);
 	void set_keep_alive(bool on);
 
+	int get_error() const;
+
 	bool get_tcp_info(struct tcp_info* tcpi) const;
 	bool get_tcp_info_string(char* buf, int len) const;
 

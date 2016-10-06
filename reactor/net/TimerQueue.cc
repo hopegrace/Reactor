@@ -87,9 +87,7 @@ void TimerQueue::reset() {
 	if (!timers_.empty()) {
 		TimerPtr timer = timers_.begin()->second;
 		detail::set_timerfd(timerfd_, timer->when());
-		LOG(Debug) << "earliest time of timer queue is " << timer->when().to_string();
 	} else {
-		LOG(Debug) << "stop timerfd";
 		detail::close_timerfd(timerfd_);
 	}
 }

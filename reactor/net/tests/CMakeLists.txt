@@ -19,4 +19,9 @@ target_link_libraries(test_loop_timer net base)
 add_executable(test_acceptor test_acceptor.cc)
 target_link_libraries(test_acceptor net base)
 
+add_executable(test_connector test_connector.cc)
+target_link_libraries(test_connector net base)
+
+
+
 

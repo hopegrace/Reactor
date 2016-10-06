@@ -1,5 +1,6 @@
 #include <reactor/net/EventLoop.h>
 
+#include <reactor/base/SimpleLogger.h>
 #include <reactor/net/Channel.h>
 #include <reactor/net/PollPoller.h>
 #include <reactor/net/TimerId.h>
@@ -11,7 +12,9 @@ namespace net {
 EventLoop::EventLoop(): 
 	poller_(new PollPoller()), 
 	timerq_(new TimerQueue(this)),
-	quit_(false) {
+	quit_(false),
+	handling_(false), 
+	qevents_() {
 }
 
 EventLoop::~EventLoop() {
@@ -19,13 +22,27 @@ EventLoop::~EventLoop() {
 
 void EventLoop::loop() {
 	while (!quit_) {
-		ChannelList active_channels;
+		poller_->poll(&active_channels_);
 
-		poller_->poll(&active_channels);
+		handle_active_channels();
+		handle_queue_events();
+	}
+}
 
-		for (Channel *channel : active_channels) {
-			channel->handle_events();
-		}
+void EventLoop::handle_active_channels() {
+	handling_ = true;
+	for (Channel *channel : active_channels_) {
+		channel->handle_events();
+	}
+	handling_ = false;
+}
+
+void EventLoop::handle_queue_events() {
+	assert(!handling_);
+	while (!qevents_.empty()) {
+		auto event = qevents_.front();
+		qevents_.pop();
+		event();
 	}
 }
 

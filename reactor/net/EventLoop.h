@@ -1,8 +1,10 @@
 #ifndef SDUZH_OWNLIB_NET_EVENT_LOOP_H
 #define SDUZH_OWNLIB_NET_EVENT_LOOP_H
 
+#include <assert.h>
 #include <functional>
 #include <memory>
+#include <queue>
 #include <vector>
 
 #include <reactor/net/Callbacks.h>
@@ -18,6 +20,8 @@ class TimerQueue;
 
 class EventLoop {
 public:
+	typedef std::function<void ()> QueueEvent;
+
 	EventLoop();
 	~EventLoop();
 
@@ -47,14 +51,31 @@ public:
 	void remove_channel(Channel *channel);
 	void update_channel(Channel *channel);
 
+	void queue_run(const QueueEvent &e) {
+		if (handling_) {
+			qevents_.push(e);
+		} else {
+			assert(qevents_.empty());
+			e();
+		}
+	}
+
 private:
 	typedef std::unique_ptr<Poller> PollerPtr;
 	typedef std::unique_ptr<TimerQueue> TimerQueuePtr;
 	typedef std::vector<Channel*> ChannelList;
 
+	void handle_active_channels();
+	void handle_queue_events();
+
 	PollerPtr poller_;
 	TimerQueuePtr timerq_;
 	bool quit_;
+
+	bool handling_;
+	std::queue<QueueEvent> qevents_;
+
+	ChannelList active_channels_;
 };
 
 } // namespace net

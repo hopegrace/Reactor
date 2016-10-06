@@ -12,30 +12,47 @@ namespace net {
 
 class Connector {
 public:
+	typedef std::function<void (int)> ConnectionCallback;
+
 	Connector(EventLoop *loop, const InetAddress &servaddr);
 	~Connector();
 
-	void connect();
+	void set_connection_callback(const ConnectionCallback &cb) {
+		connection_cb_ = cb;
+	}
+
+	void start();
+	// restart();
+	// stop();
 
 private:
-	typedef std::unique_ptr<TcpSocket> SocketPtr;
-	typedef std::unique_ptr<Channel> ChannelPtr;
-
 	enum class State {
 		Disconnected, 
 		Connecting,
 		Connected,
 	};
 
-	void do_connect();
+	void on_error();
 	void on_write();
+
+	void close_socket();
+	void delete_channel();
+	void connect();
+	void connecting();
+	void retry();
+	
+	void _delete_channel();
 
 	EventLoop *loop_;
 	InetAddress servaddr_;
-	SocketPtr socket_;
-	ChannelPtr channel_;
+	int socket_;
+	Channel *channel_;
 
 	State state_;
+	
+	int delay_ms_;
+
+	ConnectionCallback connection_cb_;
 };
 
 } // namespace net

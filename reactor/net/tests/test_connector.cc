@@ -10,13 +10,7 @@ using namespace sduzh::net;
 EventLoop loop;
 
 void on_connected(int fd) {
-	char buf[1024];
 	std::cout << fd << " connected\n";
-	::write(fd, "hello\n", 6);
-	ssize_t nread = ::read(fd, buf, sizeof buf);
-	assert(nread >= 0);
-	buf[nread] = 0;
-	std::cout << buf;
 	::close(fd);
 	loop.quit();
 }

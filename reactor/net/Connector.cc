@@ -22,11 +22,11 @@ Connector::Connector(EventLoop *loop, const InetAddress &servaddr):
 }
 
 Connector::~Connector() {
+	delete_channel();
 }
 
 void Connector::close_socket() {
 	if (socket_ >= 0) {
-		LOG(Debug) << "close socket of fd " << socket_;
 		::close(socket_);
 		socket_ = -1;
 	}
@@ -77,6 +77,7 @@ void Connector::connect() {
 	case EADDRNOTAVAIL:
 	case ECONNREFUSED:
 	case ENETUNREACH:
+		LOG(Error) << strerror(saved_errno);
 		retry();
 		break;
 
@@ -87,7 +88,7 @@ void Connector::connect() {
     case EBADF:
     case EFAULT:
     case ENOTSOCK:
-      LOG(Error) << "connect error in Connector::connect() " << strerror(saved_errno);
+      LOG(Error) << strerror(saved_errno);
 	  close_socket();
       break;
 

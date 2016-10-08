@@ -1,47 +1,52 @@
 #ifndef SDUZH_REACTOR_NET_TCP_CLIENT_H
 #define SDUZH_REACTOR_NET_TCP_CLIENT_H
 
-#include <functional>
-
-#include <reactor/net/Channel.h>
-#include <reactor/net/EventLoop.h>
+#include <reactor/net/Connector.h>
 #include <reactor/net/TcpConnection.h>
-#include <reactor/net/TcpSocket.h>
 
 namespace sduzh {
 namespace net {
 
+class EventLoop;
+class InetAddress;
+
 class TcpClient {
 public:
-	typedef std::function<void (const TcpConnectionPtr &)> EventCallback;
+	TcpClient(EventLoop *loop, const InetAddress &servaddr);
 
-	TcpClient(EventLoop *loop);
+	void connect();
+	void disconnect();
+	void stop();
 
-	/// TODO non-block
-	void connect(const InetAddress &);
+	TcpConnectionPtr connection() const { return connection_; }
 
-	void send(const char *data, size_t len);
+	EventLoop *loop() const { return loop_; }
 
-	void set_connection_callback(const EventCallback &cb) { 
-		conn_->set_connection_callback(cb);
+	void set_connection_callback(const ConnectionCallback &cb) { 
+		connection_cb_ = cb;
 	}
 
-	void set_message_callback(const EventCallback &cb) {  
-		conn_->set_message_callback(cb);
+	void set_message_callback(const MessageCallback &cb) {  
+		message_cb_ = cb;
 	}
 
-	void set_write_complete_callback(const EventCallback &cb) { 
-		conn_->set_write_complete_callback(cb);
+	void set_write_complete_callback(const WriteCompleteCallback &cb) { 
+		write_complete_cb_ = cb;
 	}
-
-	// error callback?
 
 private:
+	typedef std::unique_ptr<Connector> ConnectorPtr;
+	
+	void on_connected(int fd);
 	void on_close(const TcpConnectionPtr &);
 
 	EventLoop *loop_;
-	TcpSocket socket_;
-	TcpConnectionPtr conn_;
+	ConnectorPtr connector_;
+	TcpConnectionPtr connection_;
+
+	ConnectionCallback connection_cb_;
+	WriteCompleteCallback write_complete_cb_;
+	MessageCallback message_cb_;
 };
 
 } // namespace net

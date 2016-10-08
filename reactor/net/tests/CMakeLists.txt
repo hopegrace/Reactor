@@ -22,6 +22,11 @@ target_link_libraries(test_acceptor net base)
 add_executable(test_connector test_connector.cc)
 target_link_libraries(test_connector net base)
 
+add_executable(test_tcp_client test_tcp_client.cc)
+target_link_libraries(test_tcp_client net base)
+
+
+
 
 
 

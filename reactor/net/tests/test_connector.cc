@@ -1,6 +1,8 @@
 #include <assert.h>
+#include <stdlib.h>
 #include <iostream>
 #include <unistd.h>
+#include <libgen.h>
 #include <reactor/net/Connector.h>
 #include <reactor/net/EventLoop.h>
 #include <reactor/net/InetAddress.h>
@@ -15,9 +17,16 @@ void on_connected(int fd) {
 	loop.quit();
 }
 
-int main()
+int main(int argc, char *argv[])
 {
-	Connector connector(&loop, InetAddress("127.0.0.1", 9090));
+	if (argc != 3) {
+		std::cout << "Usage: " << basename(argv[0]) << " host port\n";
+		return 0;
+	}
+
+	int port = atoi(argv[2]);
+
+	Connector connector(&loop, InetAddress(argv[0], static_cast<uint16_t>(port)));
 	connector.set_connection_callback(on_connected);
 	connector.start();
 	loop.loop();

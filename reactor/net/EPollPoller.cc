@@ -1,4 +1,5 @@
 #include <reactor/net/EPollPoller.h>
+#include <assert.h>
 #include <errno.h>
 #include <string.h>
 #include <sys/epoll.h>
@@ -30,9 +31,12 @@ void EPollPoller::update_channel(Channel *channel) {
 	epoll_event.events = to_epoll_events(channel->events());
 
 	if (it == channels_.end()) {
+		assert(channel->index() == -1);
 		channels_[channel->fd()] = channel;
+		channel->set_index(channel->fd());  // index>=0表示channel已被添加
 		ret = epoll_ctl(epfd_, EPOLL_CTL_ADD, channel->fd(), &epoll_event);
 	} else {
+		assert(channel->index() == channel->fd());
 		ret = epoll_ctl(epfd_, EPOLL_CTL_MOD, channel->fd(), &epoll_event);
 	}
 
@@ -42,14 +46,18 @@ void EPollPoller::update_channel(Channel *channel) {
 }
 
 void EPollPoller::remove_channel(Channel *channel) {
-	if (channels_.erase(channel->fd()) == 1) {
+	if (channel->index() >= 0) {
+		assert(channel->index() == channel->fd());
+		int ret = static_cast<int>(channels_.erase(channel->fd()));
+		assert(ret == 1); 
 		struct epoll_event epoll_event;
 		epoll_event.data.fd = channel->fd();
 		epoll_event.events = 0;
-		int ret = epoll_ctl(epfd_, EPOLL_CTL_DEL, channel->fd(), &epoll_event);
+		ret = epoll_ctl(epfd_, EPOLL_CTL_DEL, channel->fd(), &epoll_event);
 		if (ret < 0) {
 			LOG(Error) << strerror(errno);
 		}
+		channel->set_index(-1);
 	}
 }
 

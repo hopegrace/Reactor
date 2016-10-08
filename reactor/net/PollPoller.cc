@@ -56,7 +56,7 @@ void PollPoller::update_channel(Channel *channel) {
 
 void PollPoller::remove_channel(Channel *channel) {
 	auto it = channels_.find(channel->fd());
-	if (it != channels_.end()) {
+	if ((it != channels_.end()) && (channel->index() >= 0)) {
 		int idx = channel->index();
 		assert(0 <= idx && idx < static_cast<int>(pollfds_.size()));
 

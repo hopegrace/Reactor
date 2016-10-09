@@ -4,7 +4,7 @@
 #include <vector>
 #include <reactor/net/types.h>
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 class Channel;
@@ -25,6 +25,6 @@ public:
 };
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor
 
 #endif

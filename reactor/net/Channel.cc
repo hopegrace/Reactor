@@ -4,9 +4,9 @@
 #include <reactor/base/SimpleLogger.h>
 #include <reactor/net/EventLoop.h>
 
-using namespace sduzh::base;
+using namespace reactor::base;
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 void default_read_callback(int fd) {
@@ -61,4 +61,4 @@ void Channel::remove() {
 }
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor

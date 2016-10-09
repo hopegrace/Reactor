@@ -5,7 +5,7 @@
 
 using namespace std;
 
-namespace sduzh {
+namespace reactor {
 namespace base {
 
 static void defaultOutput(const char * data, size_t n) {
@@ -100,4 +100,4 @@ SimpleLogger & SimpleLogger::operator<<(const string & msg) {
 }
 
 } // namespace base
-} // namespace sduzh
+} // namespace reactor

@@ -9,7 +9,7 @@
 #include <reactor/net/InetAddress.h>
 #include <reactor/net/Callbacks.h>
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 class Channel;
@@ -53,6 +53,6 @@ private:
 };
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor
 
 #endif

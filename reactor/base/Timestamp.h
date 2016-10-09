@@ -4,7 +4,7 @@
 #include <string>
 #include <time.h>
 
-namespace sduzh {
+namespace reactor {
 
 class Timestamp
 {
@@ -70,6 +70,6 @@ inline bool operator >= (const Timestamp &lhs, const Timestamp &rhs) {
 	return (lhs > rhs) || (lhs == rhs);
 }
 
-} // namespace sduzh
+} // namespace reactor
 
 #endif // 

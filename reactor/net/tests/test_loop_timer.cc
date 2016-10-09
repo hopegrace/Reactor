@@ -1,9 +1,9 @@
 #include <reactor/base/SimpleLogger.h>
 #include <reactor/net/EventLoop.h>
 
-using namespace sduzh;
-using namespace sduzh::base;
-using namespace sduzh::net;
+using namespace reactor;
+using namespace reactor::base;
+using namespace reactor::net;
 
 void f1() {
 	 LOG(Info) << "f1";

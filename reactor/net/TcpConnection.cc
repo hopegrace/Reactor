@@ -7,9 +7,9 @@
 #include <reactor/net/SocketOpt.h>
 
 using namespace std;
-using namespace sduzh::base;
+using namespace reactor::base;
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 static void default_connection_callback(const TcpConnectionPtr &conn) {
@@ -178,5 +178,5 @@ std::string TcpConnection::str_state(StateE s) {
 }
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor
 

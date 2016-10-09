@@ -4,7 +4,7 @@
 #include <reactor/base/strings/strings.h>
 
 using namespace std;
-using namespace sduzh::base::strings;
+using namespace reactor::base::strings;
 
 using ::testing::InitGoogleTest;
 using ::testing::Test;

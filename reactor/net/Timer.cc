@@ -1,6 +1,6 @@
 #include <reactor/net/Timer.h>
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 Timer::Timer(const Timestamp &time, const TimerCallback &callback, double interval):
@@ -30,4 +30,4 @@ void Timer::run() {
 }
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor

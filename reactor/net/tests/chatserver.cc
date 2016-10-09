@@ -14,8 +14,8 @@
 #include <reactor/net/TcpServer.h>
 
 using namespace std;
-using namespace sduzh::base;
-using namespace sduzh::net;
+using namespace reactor::base;
+using namespace reactor::net;
 
 class ChatServer {
 public:

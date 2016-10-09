@@ -5,7 +5,7 @@
 #include <sys/epoll.h>
 #include <reactor/net/Poller.h>
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 class EPollPoller: public Poller {
@@ -30,6 +30,6 @@ private:
 
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor
 
 #endif

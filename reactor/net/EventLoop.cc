@@ -6,7 +6,7 @@
 #include <reactor/net/TimerId.h>
 #include <reactor/net/TimerQueue.h>
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 EventLoop::EventLoop(): 
@@ -78,6 +78,6 @@ TimerId EventLoop::run_every(double interval, const TimerCallback &cb) {
 }
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor
 
 

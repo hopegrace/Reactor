@@ -4,7 +4,7 @@
 #include <reactor/net/Connector.h>
 #include <reactor/net/TcpConnection.h>
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 class EventLoop;
@@ -50,6 +50,6 @@ private:
 };
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor
 
 #endif

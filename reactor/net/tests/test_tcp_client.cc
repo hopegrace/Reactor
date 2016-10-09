@@ -4,7 +4,7 @@
 #include <reactor/net/EventLoop.h>
 #include <reactor/net/TcpClient.h>
 
-using namespace sduzh::net;
+using namespace reactor::net;
 
 EventLoop loop;
 

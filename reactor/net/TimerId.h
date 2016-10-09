@@ -3,7 +3,7 @@
 
 #include <memory>
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 class Timer;
@@ -11,6 +11,6 @@ class Timer;
 typedef std::weak_ptr<Timer> TimerId;
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor
 
 #endif

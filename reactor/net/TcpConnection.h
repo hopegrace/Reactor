@@ -8,7 +8,7 @@
 #include <reactor/net/InetAddress.h>
 #include <reactor/net/TcpSocket.h>
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 class EventLoop;
@@ -77,6 +77,6 @@ private:
 }; 
 
 } // namespace net
-} // nemespace sduzh
+} // nemespace reactor
 
 #endif

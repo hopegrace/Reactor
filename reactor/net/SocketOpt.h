@@ -1,7 +1,7 @@
 #ifndef SDUZH_OWNLIB_NET_SOCKET_OPT_H
 #define SDUZH_OWNLIB_NET_SOCKET_OPT_H
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 class InetAddress;
@@ -24,6 +24,6 @@ int connect(int fd, const InetAddress &addr);
 
 } // namespace sockets
 } // namespace net
-} // namespace sduzh
+} // namespace reactor
 
 #endif

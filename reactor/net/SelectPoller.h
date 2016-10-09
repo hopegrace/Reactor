@@ -8,7 +8,7 @@
 #include <reactor/net/types.h>  // EVENT_NONE
 #include <reactor/net/Poller.h>
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 class SelectPoller : public Poller {
@@ -36,7 +36,7 @@ private:
 }; 
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor
 
 
 #endif

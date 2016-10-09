@@ -11,7 +11,7 @@
 #include <reactor/net/Channel.h>
 #include <reactor/net/TimerId.h>
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 class EventLoop;
@@ -55,6 +55,6 @@ private:
 };
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor
 
 #endif 

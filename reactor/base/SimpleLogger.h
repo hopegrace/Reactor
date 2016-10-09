@@ -7,7 +7,7 @@
 typedef std::function<void (const char *, unsigned int)> OutputFunc;
 typedef std::function<void ()> FlushFunc;
 
-namespace sduzh {
+namespace reactor {
 namespace base {
 
 class SimpleLogger
@@ -52,17 +52,17 @@ private:
 };
 
 } // namespace base
-} // namespace sduzh
+} // namespace reactor
 
-#define Debug   sduzh::base::SimpleLogger::Debug
-#define Info    sduzh::base::SimpleLogger::Info
-#define Warn    sduzh::base::SimpleLogger::Warn
-#define Error   sduzh::base::SimpleLogger::Error
-#define Fatal   sduzh::base::SimpleLogger::Fatal
+#define Debug   reactor::base::SimpleLogger::Debug
+#define Info    reactor::base::SimpleLogger::Info
+#define Warn    reactor::base::SimpleLogger::Warn
+#define Error   reactor::base::SimpleLogger::Error
+#define Fatal   reactor::base::SimpleLogger::Fatal
 
 
-#define LOG(level)  if (level >= sduzh::base::SimpleLogger::logLevel()) \
-	sduzh::base::SimpleLogger(level, __FILE__, "", __LINE__)
+#define LOG(level)  if (level >= reactor::base::SimpleLogger::logLevel()) \
+	reactor::base::SimpleLogger(level, __FILE__, "", __LINE__)
 
 
 #endif 

@@ -7,7 +7,7 @@
 
 #include <reactor/net/Poller.h>
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 class PollPoller : public Poller {
@@ -29,6 +29,6 @@ private:
 };
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor
 
 #endif

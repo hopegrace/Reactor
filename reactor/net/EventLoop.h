@@ -11,7 +11,7 @@
 #include <reactor/base/Timestamp.h>
 #include <reactor/net/TimerId.h>
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 class Channel;
@@ -79,6 +79,6 @@ private:
 };
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor
 
 #endif

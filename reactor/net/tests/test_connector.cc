@@ -7,7 +7,7 @@
 #include <reactor/net/EventLoop.h>
 #include <reactor/net/InetAddress.h>
 
-using namespace sduzh::net;
+using namespace reactor::net;
 
 EventLoop loop;
 

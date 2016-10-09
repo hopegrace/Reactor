@@ -4,7 +4,7 @@
 
 using namespace std;
 
-namespace sduzh {
+namespace reactor {
 namespace base {
 namespace strings {
 
@@ -121,6 +121,6 @@ double to_double(const string &s, bool *ok) {
 
 } //namespace strings
 } //namespace base
-} //namespace sduzh
+} //namespace reactor
 
 

@@ -10,7 +10,7 @@
 
 using namespace std;
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 namespace detail {
@@ -134,4 +134,4 @@ void TimerQueue::restart(const ExpireList &expires, const Timestamp &now) {
 }
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor

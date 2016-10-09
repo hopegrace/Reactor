@@ -4,7 +4,7 @@
 #include <reactor/base/SimpleLogger.h>
 #include <reactor/net/InetAddress.h>
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 TcpClient::TcpClient(EventLoop *loop, const InetAddress &servaddr):
@@ -45,4 +45,4 @@ void TcpClient::on_close(const TcpConnectionPtr &conn) {
 }
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor

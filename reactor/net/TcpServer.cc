@@ -10,9 +10,9 @@
 #include <reactor/net/TcpSocket.h>
 
 using namespace std;
-using namespace sduzh::base;
+using namespace reactor::base;
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 TcpServer::TcpServer(EventLoop *loop, const InetAddress &addr):
@@ -62,6 +62,6 @@ void TcpServer::on_close(const TcpConnectionPtr &conn) {
 }
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor
 
 

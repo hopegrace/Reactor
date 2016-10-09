@@ -9,7 +9,7 @@
 
 struct tcp_info;
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 class TcpSocket {
@@ -63,6 +63,6 @@ private:
 };
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor
 
 #endif

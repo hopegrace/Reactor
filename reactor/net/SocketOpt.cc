@@ -10,7 +10,7 @@
 
 #include <reactor/net/InetAddress.h>
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 int sockets::create_socket() {
@@ -74,4 +74,4 @@ int sockets::connect(int fd, const InetAddress &addr) {
 }
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor

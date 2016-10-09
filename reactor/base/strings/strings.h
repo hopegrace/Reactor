@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace sduzh {
+namespace reactor {
 
 namespace base {
 
@@ -48,7 +48,7 @@ void replace(std::string *s);
 
 } //namespace strings
 } //namespace base
-} //namespace sduzh
+} //namespace reactor
 
 #endif
 

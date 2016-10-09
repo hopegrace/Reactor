@@ -6,7 +6,7 @@
 #include <string.h>
 #include <vector>
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 class Buffer {
@@ -124,6 +124,6 @@ private:
 };
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor
 
 #endif

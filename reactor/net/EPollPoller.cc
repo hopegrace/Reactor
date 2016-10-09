@@ -7,9 +7,9 @@
 #include <reactor/base/SimpleLogger.h>
 #include <reactor/net/Channel.h>
 
-using namespace sduzh::base;
+using namespace reactor::base;
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 EPollPoller::EPollPoller(int size): 
@@ -98,4 +98,4 @@ uint32_t EPollPoller::to_epoll_events(int events) {
 }
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor

@@ -6,7 +6,7 @@
 #include <reactor/net/Acceptor.h>
 #include <reactor/base/SimpleLogger.h>
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 static void default_conn_callback(int fd, const InetAddress &addr, Timestamp time) {
@@ -56,4 +56,4 @@ void Acceptor::on_read() {
 }
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor

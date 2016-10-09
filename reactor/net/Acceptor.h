@@ -8,7 +8,7 @@
 #include <reactor/net/InetAddress.h>
 #include <reactor/net/TcpSocket.h>
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 class DateTime;
@@ -44,6 +44,6 @@ private:
 };
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor
 
 #endif

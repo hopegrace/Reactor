@@ -6,7 +6,7 @@
 #include <reactor/base/SimpleLogger.h>
 #include <reactor/net/Buffer.h>
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 Buffer::Buffer(size_t size):
@@ -40,4 +40,4 @@ int Buffer::read_fd(int fd) {
 }
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor

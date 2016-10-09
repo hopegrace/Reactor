@@ -5,7 +5,7 @@
 #include <reactor/net/TcpConnection.h>
 #include <reactor/net/TcpServer.h>
 
-using namespace sduzh::net;
+using namespace reactor::net;
 
 class DiscardServer {
 public:

@@ -6,7 +6,7 @@
 #include <reactor/net/SelectPoller.h>
 #include <reactor/net/Channel.h>
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 SelectPoller::SelectPoller(): Poller(), maxfd_(-1) {
@@ -112,6 +112,6 @@ void SelectPoller::update_maxfd() {
 }
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor
 
 

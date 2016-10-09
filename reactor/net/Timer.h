@@ -7,7 +7,7 @@
 #include <reactor/base/Timestamp.h>
 #include <reactor/net/Callbacks.h>
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 /// internal class for TimerQueue use
@@ -31,6 +31,6 @@ private:
 };
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor
 
 #endif

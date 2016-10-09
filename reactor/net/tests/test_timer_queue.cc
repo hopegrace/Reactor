@@ -4,9 +4,9 @@
 #include <reactor/net/TimerId.h>
 #include <reactor/net/TimerQueue.h>
 
-using namespace sduzh;
-using namespace sduzh::base;
-using namespace sduzh::net;
+using namespace reactor;
+using namespace reactor::base;
+using namespace reactor::net;
 
 EventLoop loop;
 TimerQueue queue(&loop);

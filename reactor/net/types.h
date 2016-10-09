@@ -1,7 +1,7 @@
 #ifndef SDUZH_NET_TYPES_H
 #define SDUZH_NET_TYPES_H
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 #define EVENT_NONE    0
@@ -11,6 +11,6 @@ namespace net {
 #define EVENT_CLOSE   8 
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor
 
 #endif 

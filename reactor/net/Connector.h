@@ -7,7 +7,7 @@
 #include <reactor/net/InetAddress.h>
 #include <reactor/net/TcpSocket.h>
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 class Connector {
@@ -56,6 +56,6 @@ private:
 };
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor
 
 #endif

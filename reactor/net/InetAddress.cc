@@ -5,7 +5,7 @@
 
 using namespace std;
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 typedef InetAddress::string_t string_t;
@@ -66,5 +66,5 @@ string InetAddress::to_string() const {
 }
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor
 

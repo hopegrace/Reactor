@@ -3,7 +3,7 @@
 #include <sys/time.h>
 
 
-namespace sduzh {
+namespace reactor {
 
 const char *Timestamp::kFormat = "%4d-%02d-%02d %02d:%02d:%02d.%06d";
 
@@ -31,4 +31,4 @@ Timestamp Timestamp::current()
     return Timestamp(curr.tv_sec * kMicroSecondsPerSecond + curr.tv_usec);
 }
 
-} // namespace sduzh
+} // namespace reactor

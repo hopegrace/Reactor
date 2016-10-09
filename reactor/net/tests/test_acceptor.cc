@@ -1,7 +1,7 @@
 #include <reactor/net/Acceptor.h>
 #include <reactor/net/EventLoop.h>
 
-using namespace sduzh::net;
+using namespace reactor::net;
 
 int main() {
 	EventLoop loop;

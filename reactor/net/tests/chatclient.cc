@@ -13,8 +13,8 @@
 #include <reactor/net/SelectPoller.h>
 #include <reactor/net/TcpSocket.h>
 
-using namespace sduzh::base;
-using namespace sduzh::net;
+using namespace reactor::base;
+using namespace reactor::net;
 
 int main(int argc, char *argv[])
 {

@@ -13,9 +13,9 @@
 #include <reactor/net/InetAddress.h>
 #include <reactor/net/SocketOpt.h>
 
-using namespace sduzh::base;
+using namespace reactor::base;
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 TcpSocket::TcpSocket() {
@@ -213,4 +213,4 @@ bool TcpSocket::get_tcp_info_string(char* buf, int len) const
 }
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor

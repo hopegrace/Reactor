@@ -5,7 +5,7 @@
 
 #include <reactor/net/types.h>
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 class EventLoop;
@@ -63,6 +63,6 @@ private:
 };
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor
 
 #endif

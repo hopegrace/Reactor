@@ -7,7 +7,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 class InetAddress {
@@ -40,6 +40,6 @@ private:
 }; // class InetAddress
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor
 
 #endif

@@ -11,7 +11,7 @@
 
 #include <reactor/net/Channel.h>
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 PollPoller::PollPoller():
@@ -108,4 +108,4 @@ int PollPoller::poll(ChannelList *active_channels, int timeout_ms) {
 }
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor

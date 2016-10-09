@@ -4,7 +4,7 @@
 #include <functional>
 #include <memory>
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 class TcpConnection;
@@ -19,6 +19,6 @@ typedef std::function<void (const TcpConnectionPtr &)> CloseCallback;
 typedef std::function<void ()> TimerCallback;
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor
 
 #endif

@@ -8,7 +8,7 @@
 #include <reactor/net/EventLoop.h>
 #include <reactor/net/SocketOpt.h>
 
-namespace sduzh {
+namespace reactor {
 namespace net {
 
 Connector::Connector(EventLoop *loop, const InetAddress &servaddr):
@@ -144,4 +144,4 @@ void Connector::retry() {
 }
 
 } // namespace net
-} // namespace sduzh
+} // namespace reactor

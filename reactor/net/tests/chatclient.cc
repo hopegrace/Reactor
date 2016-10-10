@@ -1,66 +1,81 @@
-#include <assert.h>
-#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <vector>
-#include <libgen.h>  // basename
+#include <functional>
+#include <libgen.h>
 #include <unistd.h>
-#include <fcntl.h>
-#include <reactor/base/Timestamp.h>
-#include <reactor/base/SimpleLogger.h>
-#include <reactor/net/InetAddress.h>
-#include <reactor/net/SelectPoller.h>
-#include <reactor/net/TcpSocket.h>
 
-using namespace reactor::base;
+#include <reactor/net/EventLoop.h>
+#include <reactor/net/InetAddress.h>
+#include <reactor/net/TcpClient.h>
+#include <reactor/net/TcpConnection.h>
+
 using namespace reactor::net;
 
-int main(int argc, char *argv[])
-{
-	if (argc != 3) {
-		printf("Usage: %s host, port\n", basename(argv[0]));
-		return 1;
+class ChatClient {
+public:
+	ChatClient(EventLoop *loop, const InetAddress &server):
+		loop_(loop),
+		client_(loop, server),
+		stdin_channel_(loop, STDIN_FILENO) {
+		
+		using namespace std::placeholders;
+		client_.set_connection_callback(std::bind(&ChatClient::on_connection, this, _1));
+		client_.set_message_callback(std::bind(&ChatClient::on_message, this, _1));
+
+		stdin_channel_.set_read_callback(std::bind(&ChatClient::on_stdin_read, this));
+		stdin_channel_.enable_read();
 	}
-	
-	uint16_t port = static_cast<uint16_t>(atoi(argv[2]));
 
-	TcpSocket conn;
-	int ret = conn.connect(InetAddress(argv[1], port));
-	if (ret < 0) {
-		perror("connect");
-		return 1;
+	void start() {
+		client_.connect();
 	}
 
-	SelectPoller poller;
-	poller.update_event(STDIN_FILENO, EVENT_READ);
-	poller.update_event(conn.fd(), EVENT_READ);
-
-	for (;;) {
-		std::vector<PollEvent> events;
-		int nevent = poller.poll(&events);
-		if (nevent <= 0) 
-			break;
-
-		char buffer[1024];
-		PollEvent event = events[0];
-		if (event.fd == STDIN_FILENO) {
-			ssize_t nread = read(STDIN_FILENO, buffer, sizeof(buffer) - 1);
-			if (nread <= 0) 
-				break;
-			buffer[nread] = '\0';
-			size_t nblank = strspn(buffer, " \t\n");
-			conn.sendall(buffer + nblank, nread - nblank);
+private:
+	void on_connection(const TcpConnectionPtr &conn) {
+		if (conn->connected()) {
+			printf("[ connected to server ]\n");
 		} else {
-			ssize_t nread = conn.recv(buffer, sizeof buffer);
-			if (nread <= 0) 
-				break;
-			ssize_t nw = write(STDOUT_FILENO, buffer, nread);
-			static_cast<void>(nw);
+			// TODO restart
+			loop_->quit();
 		}
 	}
 
-	conn.close();
+	void on_message(const TcpConnectionPtr &conn) {
+		Buffer *buffer = conn->buffer();
+		// TODO Buffer::to_string() or Buffer::read_as_string() 
+		printf("%.*s", static_cast<int>(buffer->readable_bytes()), buffer->data());
+		buffer->retrieve_all();
+	}
+
+	void on_stdin_read() {
+		char buffer[1024];
+		ssize_t nread = ::read(STDIN_FILENO, buffer, sizeof(buffer)-1);
+		if (nread > 0) {
+			buffer[nread] = '\0';
+			if (client_.connection()) {
+				client_.connection()->write(buffer);
+			}
+		}
+	}
+
+	EventLoop *loop_;
+	TcpClient client_;
+	Channel stdin_channel_;
+};
+
+int main(int argc, char *argv[]) {
+	if (argc != 3) {
+		printf("Usage: %s <server host> <server port>\n", ::basename(argv[0]));
+		return 0;
+	}
+
+	const char *server = argv[1];
+	uint16_t port = static_cast<uint16_t>(atoi(argv[2]));
+
+	EventLoop loop;
+	ChatClient client(&loop, InetAddress(server, port));
+	client.start();
+	loop.loop();
 
 	return 0;
 }

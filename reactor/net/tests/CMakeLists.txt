@@ -1,6 +1,8 @@
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
-#add_executable(chatclient chatclient.cc)
-#target_link_libraries(chatclient base net)
+
+add_executable(chatclient chatclient.cc)
+target_link_libraries(chatclient net base)
+
 add_executable(chatserver chatserver.cc)
 target_link_libraries(chatserver net base)
 

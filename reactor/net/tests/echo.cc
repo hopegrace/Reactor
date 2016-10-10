@@ -40,7 +40,7 @@ public:
 	}	
 
 	void new_message(const TcpConnectionPtr &conn) {	
-		Buffer *buffer = conn->message();
+		Buffer *buffer = conn->buffer();
 		conn->write(buffer->data(), buffer->readable_bytes());
 		buffer->clear();
 	}

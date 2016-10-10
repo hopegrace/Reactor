@@ -30,8 +30,8 @@ private:
 	}
 
 	void on_message(const TcpConnectionPtr &conn) {
-		LOG(Debug) << "receive " << static_cast<long>(conn->message()->readable_bytes()) << " bytes";
-		conn->message()->retrieve_all();
+		LOG(Debug) << "receive " << static_cast<long>(conn->buffer()->readable_bytes()) << " bytes";
+		conn->buffer()->retrieve_all();
 	}
 
 	EventLoop *loop_;

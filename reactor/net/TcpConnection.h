@@ -38,8 +38,11 @@ public:
 	/// will wait for write complete
 	void close();
 
-	Buffer *message() { return &input_buffer_; }
+	Buffer *buffer() { return &input_buffer_; }
+
+	void write(const char *str);
 	void write(const char *buffer, size_t len);
+	void write(const void *buffer, size_t len);
 
 	void set_connection_callback(const ConnectionCallback &cb) { connection_cb_ = cb; } 
 	void set_write_complete_callback(const WriteCompleteCallback &cb) { write_complete_cb_ = cb; }

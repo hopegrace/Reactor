@@ -46,14 +46,14 @@ private:
 
 	void on_message(const TcpConnectionPtr &conn) {
 		InetAddress address = conn->peer_address();
-		Buffer *msg = conn->message();
+		Buffer *buf = conn->buffer();
 		for (auto it = clients_.begin(); it != clients_.end(); ++it) {
 			TcpConnectionPtr &client = it->second;
 			if (client != conn) {
-				client->write(msg->data(), msg->readable_bytes());
-			}
+				client->write(buf->data(), buf->readable_bytes());
+			} 		
 		}
-		msg->clear();
+		buf->clear();
 	}
 
 	typedef std::map<int, TcpConnectionPtr> ClientList;

@@ -21,7 +21,7 @@ static void default_connection_callback(const TcpConnectionPtr &conn) {
 }
 
 static void default_message_callback(const TcpConnectionPtr &conn) {
-	conn->message()->clear();
+	conn->buffer()->clear();
 }
 
 TcpConnection::TcpConnection(EventLoop *loop, int fd):
@@ -74,6 +74,14 @@ string TcpConnection::get_tcp_info_string() const {
 	buffer[0] = '\0';
 	socket_.get_tcp_info_string(buffer, sizeof buffer);
 	return buffer;
+}
+
+void TcpConnection::write(const char *str) {
+	write(str, ::strlen(str));
+}
+
+void TcpConnection::write(const void *buffer, size_t len) {
+	write(static_cast<const char*>(buffer), len);
 }
 
 // TODO more efficiency

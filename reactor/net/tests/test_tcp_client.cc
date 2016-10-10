@@ -18,7 +18,7 @@ void on_connection(const TcpConnectionPtr &conn) {
 }
 
 void on_message(const TcpConnectionPtr &conn) {
-	Buffer *buffer = conn->message();
+	Buffer *buffer = conn->buffer();
 	printf("receive %lu bytes from server\n", buffer->readable_bytes());
 	buffer->retrieve_all();
 }

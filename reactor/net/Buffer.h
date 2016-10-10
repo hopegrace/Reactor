@@ -73,9 +73,11 @@ public:
 			rindex_ -= len;
 			std::copy(data, data + len, begin_read());
 		} else {
-			ensure_enough_space(len - prependable_bytes());
-			std::move_backward(begin_read(), begin_write(), begin() + len);
+			size_t n = len - prependable_bytes();
+			ensure_enough_space(n);
+			std::move_backward(begin_read(), begin_write(), begin_read() + n);
 			std::copy(data, data + len, begin());
+			windex_ += n;
 			rindex_ = 0;
 		}
 	}

@@ -84,6 +84,10 @@ void TcpConnection::write(const void *buffer, size_t len) {
 	write(static_cast<const char*>(buffer), len);
 }
 
+void TcpConnection::write(const Buffer &buffer) {
+	write(buffer.data(), buffer.readable_bytes());
+}
+
 // TODO more efficiency
 void TcpConnection::write(const char *buffer, size_t len) {
 	if (state_ == kConnected) {

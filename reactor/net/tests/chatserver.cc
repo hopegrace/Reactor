@@ -38,6 +38,7 @@ private:
 		if (conn->connected()) {
 			LOG(Info) << peer.host() << ":" << static_cast<long>(peer.port()) << " connected";
 			clients_[conn->fd()] = conn;
+			conn->write("Welcome!\n");
 		} else {
 			LOG(Info) << peer.host() << ":" << static_cast<long>(peer.port()) << " disconnected";
 			clients_.erase(conn->fd());
@@ -48,10 +49,17 @@ private:
 		InetAddress address = conn->peer_address();
 		Buffer *buf = conn->buffer();
 		for (auto it = clients_.begin(); it != clients_.end(); ++it) {
+			Buffer msg(*buf);
 			TcpConnectionPtr &client = it->second;
-			if (client != conn) {
-				client->write(buf->data(), buf->readable_bytes());
-			} 		
+
+			if (client != conn) { 
+				msg.prepend("[" + address.to_string() + "]\n>>"); 
+			} 
+			else { 
+				msg.prepend("[You Said]\n>>"); 
+			}
+
+			client->write(msg);
 		}
 		buf->clear();
 	}

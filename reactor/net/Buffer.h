@@ -15,9 +15,8 @@ public:
 
 	int read_fd(int fd);
 
-	char *data() { 
-		return &data_[rindex_]; 
-	}
+	char *data() { return begin_read(); }
+	const char *data() const { return begin_read(); }
 
 	size_t prependable_bytes() const { return rindex_; }
 	size_t readable_bytes() const { return windex_ - rindex_; }
@@ -38,6 +37,10 @@ public:
 
 	bool empty() const { return readable_bytes() == 0; }
 
+	void append(const std::string &s) {
+		append(s.c_str(), s.size());
+	}
+
 	void append(const char *data, size_t len) {
 		append(data, data + len);
 	}
@@ -49,8 +52,32 @@ public:
 	void append(const char *begin, const char *end) {
 		size_t len = end - begin;
 		ensure_enough_space(len);
-		std::copy(begin, end, data_.begin() + windex_);
+		std::copy(begin, end, begin_write());
 		has_written(len);
+	}
+
+	void prepend(const std::string &s) {
+		prepend(s.c_str(), s.size());
+	}
+	
+	void prepend(const char *s) {
+		prepend(s, ::strlen(s));
+	}
+
+	void prepend(const void *data, size_t len) {
+		prepend(static_cast<const char*>(data), len);
+	}
+
+	void prepend(const char *data, size_t len) {
+		if (len <= prependable_bytes()) {
+			rindex_ -= len;
+			std::copy(data, data + len, begin_read());
+		} else {
+			ensure_enough_space(len - prependable_bytes());
+			std::move_backward(begin_read(), begin_write(), begin() + len);
+			std::copy(data, data + len, begin());
+			rindex_ = 0;
+		}
 	}
 
 	void clear() {
@@ -115,7 +142,7 @@ private:
 		}
 	}
 
-	const static size_t kInitialReadIndex = 8;
+	const static size_t kInitialReadIndex = 32;
 	const static size_t kMaxReadIndex = 1024 * 1024;
 	
 	std::vector<char> data_;

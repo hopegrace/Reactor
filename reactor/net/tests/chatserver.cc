@@ -5,9 +5,7 @@
 #include <map>
 #include <vector>
 #include <libgen.h> // basename
-#include <reactor/base/Timestamp.h>
 #include <reactor/base/SimpleLogger.h>
-#include <reactor/net/Channel.h>
 #include <reactor/net/EventLoop.h>
 #include <reactor/net/InetAddress.h>
 #include <reactor/net/TcpConnection.h>
@@ -73,12 +71,13 @@ private:
 
 int main(int argc, char *argv[]) {
 	if (argc < 2) {
-		printf("Usage: %s listen port\n", basename(argv[0]));
+		printf("Usage: %s port\n", basename(argv[0]));
 		return 1;
 	}
 
+	uint16_t port = static_cast<uint16_t>(atoi(argv[1]));
 	EventLoop loop;
-	ChatServer server(&loop, InetAddress("0.0.0.0", 9090));
+	ChatServer server(&loop, InetAddress("0.0.0.0", port));
 	server.start();
 	loop.loop();
 

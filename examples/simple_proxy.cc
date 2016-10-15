@@ -6,6 +6,18 @@
 
 using namespace reactor::net;
 
+class Stream {
+public:
+	Stream(const TcpConnectionPtr &conn):
+		conn_(conn), 
+		client_() {
+	}
+	
+private:
+	TcpConnectionPtr conn_;
+	TcpClient client_;
+};
+
 class ProxyServer {
 public:
 	ProxyServer(EventLoop *loop, InetAddress bind_addr): 

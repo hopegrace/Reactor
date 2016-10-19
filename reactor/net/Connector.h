@@ -21,9 +21,9 @@ public:
 		connection_cb_ = cb;
 	}
 
-	void restart();
 	void start();
-	stop();
+	// restart();
+	// stop();
 
 private:
 	enum class State {
@@ -31,8 +31,6 @@ private:
 		Connecting,
 		Connected,
 	};
-
-	const char *str_state();
 
 	void on_error();
 	void on_write();

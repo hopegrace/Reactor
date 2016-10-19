@@ -1,5 +1,6 @@
 #include <memory>
 
+#include <reactor/base/SimpleLogger.h>
 #include <reactor/net/EventLoop.h>
 #include <reactor/net/TcpClient.h>
 #include <reactor/net/TcpServer.h>
@@ -8,13 +9,49 @@ using namespace reactor::net;
 
 class Stream {
 public:
-	Stream(const TcpConnectionPtr &conn):
-		conn_(conn), 
-		client_() {
+	Stream(const TcpConnectionPtr &conn, InetAddress server_addr):
+		down_stream_(conn), 
+		client_(conn->loop(), server_addr) {
+
+		using namespace std::placeholders;
+		client_.set_connection_callback(std::bind(&Stream::on_server_connection, this, _1));
+		client_.set_message_callback(std::bind(&Stream::on_server_message, this, _1));
+		client_.connect();
 	}
-	
+
+	~Stream() {
+		assert(down_stream_->disconnected());
+		client_.disconnect();
+	}
+
+	void handle_message() {
+		if (client_.connection() && client_.connection()->connected()) {
+			client_.connection()->write(*down_stream_->buffer());
+			down_stream_->buffer()->clear();
+		}
+	}
+
+	void handle_close() {
+		client_.stop();
+	}
+
 private:
-	TcpConnectionPtr conn_;
+	void on_server_connection(const TcpConnectionPtr &conn) {
+		if (conn->connected()) {
+			handle_message();
+		} else {
+			down_stream_->close();
+		}
+	}
+
+	void on_server_message(const TcpConnectionPtr &conn) {
+		if (down_stream_->connected()) {
+			down_stream_->write(*conn->buffer());
+			conn->buffer()->clear();
+		}
+	}
+
+	TcpConnectionPtr down_stream_;
 	TcpClient client_;
 };
 
@@ -38,28 +75,33 @@ public:
 
 private:
 	typedef std::unique_ptr<TcpServer> ServerPtr;
-	typedef std::unordered_map<int, TcpConnectionPtr> ClientList;
+	typedef std::shared_ptr<Stream> StreamPtr;
+	typedef std::unordered_map<TcpConnectionPtr, StreamPtr> StreamList;
 
 	void on_connection(const TcpConnectionPtr &conn) {
+		LOG(Debug) << conn->peer_address().to_string() << " state " << conn->state();
 		if (conn->connected()) {
-			assert(clients_.find(conn->fd()) == clients_.end());
-			clients_[conn->fd()] = conn;
+			assert(streams_.find(conn) == streams_.end());
+			streams_[conn] = StreamPtr(new Stream(conn, InetAddress("127.0.0.1", 9090)));
 		} else {
-			assert(clients_.find(conn->fd()) != clients_.end());
-			clients_.erase(conn->fd());
+			assert(streams_.find(conn) != streams_.end());
+			streams_.erase(conn);
 		}
 	}
 
 	void on_message(const TcpConnectionPtr &conn) {
+		assert(streams_.find(conn) != streams_.end());
+		StreamPtr stream = streams_[conn];
+		stream->handle_message();
 	}
 
 	EventLoop *loop_;	
 	ServerPtr server_;
 
-	ClientList clients_;
+	StreamList streams_;
 };
 
-int main(void) {
+int main(int argc, char *argv[]) {
 	EventLoop loop;
 	ProxyServer server(&loop, InetAddress("0.0.0.0", 9091));
 

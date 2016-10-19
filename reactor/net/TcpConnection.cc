@@ -179,7 +179,7 @@ void TcpConnection::set_tcp_nodelay(bool on) {
 	}
 }
 
-std::string TcpConnection::str_state(StateE s) {
+std::string TcpConnection::str_state(StateE s) const {
 	switch (s) {
 		case kConnecting: return "connecting";
 		case kConnected:  return "connected";

@@ -52,6 +52,9 @@ public:
 
 	void connection_established();
 
+	EventLoop *loop() const { return loop_; }
+	std::string state() const { return str_state(state_); }
+
 private:
 	void on_read();
 	void on_write();
@@ -61,7 +64,7 @@ private:
 	enum StateE { kConnecting, kConnected, kDisconnected, kDisconnecting };
 
 	void set_state(StateE s) { state_ = s; }
-	std::string str_state(StateE s);
+	std::string str_state(StateE s) const;
 
 	EventLoop *loop_;
 	TcpSocket socket_;

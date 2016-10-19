@@ -48,29 +48,11 @@ void Connector::_delete_channel() {
 	}
 }
 
-void Connector::restart() {
-	// TODO
-}
-
 void Connector::start() {
 	if (state_ == State::Disconnected) {
 		state_ = State::Connecting;
 		connect();
-	} else {
-		LOG(Debug) << "start() ignore, current state is " << str_state();
-	}
-}
-
-void Connector::stop() {
-	if (state_ == State::Connecting) {
-		assert(channel_);
-		assert(socket_ >= 0);
-		delete_channel();
-		close_socket();
-		state_ = State::Disconnected;
-	} else {
-		LOG(Debug) << "cat not stop(), current state is " << str_state();
-	}
+	} 
 }
 
 void Connector::connect() {
@@ -159,16 +141,6 @@ void Connector::retry() {
 	loop_->run_after(delay_ms_ / 1000.0, std::bind(&Connector::connect, this));
 	delay_ms_ = 2 * delay_ms_; 
 	if (delay_ms_ > 30 * 1000) { delay_ms_ = 30 * 1000; }
-}
-
-const char *Connector::str_state() {
-	switch (state_) {
-	case State::Disconnected: return "Disconnected";
-	case State::Connecting:   return "Connecting";
-	case State::Connected:    return "Connected";
-	default:
-		return "Unknown";
-	}
 }
 
 } // namespace net

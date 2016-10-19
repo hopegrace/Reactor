@@ -21,10 +21,12 @@ void TcpClient::connect() {
 
 void TcpClient::disconnect() {
 	// TODO
+	assert(!"TcpClient::disconnect() not implement");
 }
 
 void TcpClient::stop() {
 	// TODO
+	assert(!"TcpClient::stop() not implement");
 }
 
 void TcpClient::on_connected(int fd) {

@@ -17,12 +17,14 @@ Connector::Connector(EventLoop *loop, const InetAddress &servaddr):
 	socket_(-1),
 	channel_(),
 	state_(State::Disconnected),
+	timerid_(),
 	delay_ms_(5) {
 
 }
 
 Connector::~Connector() {
 	delete_channel();
+	loop_->cancel_timer(timerid_);
 }
 
 void Connector::close_socket() {
@@ -138,7 +140,8 @@ void Connector::retry() {
 	delete_channel();
 	
 	LOG(Info) << "retry connecting to " << servaddr_.to_string() << " in " << delay_ms_ << " ms";
-	loop_->run_after(delay_ms_ / 1000.0, std::bind(&Connector::connect, this));
+	loop_->cancel_timer(timerid_);
+	timerid_ = loop_->run_after(delay_ms_ / 1000.0, std::bind(&Connector::connect, this));
 	delay_ms_ = 2 * delay_ms_; 
 	if (delay_ms_ > 30 * 1000) { delay_ms_ = 30 * 1000; }
 }

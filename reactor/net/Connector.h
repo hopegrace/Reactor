@@ -6,6 +6,7 @@
 #include <reactor/net/Channel.h>
 #include <reactor/net/InetAddress.h>
 #include <reactor/net/TcpSocket.h>
+#include <reactor/net/TimerId.h>
 
 namespace reactor {
 namespace net {
@@ -50,6 +51,7 @@ private:
 
 	State state_;
 	
+	TimerId timerid_;
 	int delay_ms_;
 
 	ConnectionCallback connection_cb_;

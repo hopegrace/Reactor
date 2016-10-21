@@ -84,6 +84,10 @@ void TcpConnection::write(const void *buffer, size_t len) {
 	write(static_cast<const char*>(buffer), len);
 }
 
+void TcpConnection::write(const Buffer *buffer) {
+	write(*buffer);
+}
+
 void TcpConnection::write(const Buffer &buffer) {
 	write(buffer.data(), buffer.readable_bytes());
 }

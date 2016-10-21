@@ -43,6 +43,7 @@ public:
 	void write(const char *str);
 	void write(const char *buffer, size_t len);
 	void write(const void *buffer, size_t len);
+	void write(const Buffer *buffer);
 	void write(const Buffer &buffer);
 
 	void set_connection_callback(const ConnectionCallback &cb) { connection_cb_ = cb; } 

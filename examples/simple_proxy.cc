@@ -10,49 +10,48 @@ using namespace reactor::net;
 class Stream {
 public:
 	Stream(const TcpConnectionPtr &conn, InetAddress server_addr):
+		client_(conn->loop(), server_addr),
 		down_stream_(conn), 
-		client_(conn->loop(), server_addr) {
+		up_stream_() {
 
 		using namespace std::placeholders;
-		client_.set_connection_callback(std::bind(&Stream::on_server_connection, this, _1));
-		client_.set_message_callback(std::bind(&Stream::on_server_message, this, _1));
+		client_.set_connection_callback(std::bind(&Stream::up_stream_connection, this, _1));
+		client_.set_message_callback(std::bind(&Stream::up_stream_message, this, _1));
 		client_.connect();
 	}
 
-	~Stream() {
-		assert(down_stream_->disconnected());
-		client_.disconnect();
-	}
-
-	void handle_message() {
-		if (client_.connection() && client_.connection()->connected()) {
-			client_.connection()->write(*down_stream_->buffer());
+	void handle_down_stream_message() {
+		if (up_stream_) {
+			assert(up_stream_->connected());
+			up_stream_->write(down_stream_->buffer());
 			down_stream_->buffer()->clear();
+		} else {
+			// TODO 
 		}
 	}
 
-	void handle_close() {
-		client_.stop();
-	}
-
 private:
-	void on_server_connection(const TcpConnectionPtr &conn) {
+	void up_stream_connection(const TcpConnectionPtr &conn) {
 		if (conn->connected()) {
-			handle_message();
+			assert(!up_stream_);
+			up_stream_ = conn;
+			handle_down_stream_message();
 		} else {
+			assert(conn == up_stream_);
 			down_stream_->close();
 		}
 	}
 
-	void on_server_message(const TcpConnectionPtr &conn) {
-		if (down_stream_->connected()) {
-			down_stream_->write(*conn->buffer());
-			conn->buffer()->clear();
-		}
+	void up_stream_message(const TcpConnectionPtr &conn) {
+		assert(conn == up_stream_); (void)conn;
+		assert(down_stream_->connected());
+		down_stream_->write(up_stream_->buffer());
+		up_stream_->buffer()->clear();
 	}
 
-	TcpConnectionPtr down_stream_;
 	TcpClient client_;
+	TcpConnectionPtr down_stream_;
+	TcpConnectionPtr up_stream_;
 };
 
 class ProxyServer {
@@ -92,7 +91,7 @@ private:
 	void on_message(const TcpConnectionPtr &conn) {
 		assert(streams_.find(conn) != streams_.end());
 		StreamPtr stream = streams_[conn];
-		stream->handle_message();
+		stream->handle_down_stream_message();
 	}
 
 	EventLoop *loop_;	
@@ -104,7 +103,7 @@ private:
 int main(int argc, char *argv[]) {
 	EventLoop loop;
 	ProxyServer server(&loop, InetAddress("0.0.0.0", 9091));
-
+	LOG(Info) << "server will bind on 0.0.0.0:9091";
 	server.start();
 	loop.loop();
 	return 0;

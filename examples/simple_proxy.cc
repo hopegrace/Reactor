@@ -1,4 +1,7 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include <memory>
+#include <libgen.h> // basename
 
 #include <reactor/base/SimpleLogger.h>
 #include <reactor/net/EventLoop.h>
@@ -56,8 +59,11 @@ private:
 
 class ProxyServer {
 public:
-	ProxyServer(EventLoop *loop, InetAddress bind_addr): 
-		loop_(loop), server_(new TcpServer(loop, bind_addr)) {
+	ProxyServer(EventLoop *loop, InetAddress addr): 
+		loop_(loop), 
+		server_(new TcpServer(loop, InetAddress("0.0.0.0", 9091))),
+		remote_addr_(addr),
+		streams_() {
 
 		using namespace std::placeholders;
 		server_->set_connection_callback(std::bind(&ProxyServer::on_connection, this, _1));
@@ -81,7 +87,7 @@ private:
 		LOG(Debug) << conn->peer_address().to_string() << " state " << conn->state();
 		if (conn->connected()) {
 			assert(streams_.find(conn) == streams_.end());
-			streams_[conn] = StreamPtr(new Stream(conn, InetAddress("127.0.0.1", 9090)));
+			streams_[conn] = StreamPtr(new Stream(conn, remote_addr_));
 		} else {
 			assert(streams_.find(conn) != streams_.end());
 			streams_.erase(conn);
@@ -96,14 +102,22 @@ private:
 
 	EventLoop *loop_;	
 	ServerPtr server_;
+	InetAddress remote_addr_;
 
 	StreamList streams_;
 };
 
 int main(int argc, char *argv[]) {
+	if (argc != 3) {
+		printf("usage: %s <remote host> <remote port>\n", basename(argv[0]));
+		return 0;
+	}
+
+	uint16_t port = static_cast<uint16_t>(atoi(argv[2]));
+
 	EventLoop loop;
-	ProxyServer server(&loop, InetAddress("0.0.0.0", 9091));
-	LOG(Info) << "server will bind on 0.0.0.0:9091";
+	ProxyServer server(&loop, InetAddress(argv[1], port));
+	LOG(Info) << "proxy server binding on 0.0.0.0:9091";
 	server.start();
 	loop.loop();
 	return 0;

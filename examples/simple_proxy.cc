@@ -23,7 +23,7 @@ public:
 		client_.connect();
 	}
 
-	void handle_down_stream_message() {
+	void send() {
 		if (up_stream_) {
 			assert(up_stream_->connected());
 			up_stream_->write(down_stream_->buffer());
@@ -38,7 +38,7 @@ private:
 		if (conn->connected()) {
 			assert(!up_stream_);
 			up_stream_ = conn;
-			handle_down_stream_message();
+			send();
 		} else {
 			assert(conn == up_stream_);
 			down_stream_->close();
@@ -96,8 +96,7 @@ private:
 
 	void on_message(const TcpConnectionPtr &conn) {
 		assert(streams_.find(conn) != streams_.end());
-		StreamPtr stream = streams_[conn];
-		stream->handle_down_stream_message();
+		streams_[conn]->send();
 	}
 
 	EventLoop *loop_;	
@@ -117,7 +116,6 @@ int main(int argc, char *argv[]) {
 
 	EventLoop loop;
 	ProxyServer server(&loop, InetAddress(argv[1], port));
-	LOG(Info) << "proxy server binding on 0.0.0.0:9091";
 	server.start();
 	loop.loop();
 	return 0;

@@ -27,6 +27,8 @@ target_link_libraries(test_connector net base)
 add_executable(test_tcp_client test_tcp_client.cc)
 target_link_libraries(test_tcp_client net base)
 
+add_executable(test_http_server01 test_http_server01.cc)
+target_link_libraries(test_http_server01 http net base)
 
 
 

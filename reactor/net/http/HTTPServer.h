@@ -20,6 +20,9 @@ public:
 		server_.set_message_callback(std::bind(&HTTPServer::on_message, this, _1));
 	}
 
+	HTTPServer(const HTTPServer &) = delete;
+	HTTPServer &operator=(const HTTPServer &) = delete;
+
 	void start() { server_.start(); }
 
 private:

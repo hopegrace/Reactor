@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 	uint16_t port = static_cast<uint16_t>(atoi(argv[2]));
 
 	EventLoop loop;
-	HTTPServer server(&loop, InetAddress(argv[1], port));
+	HTTPServer server(&loop, InetAddress(argv[1], port), 0); // TODO handler
 	server.start();
 	loop.loop();
 	return 0;

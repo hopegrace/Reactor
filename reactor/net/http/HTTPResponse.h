@@ -1,11 +1,11 @@
-#ifndef REACTOR_EXAMPLE_HTTP_RESPONSE_H
-#define REACTOR_EXAMPLE_HTTP_RESPONSE_H
+#ifndef REACTOR_NET_HTTP_RESPONSE_H
+#define REACTOR_NET_HTTP_RESPONSE_H
 
 namespace reactor {
 namespace net {
 namespace http {
 
-class Response {
+class HTTPResponse {
 public:
 	void set_status(int status);
 	void set_status(int status, const string &msg);

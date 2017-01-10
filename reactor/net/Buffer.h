@@ -18,6 +18,16 @@ public:
 	char *data() { return begin_read(); }
 	const char *data() const { return begin_read(); }
 
+	char *as_str() { 
+		ensure_enough_space(1); 
+		*begin_write() = '\0'; 
+		return begin_read();
+	}
+
+	const char *as_str() const {
+		return const_cast<Buffer*>(this)->as_str();
+	}
+
 	size_t prependable_bytes() const { return rindex_; }
 	size_t readable_bytes() const { return windex_ - rindex_; }
 	size_t writable_bytes() const { return static_cast<int>(data_.size()) - windex_; }

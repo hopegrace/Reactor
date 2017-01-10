@@ -30,16 +30,18 @@ private:
 	void on_connection	(const TcpConnectionPtr &conn);
 	void on_message		(const TcpConnectionPtr &conn);
 
-	//int request_line   (reactor::net::Buffer *data, HTTPRequest *request);
-	//int request_header (reactor::net::Buffer *data, HTTPRequest *request); 
-	//int request_body   (reactor::net::Buffer *data, HTTPRequest *request);
+	int request_line   (reactor::net::Buffer *data, HTTPRequest *request);
+	int request_header (reactor::net::Buffer *data, HTTPRequest *request); 
+	int request_body   (reactor::net::Buffer *data, HTTPRequest *request);
 
 	typedef std::unordered_map<TcpConnectionPtr, HTTPRequest> ClientMap;
 
 	enum State {
 		kInit = 0,
 		kInHeader,
-		kEmptyLine, 
+		kEndHeader, 
+		kInBody,
+		kFinish,
 	};
 
 	EventLoop   *loop_;

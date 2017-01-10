@@ -5,11 +5,14 @@ namespace reactor {
 namespace net {
 namespace http {
 
+class HTTPRequest;
+class HTTPResponse;
+
 class HTTPHandler {
 public:
-	virtual void GET  (const Request &request, Response *response) = 0;
-	virtual void POST (const Request &request, Response *response) = 0;
-	virtual void HEAD (const Request &request, Response *response) = 0;
+	virtual void GET  (const HTTPRequest &request, HTTPResponse *response) = 0;
+	virtual void POST (const HTTPRequest &request, HTTPResponse *response) = 0;
+	virtual void HEAD (const HTTPRequest &request, HTTPResponse *response) = 0;
 };
 
 } // namespace http

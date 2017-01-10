@@ -20,11 +20,14 @@ public:
 
 	HTTPRequest(): state_() {}
 
-	std::string method() const;
-	std::string header(const std::string &key) const;
-	Header      headers() const;
-	std::string path() const;
-	std::string url() const;
+	std::string method() const { return method_; }
+	const Header &headers() const { return headers_; }
+	std::string path() const { return path_; }
+	std::string url() const { return url_; }
+	std::string header(const std::string &key) const { 
+		auto it = headers_.find(key);
+		return (it != headers_.end()) ? it->second : "";
+	}
 
 private:
 	int         state_;

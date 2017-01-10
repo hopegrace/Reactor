@@ -8,10 +8,10 @@ namespace http {
 class HTTPResponse {
 public:
 	void set_status(int status);
-	void set_status(int status, const string &msg);
+	void set_status(int status, const std::string &msg);
 
 	void write_header(const std::string &key, const std::string &value);
-	void write(const string &text);
+	void write(const std::string &text);
 };
 
 } // namespace http

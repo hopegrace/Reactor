@@ -18,23 +18,63 @@ public:
 	typedef std::string Value;
 	typedef std::unordered_map<Key, Value> Header;
 
-	HTTPRequest(): state_() {}
+	// constructor
+	HTTPRequest() = default;
+	~HTTPRequest() = default;
+
+	HTTPRequest(const HTTPRequest &) = default;
+	HTTPRequest & operator=(const HTTPRequest &) = default;
 
 	std::string method() const { return method_; }
 	const Header &headers() const { return headers_; }
 	std::string path() const { return path_; }
 	std::string url() const { return url_; }
+	std::string version() const { return version_; }
 	std::string header(const std::string &key) const { 
 		auto it = headers_.find(key);
 		return (it != headers_.end()) ? it->second : "";
 	}
 
 private:
-	int         state_;
+	enum State {
+		kInit = 0,
+		kHeader,
+		kBody,
+		kFinish,
+		kError,
+	};
+
+
+	// 返回处理的字节数
+	int parse(char *data);
+
+	bool finished() { 
+		return state_ == kFinish; 
+	}
+
+	int error() { 
+		return error_;
+	}
+
+	void set_error(int e) { 
+		error_ = e; 
+		state_ = kError; 
+	}
+
+	void set_state(State stat) {
+		state_ = stat;
+	}
+
+	void parse_method(char *line);
+	void parse_header(char *line);
+
+	State state_ = kInit;
+	int   error_ = 0;
 
 	std::string method_;
 	std::string path_;
 	std::string url_;
+	std::string version_;
 	Header      headers_;
 };
 

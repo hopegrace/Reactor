@@ -41,6 +41,7 @@ public:
 	Buffer *buffer() { return &input_buffer_; }
 
 	void write(const char *str);
+	void write(const std::string &str);
 	void write(const char *buffer, size_t len);
 	void write(const void *buffer, size_t len);
 	void write(const Buffer *buffer);

@@ -76,6 +76,10 @@ string TcpConnection::get_tcp_info_string() const {
 	return buffer;
 }
 
+void TcpConnection::write(const std::string &str) {
+	write(str.c_str(), str.size());
+}
+
 void TcpConnection::write(const char *str) {
 	write(str, ::strlen(str));
 }

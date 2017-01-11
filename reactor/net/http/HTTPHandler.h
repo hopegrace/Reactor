@@ -7,12 +7,19 @@ namespace http {
 
 class HTTPRequest;
 class HTTPResponse;
+class HTTPServer;
 
 class HTTPHandler {
 public:
-	virtual void GET  (const HTTPRequest &request, HTTPResponse *response) = 0;
-	virtual void POST (const HTTPRequest &request, HTTPResponse *response) = 0;
-	virtual void HEAD (const HTTPRequest &request, HTTPResponse *response) = 0;
+	friend class HTTPServer;
+
+	virtual void GET  (const HTTPRequest &request, HTTPResponse *response);
+	virtual void POST (const HTTPRequest &request, HTTPResponse *response);
+	virtual void HEAD (const HTTPRequest &request, HTTPResponse *response);
+
+private:
+	// for HTTPServer use
+	void request(const HTTPRequest &request, HTTPResponse *response);
 };
 
 } // namespace http

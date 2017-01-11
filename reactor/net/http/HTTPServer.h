@@ -20,6 +20,8 @@ public:
 		server_.set_message_callback(std::bind(&HTTPServer::on_message, this, _1));
 	}
 
+	~HTTPServer() = default;
+
 	HTTPServer(const HTTPServer &) = delete;
 	HTTPServer &operator=(const HTTPServer &) = delete;
 
@@ -30,19 +32,7 @@ private:
 	void on_connection	(const TcpConnectionPtr &conn);
 	void on_message		(const TcpConnectionPtr &conn);
 
-	int request_line   (reactor::net::Buffer *data, HTTPRequest *request);
-	int request_header (reactor::net::Buffer *data, HTTPRequest *request); 
-	int request_body   (reactor::net::Buffer *data, HTTPRequest *request);
-
 	typedef std::unordered_map<TcpConnectionPtr, HTTPRequest> ClientMap;
-
-	enum State {
-		kInit = 0,
-		kInHeader,
-		kEndHeader, 
-		kInBody,
-		kFinish,
-	};
 
 	EventLoop   *loop_;
 	TcpServer   server_;

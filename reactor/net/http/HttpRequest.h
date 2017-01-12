@@ -4,26 +4,32 @@
 #include <string>
 #include <unordered_map>
 
+#include "../TcpConnection.h"
+
 namespace reactor {
 namespace net {
 namespace http {
 
-class HTTPServer;
+class HttpServer;
 
-class HTTPRequest {
+class HttpRequest {
 public:
-	friend class HTTPServer;
+	friend class HttpServer;
 
 	typedef std::string Key;
 	typedef std::string Value;
 	typedef std::unordered_map<Key, Value> Header;
 
 	// constructor
-	HTTPRequest() = default;
-	~HTTPRequest() = default;
+	explicit HttpRequest(const TcpConnectionPtr &conn): 
+		conn_(conn) 
+	{
+	}
 
-	HTTPRequest(const HTTPRequest &) = default;
-	HTTPRequest & operator=(const HTTPRequest &) = default;
+	~HttpRequest() = default;
+
+	HttpRequest(const HttpRequest &) = default;
+	HttpRequest & operator=(const HttpRequest &) = default;
 
 	std::string method() const { return method_; }
 	const Header &headers() const { return headers_; }
@@ -34,7 +40,7 @@ public:
 		auto it = headers_.find(key);
 		return (it != headers_.end()) ? it->second : "";
 	}
-
+	
 private:
 	enum State {
 		kInit = 0,
@@ -44,9 +50,8 @@ private:
 		kError,
 	};
 
-
 	// 返回处理的字节数
-	int parse(char *data);
+	void parse();
 
 	bool finished() { 
 		return state_ == kFinish; 
@@ -67,6 +72,8 @@ private:
 
 	void parse_method(char *line);
 	void parse_header(char *line);
+
+	TcpConnectionPtr conn_;
 
 	State state_ = kInit;
 	int   error_ = 0;

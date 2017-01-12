@@ -11,7 +11,11 @@ namespace net {
 
 class Buffer {
 public:
-	Buffer(size_t size);
+	explicit Buffer(size_t size);
+	~Buffer() = default;
+
+	Buffer(const Buffer &) = default;
+	Buffer &operator=(const Buffer &) = default;
 
 	int read_fd(int fd);
 

@@ -1,9 +1,9 @@
-#include "HTTPServer.h"
+#include "HttpServer.h"
 #include <iostream>
 #include "../TcpConnection.h"
 #include "../../base/SimpleLogger.h"
-#include "HTTPHandler.h"
-#include "HTTPResponse.h"
+#include "HttpHandler.h"
+#include "HttpResponse.h"
 
 #ifndef CRLF
 #define CRLF "\r\n"
@@ -15,29 +15,31 @@ namespace reactor {
 namespace net {
 namespace http {
 
-void HTTPServer::on_connection(const TcpConnectionPtr &conn) {
+void HttpServer::on_connection(const TcpConnectionPtr &conn) {
 	bool connected = conn->connected();
 	LOG(Debug) << conn->peer_address().to_string() << (connected ? " connected" : " disconnected");
 	if (connected) {
 		assert(clients_.find(conn) == clients_.end());
-		clients_.insert(std::make_pair(conn, HTTPRequest()));
+		clients_.insert(std::make_pair(conn, HttpRequest(conn)));
 	} else if (clients_.count(conn)) {
 		clients_.erase(conn);
 	}
 }
 
-void HTTPServer::on_message(const TcpConnectionPtr &conn) {
-	assert(clients_.find(conn) != clients_.end());
-	HTTPRequest &request = clients_[conn];
+void HttpServer::on_message(const TcpConnectionPtr &conn) {
+	auto it = clients_.find(conn);
+	assert(it != clients_.end());
+	HttpRequest &request = it->second;
 	assert(!request.finished());
+	LOG(Debug) << conn->peer_address().to_string() << " message";
 
-	conn->buffer()->retrieve(request.parse(conn->buffer()->as_str()));
+	request.parse();
 	if (request.error()) {
 		// send_error
 		conn->close();
 		clients_.erase(conn);
 	} else if (request.finished()) {
-		HTTPResponse response(conn);
+		HttpResponse response(conn);
 		handler_->request(request, &response);
 		conn->close();
 		clients_.erase(conn);

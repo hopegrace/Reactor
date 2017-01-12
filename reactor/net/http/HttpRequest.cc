@@ -1,6 +1,8 @@
-#include "HTTPRequest.h"
+#include "HttpRequest.h"
 #include <assert.h>
 #include <string.h>
+
+#include "reactor/base/SimpleLogger.h"
 
 #define ERROR_RETURN(e) set_error(e); return
 
@@ -8,9 +10,9 @@ namespace reactor {
 namespace net {
 namespace http {
 
-int HTTPRequest::parse(char *data)
+void HttpRequest::parse()
 {
-	assert(data);
+	char *data = conn_->buffer()->as_str();
 	char *line = data;
 	char *crlf = nullptr;
 
@@ -24,9 +26,6 @@ int HTTPRequest::parse(char *data)
 		case kHeader:
 			parse_header(line);
 			break;
-		case kError:
-		case kFinish:
-			break;
 		default:
 			printf("unknown state %d\n", state_);
 		}
@@ -34,10 +33,12 @@ int HTTPRequest::parse(char *data)
 		line = crlf + 2; // move to next line
 	}
 
-	return static_cast<int>(line - data);
+	// TODO FORM data; 
+
+	conn_->buffer()->retrieve(static_cast<int>(line - data));
 }
 
-void HTTPRequest::parse_method(char *line)
+void HttpRequest::parse_method(char *line)
 {
 	char method[1024], url[1024], version[1024];
 	assert(state_ == kInit);
@@ -54,9 +55,6 @@ void HTTPRequest::parse_method(char *line)
 	method_ = method;
 	version_ = version;
 
-	//if (method_ != "GET" && method_ != "HEAD") {
-	//	ERROR_RETURN(1);
-	//}
 	if (url_[0] != '/') {
 		ERROR_RETURN(1);
 	}
@@ -67,7 +65,7 @@ void HTTPRequest::parse_method(char *line)
 	set_state(kHeader);
 }
 
-void HTTPRequest::parse_header(char *line)
+void HttpRequest::parse_header(char *line)
 {
 	char key[1024], value[1024];
 	size_t len = strlen(line);

@@ -1,4 +1,4 @@
-#include "HTTPResponse.h"
+#include "HttpResponse.h"
 #include "Status.h"
 
 #ifndef CRLF
@@ -9,26 +9,26 @@ namespace reactor {
 namespace net {
 namespace http {
 
-void HTTPResponse::set_status(int status)
+void HttpResponse::set_status(int status)
 {
 	if (!header_end_ && status > 0) {
 		status_ = status;
 	}
 }
 
-void HTTPResponse::write_header(const std::string &key, const std::string &value)
+void HttpResponse::write_header(const std::string &key, const std::string &value)
 {
 	if (!header_end_) {
 		headers_[key] = value;
 	}
 }
 
-void HTTPResponse::end_headers()
+void HttpResponse::end_headers()
 {
 	header_end_ = true;
 }
 
-void HTTPResponse::write(const std::string &text)
+void HttpResponse::write(const std::string &text)
 {
 	if (status_) {
 		send_headers();
@@ -37,15 +37,14 @@ void HTTPResponse::write(const std::string &text)
 	conn_->write(text);
 }
 
-void HTTPResponse::send_headers()
+void HttpResponse::send_headers()
 {
 	assert(status_ > 0);
-	/* response line */
-	conn_->write("HTTP/1.1 ");
-	conn_->write(status_);
-	conn_->write(" ");
-	conn_->write(status_text(status_));
-	conn_->write(CRLF);
+
+	char line[1024];
+
+	snprintf(line, sizeof line, "HTTP/1.1 %d %s\r\n", status_, status_text(status_).c_str());
+	conn_->write(line);
 
 	/* respose headers */
 	for (auto it = headers_.begin(); it != headers_.end(); ++it) {

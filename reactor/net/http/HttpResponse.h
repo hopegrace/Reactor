@@ -9,13 +9,13 @@ namespace reactor {
 namespace net {
 namespace http {
 
-class HTTPResponse {
+class HttpResponse {
 public:
-	HTTPResponse(const TcpConnectionPtr &conn): conn_(conn) { /**/ }
-	~HTTPResponse() = default;
+	explicit HttpResponse(const TcpConnectionPtr &conn): conn_(conn) { /**/ }
+	~HttpResponse() = default;
 
-	HTTPResponse(const HTTPResponse &) = delete;
-	HTTPResponse & operator = (const HTTPResponse &) = delete;
+	HttpResponse(const HttpResponse &) = delete;
+	HttpResponse & operator = (const HttpResponse &) = delete;
 
 	void set_status(int status);
 

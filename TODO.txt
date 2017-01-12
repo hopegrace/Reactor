@@ -2,3 +2,9 @@
 2. 各种异常情况处理
 3. 单元测试
 4. 性能测试
+5. http url-decode
+6. http form data
+7. http status code/text
+8. http body
+9. fake redis
+10. simple RPC

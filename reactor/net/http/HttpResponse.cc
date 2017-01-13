@@ -1,59 +1,42 @@
 #include "HttpResponse.h"
 #include "Status.h"
 
-#ifndef CRLF
-#define CRLF "\r\n"
-#endif
-
 namespace reactor {
 namespace net {
 namespace http {
 
 void HttpResponse::set_status(int status)
 {
-	if (!header_end_ && status > 0) {
-		status_ = status;
-	}
+	set_status(status, status_text(status));
 }
 
-void HttpResponse::write_header(const std::string &key, const std::string &value)
+void HttpResponse::set_status(int status, const std::string &text)
 {
-	if (!header_end_) {
-		headers_[key] = value;
-	}
+	status_ = status;
+	status_text_ = text;
 }
 
-void HttpResponse::end_headers()
+void HttpResponse::send(const TcpConnectionPtr &conn)
 {
-	header_end_ = true;
-}
+	char buff[20];
+	snprintf(buff, sizeof buff, "HTTP/1.1 %d ", status_);
+	conn->write(buff);
+	conn->write(status_text_);
+	conn->write("\r\n");
 
-void HttpResponse::write(const std::string &text)
-{
-	if (status_) {
-		send_headers();
-		status_ = 0; // 防止再次发送
+	snprintf(buff, sizeof buff, "%lu", body_.size());
+	headers_["Connection"] = "Close";
+	headers_["Content-Length"] = buff;
+
+	for (auto & entry: headers_) {
+		conn->write(entry.first);
+		conn->write(": ");
+		conn->write(entry.second);
+		conn->write("\r\n");
 	}
-	conn_->write(text);
-}
+	conn->write("\r\n");
 
-void HttpResponse::send_headers()
-{
-	assert(status_ > 0);
-
-	char line[1024];
-
-	snprintf(line, sizeof line, "HTTP/1.1 %d %s\r\n", status_, status_text(status_).c_str());
-	conn_->write(line);
-
-	/* respose headers */
-	for (auto it = headers_.begin(); it != headers_.end(); ++it) {
-		conn_->write(it->first);
-		conn_->write(": ");
-		conn_->write(it->second);
-		conn_->write(CRLF);
-	}
-	conn_->write(CRLF);
+	conn->write(body_);
 }
 
 } // namespace http

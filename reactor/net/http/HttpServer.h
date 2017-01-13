@@ -25,8 +25,8 @@ public:
 	HttpServer(const HttpServer &) = delete;
 	HttpServer &operator=(const HttpServer &) = delete;
 
-	void start() { server_.start(); }
-	void stop() { /* TODO */ }
+	void start() 
+	{ server_.start(); }
 
 private:
 	void on_connection	(const TcpConnectionPtr &conn);

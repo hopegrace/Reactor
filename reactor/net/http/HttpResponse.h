@@ -11,29 +11,24 @@ namespace http {
 
 class HttpResponse {
 public:
-	explicit HttpResponse(const TcpConnectionPtr &conn): conn_(conn) { /**/ }
-	~HttpResponse() = default;
-
-	HttpResponse(const HttpResponse &) = delete;
-	HttpResponse & operator = (const HttpResponse &) = delete;
-
 	void set_status(int status);
+	void set_status(int status, const std::string &text);
 
-	void write_header(const std::string &key, const std::string &value);
-	void end_headers();
-	void write(const std::string &text);
+	void write_header(const std::string &key, const std::string &value)
+	{ headers_[key] = value; }
+
+	void write(const std::string &text)
+	{ body_.append(text); }
+
+	// for HttpServer use
+	void send(const TcpConnectionPtr &conn);
 
 private:
-	typedef std::string Key;
-	typedef std::string Val;
-	typedef std::unordered_map<Key, Val> Header; 
+	typedef std::unordered_map<std::string, std::string> Header; 
 
-	void send_headers();
-
-	TcpConnectionPtr conn_;
-
-	int  status_ = 200;
-	bool header_end_ = false;
+	int status_ = 200;
+	std::string status_text_; 
+	std::string body_;
 	Header headers_;
 };
 

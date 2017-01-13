@@ -4,12 +4,10 @@
 #include <functional>
 #include <memory>
 
+#include "types.h"
+
 namespace reactor {
 namespace net {
-
-class TcpConnection;
-
-typedef std::shared_ptr<TcpConnection>  TcpConnectionPtr;
 
 typedef std::function<void (const TcpConnectionPtr &)> ConnectionCallback;
 typedef std::function<void (const TcpConnectionPtr &)> MessageCallback;

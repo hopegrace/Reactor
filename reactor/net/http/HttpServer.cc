@@ -35,12 +35,13 @@ void HttpServer::on_message(const TcpConnectionPtr &conn) {
 
 	request.parse();
 	if (request.error()) {
-		// send_error
+		// TODO send_error
 		conn->close();
 		clients_.erase(conn);
 	} else if (request.finished()) {
-		HttpResponse response(conn);
+		HttpResponse response;
 		handler_->request(request, &response);
+		response.send(conn);
 		conn->close();
 		clients_.erase(conn);
 	} 

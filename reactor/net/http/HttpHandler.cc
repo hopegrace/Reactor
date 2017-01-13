@@ -22,7 +22,12 @@ void HttpHandler::request(const HttpRequest &request, HttpResponse *response)
 void HttpHandler::GET(const HttpRequest &request, HttpResponse *response)
 {
 	printf("%s %s %s\n", request.method().c_str(), request.url().c_str(), request.version().c_str());
-	response->set_status(200);
+	printf("path  : %s\n", request.path().c_str());
+	printf("query : %s\n", request.query().c_str());
+	printf("headers:\n");
+	for (const auto &entry: request.headers()) {
+		printf("\t%s: %s\n", entry.first.c_str(), entry.second.c_str());
+	}
 	response->write("OK");
 }
 

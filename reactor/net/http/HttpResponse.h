@@ -11,6 +11,10 @@ namespace http {
 
 class HttpResponse {
 public:
+	HttpResponse(): status_(200) 
+	{
+	}
+
 	void set_status(int status);
 	void set_status(int status, const std::string &text);
 
@@ -26,7 +30,7 @@ public:
 private:
 	typedef std::unordered_map<std::string, std::string> Header; 
 
-	int status_ = 200;
+	int status_;
 	std::string status_text_; 
 	std::string body_;
 	Header headers_;

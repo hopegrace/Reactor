@@ -20,8 +20,8 @@ void HttpRequest::parse()
 		*crlf = '\0';
 
 		switch (state_) {
-		case kInit:
-			parse_method(line);
+		case kRequestLine:
+			parse_request_line(line);
 			break;
 		case kHeader:
 			parse_header(line);
@@ -38,10 +38,10 @@ void HttpRequest::parse()
 	conn_->buffer()->retrieve(static_cast<int>(line - data));
 }
 
-void HttpRequest::parse_method(char *line)
+void HttpRequest::parse_request_line(char *line)
 {
 	char method[1024], url[1024], version[1024];
-	assert(state_ == kInit);
+	assert(state_ == kRequestLine);
 
 	if (strlen(line) >= sizeof method) {
 		ERROR_RETURN(1); 
@@ -55,11 +55,20 @@ void HttpRequest::parse_method(char *line)
 	method_ = method;
 	version_ = version;
 
+	if (method_ != "GET" && method_ != "POST" && method_ != "HEAD") {
+		ERROR_RETURN(1);
+	}
 	if (url_[0] != '/') {
 		ERROR_RETURN(1);
 	}
-	if (version_ != "HTTP/1.1") {
+	if (version_ != "HTTP/1.1" && version_ != "HTTP/1.0") {
 		ERROR_RETURN(1);
+	}
+
+	size_t question = url_.find('?');
+	if (question != std::string::npos) {
+		path_ = url_.substr(0, question);
+		query_ = url_.substr(question + 1);
 	}
 
 	set_state(kHeader);

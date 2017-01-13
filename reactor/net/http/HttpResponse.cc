@@ -19,6 +19,7 @@ void HttpResponse::set_status(int status, const std::string &text)
 void HttpResponse::send(const TcpConnectionPtr &conn)
 {
 	char buff[20];
+	status_text_ = status_text_.empty() ? status_text(status_) : status_text_;
 	snprintf(buff, sizeof buff, "HTTP/1.1 %d ", status_);
 	conn->write(buff);
 	conn->write(status_text_);

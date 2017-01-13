@@ -21,8 +21,10 @@ public:
 	typedef std::unordered_map<Key, Value> Header;
 
 	// constructor
-	explicit HttpRequest(const TcpConnectionPtr &conn): 
-		conn_(conn) 
+	explicit HttpRequest(const TcpConnectionPtr &conn):
+		conn_(conn),
+		state_(kRequestLine),
+		error_(0)
 	{
 	}
 
@@ -31,11 +33,24 @@ public:
 	HttpRequest(const HttpRequest &) = default;
 	HttpRequest & operator=(const HttpRequest &) = default;
 
-	std::string method() const { return method_; }
-	const Header &headers() const { return headers_; }
-	std::string path() const { return path_; }
-	std::string url() const { return url_; }
-	std::string version() const { return version_; }
+	std::string method() const 
+	{ return method_; }
+
+	const Header &headers() const 
+	{ return headers_; }
+
+	std::string url() const 
+	{ return url_; }
+
+	std::string path() const 
+	{ return path_; }
+
+	std::string query() const 
+	{ return query_; }
+
+	std::string version() const 
+	{ return version_; }
+
 	std::string header(const std::string &key) const { 
 		auto it = headers_.find(key);
 		return (it != headers_.end()) ? it->second : "";
@@ -43,7 +58,7 @@ public:
 	
 private:
 	enum State {
-		kInit = 0,
+		kRequestLine = 0,
 		kHeader,
 		kBody,
 		kFinish,
@@ -70,17 +85,18 @@ private:
 		state_ = stat;
 	}
 
-	void parse_method(char *line);
+	void parse_request_line(char *line);
 	void parse_header(char *line);
 
 	TcpConnectionPtr conn_;
 
-	State state_ = kInit;
-	int   error_ = 0;
+	State state_;
+	int   error_;
 
 	std::string method_;
-	std::string path_;
 	std::string url_;
+	std::string path_;
+	std::string query_;
 	std::string version_;
 	Header      headers_;
 };

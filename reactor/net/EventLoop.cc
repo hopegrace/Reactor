@@ -1,5 +1,7 @@
 #include <reactor/net/EventLoop.h>
 
+#include <signal.h>
+
 #include <reactor/base/SimpleLogger.h>
 #include <reactor/net/Channel.h>
 #include <reactor/net/PollPoller.h>
@@ -8,6 +10,22 @@
 
 namespace reactor {
 namespace net {
+
+namespace {
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+class IgnoreSigPipe
+{
+ public:
+  IgnoreSigPipe()
+  {
+    ::signal(SIGPIPE, SIG_IGN);
+    // LOG_TRACE << "Ignore SIGPIPE";
+  }
+};
+#pragma GCC diagnostic error "-Wold-style-cast"
+
+IgnoreSigPipe initObj;
+}
 
 EventLoop::EventLoop(): 
 	poller_(new PollPoller()), 

@@ -2,7 +2,7 @@
 #define REACTOR_EXAMPLE_HTTP_SERVER_H
 
 #include "../TcpServer.h"
-#include "HttpRequest.h"
+#include "HttpContext.h"
 
 namespace reactor {
 namespace net {
@@ -32,7 +32,7 @@ private:
 	void on_connection	(const TcpConnectionPtr &conn);
 	void on_message		(const TcpConnectionPtr &conn);
 
-	typedef std::unordered_map<TcpConnectionPtr, HttpRequest> ClientMap;
+	typedef std::unordered_map<TcpConnectionPtr, HttpContext> ClientMap;
 
 	EventLoop   *loop_;
 	TcpServer   server_;

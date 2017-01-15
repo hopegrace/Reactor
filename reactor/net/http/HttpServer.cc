@@ -20,7 +20,7 @@ void HttpServer::on_connection(const TcpConnectionPtr &conn) {
 	LOG(Debug) << conn->peer_address().to_string() << (connected ? " connected" : " disconnected");
 	if (connected) {
 		assert(clients_.find(conn) == clients_.end());
-		clients_.insert(std::make_pair(conn, HttpRequest(conn)));
+		clients_.insert(std::make_pair(conn, HttpContext()));
 	} else if (clients_.count(conn)) {
 		clients_.erase(conn);
 	}
@@ -29,22 +29,29 @@ void HttpServer::on_connection(const TcpConnectionPtr &conn) {
 void HttpServer::on_message(const TcpConnectionPtr &conn) {
 	auto it = clients_.find(conn);
 	assert(it != clients_.end());
-	HttpRequest &request = it->second;
-	assert(!request.finished());
+	HttpContext &context = it->second;
+	assert(!context.finished());
 	LOG(Debug) << conn->peer_address().to_string() << " message";
 
-	request.parse();
-	if (request.error()) {
-		// TODO send_error
-		conn->close();
+	context.parse(conn);
+	if (context.error()) {
+		char buff[20];
+		snprintf(buff, sizeof buff, "%u ", context.error_code());
+		conn->write(buff);
+		conn->write(context.error_message());
+	} else if (context.finished()) {
+		handler_->request(context.request(), &context.response());
+		context.response().send(conn);
+	} else {
+		return;
+	}
+
+	if (context.close_connection()) {
 		clients_.erase(conn);
-	} else if (request.finished()) {
-		HttpResponse response;
-		handler_->request(request, &response);
-		response.send(conn);
 		conn->close();
-		clients_.erase(conn);
-	} 
+	} else {
+		context.reset();
+	}
 }
 
 

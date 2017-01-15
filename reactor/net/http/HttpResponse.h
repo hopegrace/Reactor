@@ -15,6 +15,10 @@ public:
 	{
 	}
 
+	~HttpResponse() = default;
+	HttpResponse(const HttpResponse &) = default;
+	HttpResponse &operator=(const HttpResponse &) = default;
+
 	void set_status(int status);
 	void set_status(int status, const std::string &text);
 

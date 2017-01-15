@@ -15,8 +15,6 @@ void HttpHandler::request(const HttpRequest &request, HttpResponse *response)
 	} else {
 		response->set_status(405);
 	}
-
-	response->write(""); // send data
 }
 
 void HttpHandler::GET(const HttpRequest &request, HttpResponse *response)

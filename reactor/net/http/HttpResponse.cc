@@ -25,7 +25,7 @@ void HttpResponse::send(const TcpConnectionPtr &conn)
 	conn->write(status_text_);
 	conn->write("\r\n");
 
-	snprintf(buff, sizeof buff, "%lu", body_.size());
+	snprintf(buff, sizeof buff, "%lu", body_.readable_bytes());
 	headers_["Content-Length"] = buff;
 
 	for (auto & entry: headers_) {

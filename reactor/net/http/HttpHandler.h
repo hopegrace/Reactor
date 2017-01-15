@@ -13,9 +13,9 @@ class HttpHandler {
 public:
 	friend class HttpServer;
 
-	virtual void GET  (const HttpRequest &request, HttpResponse *response);
-	virtual void POST (const HttpRequest &request, HttpResponse *response);
-	virtual void HEAD (const HttpRequest &request, HttpResponse *response);
+	virtual void doGet  (const HttpRequest &request, HttpResponse *response);
+	virtual void doPost (const HttpRequest &request, HttpResponse *response);
+	virtual void doHead (const HttpRequest &request, HttpResponse *response);
 
 private:
 	// for HttpServer use

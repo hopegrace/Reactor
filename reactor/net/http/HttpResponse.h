@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 
+#include "../Buffer.h"
 #include "../TcpConnection.h"
 
 namespace reactor {
@@ -11,7 +12,7 @@ namespace http {
 
 class HttpResponse {
 public:
-	HttpResponse(): status_(200) 
+	HttpResponse(): status_(200), status_text_("OK"), body_(128)
 	{
 	}
 
@@ -28,6 +29,9 @@ public:
 	void write(const std::string &text)
 	{ body_.append(text); }
 
+	void write(const char *data, size_t size)
+	{ body_.append(data, size); }
+
 	// for HttpServer use
 	void send(const TcpConnectionPtr &conn);
 
@@ -36,7 +40,7 @@ private:
 
 	int status_;
 	std::string status_text_; 
-	std::string body_;
+	Buffer body_;
 	Header headers_;
 };
 

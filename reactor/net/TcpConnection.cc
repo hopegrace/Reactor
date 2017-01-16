@@ -158,7 +158,6 @@ void TcpConnection::on_write() {
 }
 
 void TcpConnection::on_close() {
-	LOG(Debug) << "state: " << str_state(state_);
 	assert(state_ == kConnected || state_ == kDisconnecting);
 	set_state(kDisconnected);
 	channel_.disable_all();

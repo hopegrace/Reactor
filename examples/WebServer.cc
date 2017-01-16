@@ -12,22 +12,31 @@ using namespace std;
 using namespace reactor::net;
 using namespace reactor::net::http;
 
+static const char * const kErrorMessage = \
+"<!DOCTYPE html>"
+"<html>"
+"<head><title>Error</title><meta charset=\"utf-8\"></head>"
+"<body>"
+"<div style=\"text-align:center;\">"
+"<h1>%d</h1>"
+"<h2>%s</h2>"
+"</div>"
+"</body>"
+"</html>";
+
 class Handler: public HttpHandler {
 public:
 	void doGet(const HttpRequest &request, HttpResponse *response) override {
 		char realpath[1024];
 
 		if (!getcwd(realpath, sizeof realpath)) {
-			response->set_status(404);
-			response->write("can not get cwd");
+			send_error(response, 404);
 			return;
 		}
 
 		size_t len = strlen(realpath);
 		if (!strncat(realpath, request.path().c_str(), sizeof realpath - len)) {
-			response->set_status(404);
-			response->write(request.path());
-			response->write(" not exists");
+			send_error(response, 404);
 			return;
 		}
 		
@@ -41,14 +50,21 @@ public:
 				response->write(buff, nread);
 			}
 		} else {
-			response->set_status(404);
-			response->write(realpath);
-			response->write(" not exists or not a file");
+			send_error(response, 404);
 		}
 	}
 
 	void doPost(const HttpRequest &request, HttpResponse *response) override {
 		doGet(request, response);
+	}
+
+private:
+	void send_error(HttpResponse *response, int status, const char *msg=nullptr) {
+		char buff[1024];
+		msg = (msg == nullptr) ? status_text(status) : msg;
+		snprintf(buff, sizeof buff, kErrorMessage, status, msg);
+		response->set_status(status, msg);
+		response->write(buff);
 	}
 };
 

@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 
+#include "Status.h"
 #include "../Buffer.h"
 #include "../TcpConnection.h"
 
@@ -12,7 +13,7 @@ namespace http {
 
 class HttpResponse {
 public:
-	HttpResponse(): status_(200), status_text_("OK"), body_(128)
+	HttpResponse(): status_(StatusOK), status_text_("OK"), body_(128)
 	{
 	}
 

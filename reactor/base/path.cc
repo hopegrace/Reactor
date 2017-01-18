@@ -221,12 +221,14 @@ std::string normpath(const std::string &path)
 std::string realpath(const std::string &path)
 {
 	// XXX 
+	abort();
 	return "";
 }
 
 std::string relpath(const std::string &path, const std::string &start)
 {
 	// XXX
+	abort();
 	return "";
 }
 

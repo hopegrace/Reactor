@@ -1,5 +1,6 @@
 file(GLOB LIB_SOURCE 
-	"path.cc"
+	os.cc
+	path.cc
 	Timestamp.cc 
 	SimpleLogger.cc 
 	strings/strings.cc)

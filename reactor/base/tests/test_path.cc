@@ -5,18 +5,21 @@
 using namespace std;
 using namespace reactor::base;
 
-
 using ::testing::InitGoogleTest;
 using ::testing::Test;
 
 class PathTest: public Test {
 public:
-	PathTest() {
+	void SetUp() {
 		char buff[1024];
-		if(::getcwd(buff, sizeof buff)) {
+		if (::getcwd(buff, sizeof buff)) {
 			cwd = buff;
 		}
 	}
+
+	void TearDown() {
+	}
+
 protected:
 	std::string cwd;
 };
@@ -46,12 +49,8 @@ TEST_F(PathTest, dirname) {
 }
 
 TEST_F(PathTest, exists) {
-}
-
-TEST_F(PathTest, expanduser) {
-}
-
-TEST_F(PathTest, expandvars) {
+	EXPECT_TRUE(path::exists("/tmp"));
+	EXPECT_FALSE(path::exists(""));
 }
 
 TEST_F(PathTest, isabs) {
@@ -62,15 +61,19 @@ TEST_F(PathTest, isabs) {
 }
 
 TEST_F(PathTest, isdir) {
+	EXPECT_TRUE(path::isdir("/tmp"));
+	EXPECT_FALSE(path::isdir("/etc/hosts"));
 }
 
 TEST_F(PathTest, isfile) {
-}
-
-TEST_F(PathTest, islink) {
+	EXPECT_FALSE(path::isfile("/tmp"));
+	EXPECT_TRUE(path::isfile("/etc/hosts"));
+	EXPECT_FALSE(path::isfile(""));
 }
 
 TEST_F(PathTest, ismount) {
+	EXPECT_TRUE(path::ismount("/proc"));
+	EXPECT_FALSE(path::ismount("/usr"));
 }
 
 TEST_F(PathTest, join) {
@@ -94,15 +97,6 @@ TEST_F(PathTest, normpath) {
 	EXPECT_EQ(path::normpath("////a/bbb///.././."), "/a");
 	EXPECT_EQ(path::normpath("."), ".");
 	EXPECT_EQ(path::normpath(".."), "..");
-}
-
-TEST_F(PathTest, realpath) {
-}
-
-TEST_F(PathTest, relpath) {
-}
-
-TEST_F(PathTest, samefile) {
 }
 
 int main(int argc, char **argv) {

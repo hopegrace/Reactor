@@ -136,6 +136,14 @@ double to_double(const string &s, bool *ok) {
 	return f;
 }
 
+bool startswith(const std::string &s, const std::string &start) {
+	return s.size() >= start.size() && equal(s.begin(), s.begin() + start.size(), start.begin());
+}
+
+bool endswith(const std::string &s, const std::string &tail) {
+	return s.size() >= tail.size() && equal(s.end() - tail.size(), s.end(), tail.begin());
+}
+
 } //namespace strings
 } //namespace base
 } //namespace reactor

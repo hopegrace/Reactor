@@ -35,10 +35,10 @@ StringList split(const std::string &s, char sep=' ');
 std::string lower(const std::string &s);
 std::string upper(const std::string &s);
 
-/*
-bool startswith(const std::string &s);
-bool endswith(const std::string &s);
+bool startswith(const std::string &s, const std::string &start);
+bool endswith(const std::string &s, const std::string &end);
 
+/*
 bool isalnum(const std::string &s);
 bool isalpha(const std::string &s);
 bool isdigit(const std::string &s);

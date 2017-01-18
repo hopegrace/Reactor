@@ -191,6 +191,24 @@ TEST_F(StringsTest, split) {
 	EXPECT_EQ(words[1], "three");
 }
 
+TEST_F(StringsTest, startswith) {
+	EXPECT_TRUE(startswith("abc", ""));
+	EXPECT_TRUE(startswith("abc", "a"));
+	EXPECT_TRUE(startswith("abc", "ab"));
+	EXPECT_TRUE(startswith("abc", "abc"));
+	EXPECT_FALSE(startswith("abc", "abcd"));
+	EXPECT_FALSE(startswith("", "a"));
+}
+
+TEST_F(StringsTest, endswith) {
+	EXPECT_TRUE(endswith("abc", ""));
+	EXPECT_TRUE(endswith("abc", "c"));
+	EXPECT_TRUE(endswith("abc", "bc"));
+	EXPECT_TRUE(endswith("abc", "abc"));
+	EXPECT_FALSE(endswith("abc", "abcd"));
+	EXPECT_FALSE(endswith("", "a"));
+}
+
 int main(int argc, char **argv) {
 	InitGoogleTest(&argc, argv);
 

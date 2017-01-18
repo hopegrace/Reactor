@@ -1,10 +1,13 @@
 #include "path.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+#include <algorithm>
 #include <sstream>
 #include <vector>
 
+#include <pwd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -22,7 +25,7 @@ std::string getcwd()
 {
 	char buff[1024];
 	if (::getcwd(buff, sizeof buff) == NULL) {
-		perror("getcwd");
+		::perror("getcwd");
 		::abort();
 	}
 	return std::string(buff);
@@ -34,7 +37,7 @@ std::string abspath(const std::string &path)
 	if (!isabs(path)) {
 		return normpath(join(detail::getcwd(), path));
 	}
-	return normpath(ret);
+	return normpath(path);
 }
 
 std::string basename(const std::string &path) 
@@ -50,7 +53,7 @@ std::string dirname(const std::string &path)
 	if (i == string::npos)
 		return "";
 	string dir = path.substr(0, i+1);
-	if (dir.count('/') != dir.size()) 
+	if (count(dir.begin(), dir.end(), '/') != static_cast<int>(dir.size())) 
 		dir.resize(dir.size() - 1);
 	return dir;
 }
@@ -77,9 +80,10 @@ std::string expanduser(const std::string &path)
 			userhome = ::getpwuid(getuid())->pw_dir;
 		}
 	} else {
-		userhome = ::getpwnam(path.substr(1, i).c_str());
-		if (userhome == 0)
+		struct passwd *passwd = ::getpwnam(path.substr(1, i).c_str());
+		if (passwd == 0)
 			return path;
+		userhome = passwd->pw_dir;
 	}
 
 	string ret(strings::rstrip(userhome, '/') + path.substr(i));
@@ -174,7 +178,7 @@ bool lexists(const std::string &path)
 	return ::lstat(path.c_str(), &stat) == 0;
 }
 
-std::string normcase(const std::string &path) 
+std::string normpath(const std::string &path) 
 {
 	if (path.empty())
 		return ".";
@@ -184,7 +188,7 @@ std::string normcase(const std::string &path)
 	if (initial_slashes && strstr(p, "//") == 0 && strstr(p, "///") != 0) {
 		initial_slashes = 2;
 	}
-	vector<string> comps = split(path, "/");
+	vector<string> comps = strings::split(path, '/');
 	vector<string> new_comps;
 	for (const string &comp : comps) {
 		if (comp.empty() || comp==".")
@@ -203,7 +207,7 @@ std::string normcase(const std::string &path)
 		ss << '/';
 	}
 
-	for (int i = 0, sz = new_comps.size(); i < sz; i++) {
+	for (int i = 0, sz = static_cast<int>(new_comps.size()); i < sz; i++) {
 		ss << new_comps[i];
 		if (i < sz-1) {
 			ss << '/';
@@ -216,10 +220,16 @@ std::string normcase(const std::string &path)
 
 std::string realpath(const std::string &path)
 {
-
+	// XXX 
+	return "";
 }
 
-std::string relpath(const std::string &path, const std::string &start=".");
+std::string relpath(const std::string &path, const std::string &start)
+{
+	// XXX
+	return "";
+}
+
 bool samefile(const std::string &a, const std::string &b);
 // split
 // splitdrive

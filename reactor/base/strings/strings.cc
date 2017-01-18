@@ -32,14 +32,31 @@ std::string lstrip(const std::string &s) {
 	return s.substr(i);
 }
 
+std::string lstrip(const std::string &s, char c) {
+	size_t i = 0;
+	size_t sz = s.size();
+	while (i < sz && s[i]==c) { i++; }
+	return s.substr(i);
+}
+
 std::string rstrip(const std::string &s) {
 	size_t i = s.size();
 	while (i > 0 && (s[i-1]==' ' || s[i-1]=='\t')) { i--; }
 	return s.substr(0, i);
 }
 
+std::string rstrip(const std::string &s, char c) {
+	size_t i = s.size();
+	while (i > 0 && s[i-1]==c) { i--; }
+	return s.substr(0, i);
+}
+
 std::string strip(const std::string &s) {
 	return rstrip(lstrip(s));
+}
+
+std::string strip(const std::string &s, char c) {
+	return rstrip(lstrip(s, c), c);
 }
 
 void lstrip(std::string *s) {

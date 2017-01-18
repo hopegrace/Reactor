@@ -16,6 +16,10 @@ std::string lstrip(const std::string &s);
 std::string rstrip(const std::string &s); 
 std::string strip(const std::string &s);
 
+std::string lstrip(const std::string &s, char c);
+std::string rstrip(const std::string &s, char c);
+std::string strip(const std::string &s, char c);
+
 void lstrip(std::string *s); 
 void rstrip(std::string *s);
 void strip(std::string *s);

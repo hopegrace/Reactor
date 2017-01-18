@@ -29,7 +29,7 @@ bool islink(const std::string &path);
 bool ismount(const std::string &path);
 std::string join(const std::string &a, const std::string &b);
 bool lexists(const std::string &path);
-std::string normcase(const std::string &path);
+std::string normpath(const std::string &path);
 std::string realpath(const std::string &path);
 std::string relpath(const std::string &path, const std::string &start=".");
 bool samefile(const std::string &a, const std::string &b);

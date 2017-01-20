@@ -1,6 +1,7 @@
 #ifndef REACTOR_BASE_PATH_H
 #define REACTOR_BASE_PATH_H
 
+#include <utility>
 #include <string>
 
 namespace reactor {
@@ -33,9 +34,8 @@ std::string normpath(const std::string &path);
 std::string realpath(const std::string &path);
 std::string relpath(const std::string &path, const std::string &start=".");
 bool samefile(const std::string &a, const std::string &b);
-// split
-// splitdrive
-// splitext
+std::pair<std::string, std::string> split(const std::string &path);
+std::pair<std::string, std::string> splitext(const std::string &path);
 // walk
 
 } // namespace path

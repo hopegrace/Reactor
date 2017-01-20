@@ -26,29 +26,27 @@ std::string upper(const std::string &s) {
 }
 
 std::string lstrip(const std::string &s) {
-	size_t i = 0;
-	size_t sz = s.size();
-	while (i < sz && (s[i]==' ' || s[i]=='\t')) { i++; }
-	return s.substr(i);
+	std::string result(s);
+	lstrip(&result);
+	return result;
 }
 
 std::string lstrip(const std::string &s, char c) {
-	size_t i = 0;
-	size_t sz = s.size();
-	while (i < sz && s[i]==c) { i++; }
-	return s.substr(i);
+	std::string result(s);
+	lstrip(&result, c);
+	return result;
 }
 
 std::string rstrip(const std::string &s) {
-	size_t i = s.size();
-	while (i > 0 && (s[i-1]==' ' || s[i-1]=='\t')) { i--; }
-	return s.substr(0, i);
+	std::string result(s);
+	rstrip(&result);
+	return result;
 }
 
 std::string rstrip(const std::string &s, char c) {
-	size_t i = s.size();
-	while (i > 0 && s[i-1]==c) { i--; }
-	return s.substr(0, i);
+	std::string result(s);
+	rstrip(&result, c);
+	return result;
 }
 
 std::string strip(const std::string &s) {
@@ -60,21 +58,53 @@ std::string strip(const std::string &s, char c) {
 }
 
 void lstrip(std::string *s) {
-	if (s) {
-		*s = lstrip(*s);
+	size_t i = 0;
+	while (i < s->size() && ((*s)[i] == ' ' || (*s)[i] == '\t')) {
+		i++;
 	}
+
+	s->erase(0, i);
+}
+
+void lstrip(std::string *s, char c) {
+	size_t i = 0;
+	while (i < s->size() && (*s)[i] == c) {
+		i++;
+	}
+
+	s->erase(0, i);
 }
 
 void rstrip(std::string *s) {
-	if (s) {
-		*s = rstrip(*s);
+	if (s->empty())
+		return;
+	
+	int i = static_cast<int>(s->size()) - 1;
+	while (i >= 0 && ((*s)[i] == ' ' || (*s)[i] == '\t')) {
+		i--;
 	}
+	s->erase(i+1);
+}
+
+void rstrip(std::string *s, char c) {
+	if (s->empty())
+		return;
+	
+	int i = static_cast<int>(s->size()) - 1;
+	while (i >= 0 && s->at(i) == c) {
+		i--;
+	}
+	s->erase(i+1);
 }
 
 void strip(std::string *s) {
-	if (s) {
-		*s = strip(*s);
-	}
+	lstrip(s);
+	rstrip(s);
+}
+
+void strip(std::string *s, char c) {
+	lstrip(s, c);
+	rstrip(s, c);
 }
 
 StringList split(const std::string &s, char sp) {

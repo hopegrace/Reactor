@@ -218,24 +218,32 @@ std::string normpath(const std::string &path)
 	return ret.empty() ? "." : ret;
 }
 
-std::string realpath(const std::string &path)
+std::pair<std::string, std::string> split(const std::string &path) 
 {
-	// XXX 
-	abort();
-	return "";
+	size_t slash = path.rfind('/');
+	if (slash == string::npos) 
+		return make_pair("", path);
+
+	string head = path.substr(0, slash+1);
+	string tail = path.substr(slash+1);
+	strings::rstrip(&head, '/');
+	return head.empty() ? make_pair("/", tail) : make_pair(head, tail);
 }
 
-std::string relpath(const std::string &path, const std::string &start)
+std::pair<std::string, std::string> splitext(const std::string &path)
 {
-	// XXX
-	abort();
-	return "";
+	std::string basename = path::basename(path);
+	size_t dot = basename.rfind('.');
+	if (dot != string::npos) {
+		// skip all leading dots
+		for (size_t i = 0; i < dot; i++) {
+			if (basename[i] != '.') 
+				return make_pair(basename.substr(0, dot), basename.substr(dot));
+		}
+	}
+	return make_pair(path, "");
 }
 
-bool samefile(const std::string &a, const std::string &b);
-// split
-// splitdrive
-// splitext
 // walk
 
 } // namespace path

@@ -99,6 +99,34 @@ TEST_F(PathTest, normpath) {
 	EXPECT_EQ(path::normpath(".."), "..");
 }
 
+TEST_F(PathTest, split) {
+	std::pair<string, string> result;
+
+	result = path::split("");
+	EXPECT_EQ(result.first, "");
+	EXPECT_EQ(result.second, "");
+
+	result = path::split("/ab/cd/ef.txt");
+	EXPECT_EQ(result.first, "/ab/cd");
+	EXPECT_EQ(result.second, "/ef.txt");
+
+	result = path::split("/ab/cd////ef.txt");
+	EXPECT_EQ(result.first, "/ab/cd");
+	EXPECT_EQ(result.second, "/ef.txt");
+
+	result = path::split("/txt");
+	EXPECT_EQ(result.first, "/");
+	EXPECT_EQ(result.second, "/txt");
+
+	result = path::split("txt");
+	EXPECT_EQ(result.first, "txt");
+	EXPECT_EQ(result.second, "");
+}
+
+TEST_F(PathTest, splitext) {
+	//EXPECT_EQ(path::splitext("/a/b/c.d"), make_pair("c", ".d"));
+}
+
 int main(int argc, char **argv) {
 	InitGoogleTest(&argc, argv);
 

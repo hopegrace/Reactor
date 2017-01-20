@@ -3,16 +3,20 @@
 #include <stdio.h>
 
 #include "reactor/base/path.h"
+#include "reactor/base/SimpleLogger.h"
+#include "reactor/base/strings/strings.h"
 
 namespace reactor {
 namespace net {
 namespace http {
+namespace mimetypes {
 
 using namespace std;
+using namespace reactor::base;
 
 typedef map<string, string> SuffixMap;
 typedef map<string, string> EncodingMap;
-typedef map<string, string> TypeMap
+typedef map<string, string> TypeMap;
 
 static SuffixMap suffix_map = {
 	{".svgz", ".svg.gz"},
@@ -176,7 +180,7 @@ static TypeMap common_types = {
     {".pic" , "image/pict"},
     {".pict", "image/pict"},
     {".rtf" , "application/rtf"},
-    {".xul" , "text/xul"
+    {".xul" , "text/xul"},
 };
 
 static void readfp(FILE *f) {
@@ -204,29 +208,49 @@ static void readfp(FILE *f) {
 /////////////////////////////////////////////
 
 void add_type(const std::string &type, const std::string &suffix) {
-	types_map[type] = suffix;
+	types_map[suffix] = type;
 	// TODO types_map_inv
 }
 
-std::string guess_type(const std::string &path) {
-	//string basename = path::basename(path);	
-	//string extension = "";
-	//size_t dot = basename.rfind('.');
-	//if (dot != string::npos) {
-	//	// skip all leading dots
-	//	for (size_t i = 0; i < dot; i++) {
-	//		if (basename[i] != '.') {
-	//			extension = basename.substr(dot);
-	//			break;
-	//		}
-	//	}
-	//}
+void guess_type(const std::string &path, std::string *type, std::string *encoding) {
+	pair<string, string> words = path::splitext(path::basename(path)); // (base, ext)
+	while (suffix_map.find(words.second) != suffix_map.end()) {
+		words = path::splitext(words.first + suffix_map[words.second]);
+	}
 
-	//while (suffix_map.find(extension) != suffix_map.end()) {
-	//	extension = path::extension(base
-	//}
+	string base = words.first;
+	string ext = words.second;
+	LOG(Debug) << "base: " << base << " ext: " << ext;
+	if (encodings_map.find(ext) != encodings_map.end() && encoding != 0) {
+		*encoding = encodings_map[ext];
+		LOG(Debug) << "encoding: " << *encoding;
+	} 
+
+	if (types_map.find(ext) != types_map.end() && type != 0) {
+		*type = types_map[ext];
+		LOG(Debug) << "type: " << *type;
+		return;
+	}
+	
+	ext = strings::lower(ext);
+	if (types_map.find(ext) != types_map.end() && type != 0) {
+		*type = types_map[ext];
+		LOG(Debug) << "type: " << *type;
+		return;
+	}
 }
 
+void read_mime_types(const std::string &file, std::map<std::string, std::string> *mimetypes) {
+	FILE *f = fopen(file.c_str(), "r");
+	if (f) {
+		readfp(f);
+		if (mimetypes) {
+			*mimetypes = types_map;
+		}
+	}
+}
+
+} // namespace mimetypes
 } // namespace http
 } // namespace net
 } // namespace reactor

@@ -13,6 +13,7 @@
 #include "reactor/net/http/HttpHandler.h"
 #include "reactor/net/http/HttpRequest.h"
 #include "reactor/net/http/HttpResponse.h"
+#include "reactor/net/http/mimetypes.h"
 
 using namespace std;
 using namespace reactor::base;
@@ -37,6 +38,11 @@ public:
 	WebServer(EventLoop *loop, InetAddress addr):
 		server_(loop, addr, this) 
 	{
+		mimetypes::add_type("application/octet-stream", "");
+		mimetypes::add_type("text/plain", ".c");
+		mimetypes::add_type("text/plain", ".cc");
+		mimetypes::add_type("text/plain", ".h");
+		mimetypes::add_type("text/plain", ".py");
 	}
 
 	~WebServer() = default;
@@ -71,7 +77,13 @@ public:
 		} else {
 			FILE *f = fopen(abspath.c_str(), "r");
 			if (f) {
-				response->write_header("Content-type", "text/plain");
+				string type;
+				string encoding;
+				guess_type(abspath, &type, &encoding);
+				response->write_header("Content-Type", type);
+				if (encoding.size()) {
+					response->write_header("Content-Encoding", encoding);
+				}
 				char data[1024];
 				size_t nread = 0;
 				while ((nread=fread(data, 1, sizeof data, f)) > 0) {
@@ -95,6 +107,13 @@ private:
 		snprintf(buff, sizeof buff, kErrorMessage, status, msg);
 		response->set_status(status, msg);
 		response->write(buff);
+	}
+
+	void guess_type(const std::string &path, std::string *type, std::string *encoding) {
+		mimetypes::guess_type(path, type, encoding);
+		if (type->empty()) {
+			mimetypes::guess_type("", type, encoding);
+		}
 	}
 
 	HttpServer server_;

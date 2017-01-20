@@ -24,6 +24,10 @@ void lstrip(std::string *s);
 void rstrip(std::string *s);
 void strip(std::string *s);
 
+void lstrip(std::string *s, char c);
+void rstrip(std::string *s, char c);
+void strip(std::string *s, char c);
+
 int to_int(const std::string &s, bool *ok);
 unsigned int to_uint(const std::string &s, bool *ok);
 

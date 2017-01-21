@@ -38,7 +38,6 @@ public:
 	WebServer(EventLoop *loop, InetAddress addr):
 		server_(loop, addr, this) 
 	{
-		mimetypes::add_type("application/octet-stream", "");
 		mimetypes::add_type("text/plain", ".c");
 		mimetypes::add_type("text/plain", ".cc");
 		mimetypes::add_type("text/plain", ".h");
@@ -49,26 +48,36 @@ public:
 	WebServer(const WebServer &) = delete;
 	WebServer &operator=(const WebServer &) = delete;
 
-	void start() {
-		server_.start();
-	}
+	void start() 
+	{ server_.start(); }
 
 	void doGet(const HttpRequest &request, HttpResponse *response) override {
 		LOG(Debug) << "request path: " << request.path();
-		string reqpath = request.path().empty() ? "/index.html" : request.path();
-		string abspath = path::abspath(path::join(".", reqpath.substr(1)));
-		if (!startswith(abspath, path::abspath("."))) {
+		string reqpath = request.path().empty() ? "index.html" : request.path().substr(1);
+		string abspath = path::abspath(path::join(".", reqpath));
+		if (!startswith(abspath, path::abspath(".")) || !path::exists(abspath)) {
 			send_error(response, 404);
 
 		} else if (path::isdir(abspath)) {
 			char buff[1000];
 			vector<string> names = os::listdir(abspath);
-			sort(names.begin(), names.end());
+			transform(names.begin(), names.end(), names.begin(), 
+				[&reqpath](const string &path) -> string {
+					return path::isdir(path::join(reqpath, path)) ? path + "/" : path;
+				});
+
+			sort(names.begin(), names.end(), 
+				[&reqpath](const string &path_1, const string &path_2) -> bool {
+					bool b1 = (path_1.back() == '/');
+					bool b2 = (path_2.back() == '/');
+					return (b1 != b2) ? b1 : path_1 < path_2;
+				 });
+
 			response->write_header("Content-type", "text/html");
 			response->write("<!DOCTYPE html><html><head><title>list dir</title>");
 			response->write("<meta charste=\"utf-8\"></head><body>");
 			for (const auto &name: names) {
-				snprintf(buff, sizeof buff, "<p><a href=%s>%s</a></p>", 
+				snprintf(buff, sizeof buff, "<p><a href=/%s>%s</a></p>", 
 						path::join(reqpath, name).c_str(), name.c_str());
 				response->write(buff);
 			}
@@ -112,7 +121,7 @@ private:
 	void guess_type(const std::string &path, std::string *type, std::string *encoding) {
 		mimetypes::guess_type(path, type, encoding);
 		if (type->empty()) {
-			mimetypes::guess_type("", type, encoding);
+			*type = "application/octet-stream";
 		}
 	}
 

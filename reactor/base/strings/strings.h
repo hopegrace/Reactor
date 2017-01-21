@@ -5,9 +5,7 @@
 #include <vector>
 
 namespace reactor {
-
 namespace base {
-
 namespace strings {
 
 typedef std::vector<std::string> StringList;

@@ -1,0 +1,83 @@
+#include "Cookie.h"
+
+#include <algorithm>
+#include <unordered_set>
+
+#include "reactor/base/strings/strings.h"
+
+namespace reactor {
+namespace net {
+namespace http {
+
+using namespace std;
+using namespace reactor::base;
+
+static unordered_set<char> token_table { 
+	'!', '#', '$', '%', '&', '\', '*', '+', '-', '.', 
+	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 
+	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 
+	'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 
+	'U', 'W', 'V', 'X', 'Y', 'Z', '^', '_', '`', 'a', 
+	'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 
+	'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 
+	'v', 'w', 'x', 'y', 'z', '|', '~',
+};
+
+static inline bool is_token(char c)
+{
+	return token_table.find(c) != token_table.end();
+}
+
+static inline bool is_not_token(char c)
+{
+	return !is_token(c);
+}
+
+static bool is_valid_name(const std::string &name)
+{
+	return name.size() && std::find_if(name.begin(), name.end(), is_not_token) == name.end();
+}
+
+static bool is_valid_value(const std::string &value)
+{
+	for (char b: value) {
+		if (!(0x20 <= b && b < 0x7f && b != '"' && b != ';' && b != '\\'))
+			return false;
+	}
+	return true;
+}
+
+bool read_set_cookie(const std::string &raw, Cookie *cookie) 
+{
+	vector<string> items(strings::split(raw, ';'));
+	if (items.empty() || (items.size() == 1 && items[0] == ""))
+		return false;
+
+	size_t equal = items[0].find('=');
+	if (equal == string::npos)
+		return false;
+
+	string name  = strings::strip(items[0].substr(0, equal));
+	if (!is_valid_name(name)) 
+		return false;
+	string value = strings::strip(items[0].substr(equal+1));
+	if (value.size() > 1 && value[0]=='"' && value.back()=='"') {
+		value = value.substr(1, value.size()-1);
+	}
+	if (!is_valid_value(value))
+		return false;
+
+	cookie->set_name(name);
+	cookie->set_value(value);
+
+	for (size_t i = 1; i < items.size(); i++) {
+		strings::strip(&items[i]);
+		if (items[i].empty())
+			continue;
+		// TODO
+	}
+}
+
+} // namespace http
+} // namespace net
+} // namespace reactor

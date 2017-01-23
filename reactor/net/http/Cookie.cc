@@ -13,7 +13,7 @@ using namespace std;
 using namespace reactor::base;
 
 static unordered_set<char> token_table { 
-	'!', '#', '$', '%', '&', '\', '*', '+', '-', '.', 
+	'!', '#', '$', '%', '&', '\'', '*', '+', '-', '.', 
 	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 
 	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 
 	'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 
@@ -67,14 +67,19 @@ bool read_set_cookie(const std::string &raw, Cookie *cookie)
 	if (!is_valid_value(value))
 		return false;
 
-	cookie->set_name(name);
-	cookie->set_value(value);
+	if (cookie) {
+		cookie->set_name(name);
+		cookie->set_value(value);
+	}
 
 	for (size_t i = 1; i < items.size(); i++) {
 		strings::strip(&items[i]);
 		if (items[i].empty())
 			continue;
-		// TODO
+		size_t equal = items[i].find('=');
+		string attr = (equal == string::npos) ? items[i] : items[i].substr(0, equal);
+		string val  = (equal == string::npos) ? "" : items[i].substr(equal+1);
+		// TODO not finished yet
 	}
 }
 

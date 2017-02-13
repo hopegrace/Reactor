@@ -1,3 +1,8 @@
+/*
+ *
+ * DO NOT use this (not finished)
+ *
+ */
 #ifndef REACTOR_NET_HTTP_COOKIE_H
 #define REACTOR_NET_HTTP_COOKIE_H
 

@@ -1,7 +1,15 @@
+/*
+ *
+ * DO NOT use this
+ *
+ */
+#define _XOPEN_SOURCE
 #include "Cookie.h"
 
 #include <algorithm>
 #include <unordered_set>
+
+#include <time.h>
 
 #include "reactor/base/strings/strings.h"
 
@@ -67,10 +75,8 @@ bool read_set_cookie(const std::string &raw, Cookie *cookie)
 	if (!is_valid_value(value))
 		return false;
 
-	if (cookie) {
-		cookie->set_name(name);
-		cookie->set_value(value);
-	}
+	cookie->set_name(name);
+	cookie->set_value(value);
 
 	for (size_t i = 1; i < items.size(); i++) {
 		strings::strip(&items[i]);
@@ -79,7 +85,36 @@ bool read_set_cookie(const std::string &raw, Cookie *cookie)
 		size_t equal = items[i].find('=');
 		string attr = (equal == string::npos) ? items[i] : items[i].substr(0, equal);
 		string val  = (equal == string::npos) ? "" : items[i].substr(equal+1);
-		// TODO not finished yet
+		if (!is_valid_value(val))
+			return false; // TODO save unparsed value
+		string lowerAttr = strings::lower(attr);
+		if (lowerAttr == "secure") {
+			cookie->set_secure(true);
+		} else if (lowerAttr == "httponly") {
+			cookie->set_httponly(true);
+		} else if (lowerAttr == "domain") {
+			cookie->set_domain(val);
+		} else if (lowerAttr == "max-age") {
+			bool ok = false; 
+			int age = 0;
+			age = strings::to_int(val, &ok);
+			if (ok) {
+				cookie->set_max_age(age <= 0 ? -1 : age);
+			} else {
+				return false;
+			}
+		} else if (lowerAttr == "expires") {
+			static const char format[] = "%a, %d %b %Y %H:%M:%S %Z"; // rfc 1123
+			struct tm tm;
+			bzero(&tm, sizeof(tm));
+			if (strptime(str, format, &tm)) {
+				cookie->set_expires(timegm(&tm));
+			} else {
+				// TODO 
+			}
+		} else if (lowerAttr == "path") {
+			cookie->set_path(val);
+		}
 	}
 }
 

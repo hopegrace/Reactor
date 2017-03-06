@@ -1,6 +1,7 @@
 #include "mimetypes.h"
 
 #include <stdio.h>
+#include <string.h>
 
 #include "reactor/base/path.h"
 #include "reactor/base/SimpleLogger.h"
@@ -247,6 +248,9 @@ void read_mime_types(const std::string &file, std::map<std::string, std::string>
 		if (mimetypes) {
 			*mimetypes = types_map;
 		}
+		fclose(f);
+	} else {
+		LOG(Error) << strerror(errno);
 	}
 }
 

@@ -11,6 +11,7 @@
 
 #include <time.h>
 
+#include "reactor/base/SimpleLogger.h"
 #include "reactor/base/strings/strings.h"
 
 namespace reactor {
@@ -111,6 +112,8 @@ bool read_set_cookie(const std::string &raw, Cookie *cookie)
 				cookie->set_expires(timegm(&tm));
 			} else {
 				// TODO 
+				LOG(Error) << "invalid expires time format";
+				return false;
 			}
 		} else if (lowerAttr == "path") {
 			cookie->set_path(val);

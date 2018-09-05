@@ -52,3 +52,6 @@ CTestTestfile.cmake
 
 # ctags file
 tags
+
+bazel-bin/
+bazel-*/**

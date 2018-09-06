@@ -1,14 +1,14 @@
 cc_library(
     name = 'reactor', 
     srcs = glob([
-        'reactor/base/*.cc',
-        'reactor/base/strings/*.cc',
-        'reactor/net/*.cc',
+        'src/reactor/base/*.cc',
+        'src/reactor/base/strings/*.cc',
+        'src/reactor/net/*.cc',
     ]),
     hdrs = glob([
-        'reactor/base/*.h',
-        'reactor/base/strings/*.h',
-        'reactor/net/*.h',
+        'src/reactor/base/*.h',
+        'src/reactor/base/strings/*.h',
+        'src/reactor/net/*.h',
     ]),
     deps = [
         '@com_google_glog//:glog',

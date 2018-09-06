@@ -1,6 +1,6 @@
-#include "HttpHandler.h"
-#include "HttpRequest.h"
-#include "HttpResponse.h"
+#include "reactor/net/http/HttpHandler.h"
+#include "reactor/net/http/HttpRequest.h"
+#include "reactor/net/http/HttpResponse.h"
 
 namespace reactor {
 namespace net {

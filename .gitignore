@@ -53,5 +53,9 @@ CTestTestfile.cmake
 # ctags file
 tags
 
-bazel-bin/
-bazel-*/**
+bazel-bin
+bazel-Reactor
+bazel-genfiles
+bazel-out
+bazel-testlogs
+compile.output

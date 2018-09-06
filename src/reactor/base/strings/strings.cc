@@ -1,4 +1,4 @@
-#include "strings.h"
+#include "reactor/base/strings/strings.h"
 #include <cstdlib>
 #include <sstream>
 
@@ -7,7 +7,6 @@ using namespace std;
 namespace reactor {
 namespace base {
 namespace strings {
-
 
 std::string lower(const std::string &s) {
 	std::string l(s);

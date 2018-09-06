@@ -1,9 +1,9 @@
-#include "HttpServer.h"
+#include "reactor/net/http/HttpServer.h"
 #include <iostream>
-#include "../TcpConnection.h"
-#include "../../base/SimpleLogger.h"
-#include "HttpHandler.h"
-#include "HttpResponse.h"
+#include "reactor/base/SimpleLogger.h"
+#include "reactor/net/TcpConnection.h"
+#include "reactor/net/http/HttpHandler.h"
+#include "reactor/net/http/HttpResponse.h"
 
 #ifndef CRLF
 #define CRLF "\r\n"

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
-#include <reactor/base/SimpleLogger.h>
-#include <reactor/base/Timestamp.h>
+#include "reactor/base/SimpleLogger.h"
+#include "reactor/base/Timestamp.h"
 
 using namespace std;
 

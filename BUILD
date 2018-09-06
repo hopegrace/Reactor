@@ -14,8 +14,7 @@ cc_library(
         '@com_google_glog//:glog',
     ],
     visibility = [
-        #'//test:__pkg__',
-        '//examples:__pkg__',
+		"//visibility:public",
     ],
 	copts = ["-Isrc"],
 )

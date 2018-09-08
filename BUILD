@@ -18,7 +18,7 @@ cc_library(
     visibility = [
 		"//visibility:public",
     ],
-    strip_include_prefix='src/',
+    strip_include_prefix='src',
     includes=['src'],
 )
 
